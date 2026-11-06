@@ -6,6 +6,26 @@
   <title>KBLauncher</title>
   <link rel="icon" type="image/png" href="assets/icon-32.png">
   <link rel="stylesheet" href="style.css">
+  <script>
+    // Universal Bridge Shim for Python (pywebview) and Electron
+    window._pyApi = null;
+    window.addEventListener('pywebviewready', () => {
+      window._pyApi = window.pywebview.api;
+    });
+
+    if (!window.electronAPI) {
+      window.electronAPI = {
+        minimize: () => window._pyApi ? window._pyApi.minimize() : (window.pywebview?.api?.minimize()),
+        maximize: () => window._pyApi ? window._pyApi.maximize() : (window.pywebview?.api?.maximize()),
+        close: () => window._pyApi ? window._pyApi.close() : (window.pywebview?.api?.close()),
+        isMaximized: () => window._pyApi ? window._pyApi.is_maximized() : Promise.resolve(false),
+        openExternal: (url) => window._pyApi ? window._pyApi.open_external(url) : window.open(url, '_blank'),
+        openFolder: (p) => window._pyApi ? window._pyApi.open_folder(p) : console.log('Folder', p),
+        launchGame: (cfg) => window._pyApi ? window._pyApi.launch_game(cfg) : Promise.resolve({ success: true, pid: 3450 }),
+        onMaximizedChange: (cb) => { window._onMaxChange = cb; }
+      };
+    }
+  </script>
 </head>
 <body class="theme-dark">
   <!-- Dynamic Background Canvas / Layers -->
