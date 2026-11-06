@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KBLauncher — Каталог эксклюзивных скинов KB & KBL</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      overflow-y: auto;
+      background: #0b0914 url('assets/bg-sunset.png') no-repeat center bottom fixed;
+      background-size: cover;
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+
+    .showcase-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .showcase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      background: rgba(18, 14, 34, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 20px 28px;
+    }
+
+    .showcase-title-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .showcase-title-row img {
+      width: 44px;
+      height: 44px;
+    }
+
+    .showcase-h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(135deg, #fff 40%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .showcase-subtitle {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+    }
+
+    /* Collection Switcher Tabs */
+    .collections-nav-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      background: rgba(18, 14, 34, 0.6);
+      backdrop-filter: blur(15px);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      width: fit-content;
+    }
+
+    .collection-tab-btn {
+      padding: 10px 20px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .collection-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .collection-tab-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, #7c3aed, #9333ea);
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    }
+
+    .showcase-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* 3D Sticky Viewer */
+    .viewer-sticky-card {
+      position: sticky;
+      top: 24px;
+      background: rgba(18, 14, 34, 0.85);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.15);
+    }
+
+    .viewer-canvas-box {
+      width: 100%;
+      height: 420px;
+      background: radial-gradient(circle at 50% 30%, rgba(139, 92, 246, 0.15) 0%, rgba(12, 9, 24, 0.8) 75%);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #showcase-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #showcase-canvas:active {
+      cursor: grabbing;
+    }
+
+    .viewer-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #c084fc;
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+
+    .viewer-branding-chip {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(124, 58, 237, 0.35);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .viewer-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn-view-ctrl {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-view-ctrl:hover {
+      background: rgba(168, 85, 247, 0.25);
+      border-color: rgba(168, 85, 247, 0.5);
+    }
+
+    .viewer-current-meta {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .meta-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .meta-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    /* Cards Grid */
+    .skins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .skin-card {
+      background: rgba(22, 17, 40, 0.75);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .skin-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(168, 85, 247, 0.5);
+      background: rgba(30, 24, 55, 0.85);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(168, 85, 247, 0.2);
+    }
+
+    .skin-card.active {
+      border-color: #a855f7;
+      background: rgba(40, 28, 75, 0.85);
+      box-shadow: 0 0 0 2px #a855f7, 0 12px 30px rgba(168, 85, 247, 0.3);
+    }
+
+    .skin-card-top {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .skin-card-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      image-rendering: pixelated;
+      background: #0f0a1c;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .skin-card-num {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.35);
+      padding: 2px 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+    }
+
+    .skin-card-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .skin-card-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: #c084fc;
+      margin-top: 2px;
+    }
+
+    .skin-card-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.4;
+      flex: 1;
+      margin-bottom: 12px;
+    }
+
+    .skin-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-select-skin {
+      flex: 1;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, #7c3aed, #9333ea);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-select-skin:hover {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-download-raw {
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 11px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .btn-download-raw:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-container">
+    
+    <!-- Top Header -->
+    <header class="showcase-header">
+      <div class="showcase-title-row">
+        <img src="assets/kbl-logo-circle.png" alt="KBL Logo">
+        <div>
+          <h1 class="showcase-h1">KBLauncher — Коллекция скинов KB & KBL</h1>
+          <div class="showcase-subtitle">Минималистичный стритвир-дизайн, гармоничные цвета OKLCH, брендинг «KB» и «KBL». Нажмите для 3D-просмотра!</div>
+        </div>
+      </div>
+      <div>
+        <a href="index.html" class="primary-play-btn" style="text-decoration:none;display:inline-flex;padding:10px 18px;font-size:13px;">
+          <span>← Вернуться в лаунчер</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Collection Switcher -->
+    <div class="collections-nav-bar">
+      <button class="collection-tab-btn active" id="tab-minimal" data-col="minimal">
+        ✨ Эксклюзивная коллекция KB & KBL (11 скинов)
+      </button>
+      <button class="collection-tab-btn" id="tab-cyber" data-col="variants">
+        ⚡ Предыдущие 10 концептов (Cyber & Synthwave)
+      </button>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="showcase-layout">
+      
+      <!-- Left: Sticky 3D WebGL Viewer -->
+      <aside class="viewer-sticky-card">
+        <div class="viewer-canvas-box">
+          <canvas id="showcase-canvas" width="370" height="420"></canvas>
+          <div class="viewer-badge" id="active-skin-tag">Черный Оверсайз</div>
+          <div class="viewer-branding-chip" id="active-skin-branding">KB + KBL</div>
+        </div>
+
+        <div class="viewer-controls">
+          <button class="btn-view-ctrl" id="btn-toggle-anim">Пауза анимации</button>
+          <button class="btn-view-ctrl" id="btn-toggle-cape">Плащ: ВКЛ</button>
+          <button class="btn-view-ctrl" id="btn-reset-cam">Сбросить вид</button>
+        </div>
+
+        <div class="viewer-current-meta">
+          <div class="meta-title" id="active-skin-title">KB Onyx Hoodie</div>
+          <div class="meta-desc" id="active-skin-desc">Матовый черный оверсайз-худи с белым центрированным лого KB и KBL на спине</div>
+        </div>
+      </aside>
+
+      <!-- Right: Grid of Cards -->
+      <main class="skins-grid" id="skins-grid-container">
+        <!-- Rendered dynamically -->
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="skin_3d_renderer.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('showcase-canvas');
+      const skinViewer = new MinecraftSkin3D(canvas);
+
+      let currentCollection = 'minimal';
+      let skinsData = [];
+      let activeSkinIndex = 0;
+
+      const grid = document.getElementById('skins-grid-container');
+      const titleEl = document.getElementById('active-skin-title');
+      const tagEl = document.getElementById('active-skin-tag');
+      const descEl = document.getElementById('active-skin-desc');
+      const brandingEl = document.getElementById('active-skin-branding');
+
+      async function loadCollection(colType) {
+        currentCollection = colType;
+        const subfolder = colType === 'minimal' ? 'kbl_minimal' : 'kbl_variants';
+        try {
+          const res = await fetch(`skins_catalog/${subfolder}/manifest.json`);
+          skinsData = await res.json();
+          renderGrid(subfolder);
+          selectSkin(0, subfolder);
+        } catch (err) {
+          console.error('Failed to load manifest:', err);
+        }
+      }
+
+      function selectSkin(index, subfolder) {
+        activeSkinIndex = index;
+        const item = skinsData[index];
+        if (!item) return;
+
+        subfolder = subfolder || (currentCollection === 'minimal' ? 'kbl_minimal' : 'kbl_variants');
+
+        document.querySelectorAll('.skin-card').forEach((c, idx) => {
+          c.classList.toggle('active', idx === index);
+        });
+
+        skinViewer.loadSkin(`skins_catalog/${subfolder}/${item.skinFile}`);
+
+        titleEl.textContent = item.name;
+        tagEl.textContent = item.tag;
+        descEl.textContent = item.desc;
+        brandingEl.textContent = item.branding || (item.tag);
+      }
+
+      function renderGrid(subfolder) {
+        grid.innerHTML = '';
+        skinsData.forEach((item, index) => {
+          const card = document.createElement('div');
+          card.className = `skin-card ${index === 0 ? 'active' : ''}`;
+          card.innerHTML = `
+            <div class="skin-card-num">#${item.index}</div>
+            <div class="skin-card-top">
+              <img class="skin-card-avatar" src="skins_catalog/${subfolder}/${item.avatarFile}" alt="${item.name}">
+              <div>
+                <div class="skin-card-name">${item.name}</div>
+                <div class="skin-card-tag">${item.tag} ${item.branding ? `• ${item.branding}` : ''}</div>
+              </div>
+            </div>
+            <div class="skin-card-desc">${item.desc}</div>
+            <div class="skin-card-actions">
+              <button class="btn-select-skin">Вращать в 3D</button>
+              <a href="skins_catalog/${subfolder}/${item.skinFile}" download="${item.skinFile}" class="btn-download-raw" title="Скачать .png">⬇ PNG</a>
+            </div>
+          `;
+
+          card.addEventListener('click', () => selectSkin(index, subfolder));
+          grid.appendChild(card);
+        });
+      }
+
+      // Initial load: minimal collection
+      loadCollection('minimal');
+
+      // Collection Switcher Tabs
+      document.querySelectorAll('.collection-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.collection-tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          loadCollection(btn.getAttribute('data-col'));
+        });
+      });
+
+      // Controls
+      const animBtn = document.getElementById('btn-toggle-anim');
+      animBtn.addEventListener('click', () => {
+        skinViewer.animating = !skinViewer.animating;
+        animBtn.textContent = skinViewer.animating ? 'Пауза анимации' : 'Включить анимацию';
+      });
+
+      const capeBtn = document.getElementById('btn-toggle-cape');
+      let capeOn = true;
+      capeBtn.addEventListener('click', () => {
+        capeOn = !capeOn;
+        skinViewer.loadCape(capeOn ? 'assets/cape-founder.png' : 'none');
+        capeBtn.textContent = capeOn ? 'Плащ: ВКЛ' : 'Плащ: ВЫКЛ';
+      });
+
+      document.getElementById('btn-reset-cam').addEventListener('click', () => {
+        skinViewer.rotX = 0.10;
+        skinViewer.rotY = 0.42;
+        skinViewer.zoom = 62.0;
+      });
+    });
+  </script>
+</body>
+</html>

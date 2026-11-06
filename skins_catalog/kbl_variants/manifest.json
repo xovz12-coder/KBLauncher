@@ -1,0 +1,102 @@
+[
+  {
+    "index": 1,
+    "id": "kbl_01_cyber_neon",
+    "name": "KBL Cyber Neon",
+    "tag": "Сайбер Неон",
+    "desc": "Высокотехнологичный киберкостюм с неоновыми цепями, визором HUD и ядром KBL",
+    "skinFile": "kbl_01_cyber_neon.png",
+    "avatarFile": "kbl_01_cyber_neon_avatar.png",
+    "previewFile": "kbl_01_cyber_neon_preview.png"
+  },
+  {
+    "index": 2,
+    "id": "kbl_02_synthwave_sunset",
+    "name": "KBL Synthwave Sunset",
+    "tag": "Синтвейв Сансет",
+    "desc": "Ретро-бомбер 80-х с закатным градиентом, авиаторами и неоновыми кроссовками",
+    "skinFile": "kbl_02_synthwave_sunset.png",
+    "avatarFile": "kbl_02_synthwave_sunset_avatar.png",
+    "previewFile": "kbl_02_synthwave_sunset_preview.png"
+  },
+  {
+    "index": 3,
+    "id": "kbl_03_gold_founder",
+    "name": "KBL Gold Founder",
+    "tag": "Основатель 24K",
+    "desc": "Королевский бархатный худи с 24K золотой филигранью, лавровой короной и рубином",
+    "skinFile": "kbl_03_gold_founder.png",
+    "avatarFile": "kbl_03_gold_founder_avatar.png",
+    "previewFile": "kbl_03_gold_founder_preview.png"
+  },
+  {
+    "index": 4,
+    "id": "kbl_04_void_walker",
+    "name": "KBL Void Walker",
+    "tag": "Странник Бездны",
+    "desc": "Мистический странник Края с мерцающими фиолетовыми разломами и частицами",
+    "skinFile": "kbl_04_void_walker.png",
+    "avatarFile": "kbl_04_void_walker_avatar.png",
+    "previewFile": "kbl_04_void_walker_preview.png"
+  },
+  {
+    "index": 5,
+    "id": "kbl_05_mecha_titan",
+    "name": "KBL Mecha Titan",
+    "tag": "Боевой Меха",
+    "desc": "Тяжелый титановый экзоскелет с дуговым реактором и оптическим визором",
+    "skinFile": "kbl_05_mecha_titan.png",
+    "avatarFile": "kbl_05_mecha_titan_avatar.png",
+    "previewFile": "kbl_05_mecha_titan_preview.png"
+  },
+  {
+    "index": 6,
+    "id": "kbl_06_street_hoodie",
+    "name": "KBL Streetwear Hoodie",
+    "tag": "Уличный Оверсайз",
+    "desc": "Трендовый оверсайз-худи с принтом KBL, RGB-наушниками и брюками-карго",
+    "skinFile": "kbl_06_street_hoodie.png",
+    "avatarFile": "kbl_06_street_hoodie_avatar.png",
+    "previewFile": "kbl_06_street_hoodie_preview.png"
+  },
+  {
+    "index": 7,
+    "id": "kbl_07_shadow_hacker",
+    "name": "KBL Shadow Hacker",
+    "tag": "Кибер-Хакер",
+    "desc": "Скрытный хакер в глубоком капюшоне с зеленым AR-монокуляром и датападом",
+    "skinFile": "kbl_07_shadow_hacker.png",
+    "avatarFile": "kbl_07_shadow_hacker_avatar.png",
+    "previewFile": "kbl_07_shadow_hacker_preview.png"
+  },
+  {
+    "index": 8,
+    "id": "kbl_08_obsidian_knight",
+    "name": "KBL Obsidian Knight",
+    "tag": "Обсидиановый Рыцарь",
+    "desc": "Древние латы из полированного незерита и обсидиана с аметистовыми рунами",
+    "skinFile": "kbl_08_obsidian_knight.png",
+    "avatarFile": "kbl_08_obsidian_knight_avatar.png",
+    "previewFile": "kbl_08_obsidian_knight_preview.png"
+  },
+  {
+    "index": 9,
+    "id": "kbl_09_vapor_glitch",
+    "name": "KBL Vaporwave Glitch",
+    "tag": "Вейпорвейв Глитч",
+    "desc": "Ретровейв с двухцветными волосами, глитч-очками и геометрической ветровкой",
+    "skinFile": "kbl_09_vapor_glitch.png",
+    "avatarFile": "kbl_09_vapor_glitch_avatar.png",
+    "previewFile": "kbl_09_vapor_glitch_preview.png"
+  },
+  {
+    "index": 10,
+    "id": "kbl_10_arctic_specops",
+    "name": "KBL Arctic SpecOps",
+    "tag": "Арктический Спецназ",
+    "desc": "Арктический тактический спецкостюм с меховым воротником и крио-подсветкой",
+    "skinFile": "kbl_10_arctic_specops.png",
+    "avatarFile": "kbl_10_arctic_specops_avatar.png",
+    "previewFile": "kbl_10_arctic_specops_preview.png"
+  }
+]

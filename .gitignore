@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build and releases
+dist/
+build/
+releases/
+mingit/
+mingit.zip
+
+# Logs and environment
+*.log
+.env
+.DS_Store
+Thumbs.db

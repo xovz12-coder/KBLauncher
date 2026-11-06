@@ -1,0 +1,123 @@
+[
+  {
+    "index": 1,
+    "id": "kbl_min_01_onyx_hoodie",
+    "name": "KB Onyx Hoodie",
+    "tag": "Черный Оверсайз",
+    "branding": "KB + KBL",
+    "desc": "Черный матовый худи с четким белым лого KB спереди и вертикальным KBL на спине",
+    "skinFile": "kbl_min_01_onyx_hoodie.png",
+    "avatarFile": "kbl_min_01_onyx_hoodie_avatar.png",
+    "previewFile": "kbl_min_01_onyx_hoodie_preview.png"
+  },
+  {
+    "index": 2,
+    "id": "kbl_min_02_oat_sweatshirt",
+    "name": "KB Oat Sweatshirt",
+    "tag": "Скандинавский Крем",
+    "branding": "KB + KBL",
+    "desc": "Кремовый свитшот с контрастным глубоким фиолетовым KB спереди и KBL на спине",
+    "skinFile": "kbl_min_02_oat_sweatshirt.png",
+    "avatarFile": "kbl_min_02_oat_sweatshirt_avatar.png",
+    "previewFile": "kbl_min_02_oat_sweatshirt_preview.png"
+  },
+  {
+    "index": 3,
+    "id": "kbl_min_03_midnight_stealth",
+    "name": "KB Midnight Stealth",
+    "tag": "Полуночный Циан",
+    "branding": "KB + KBL",
+    "desc": "Темно-индиго худи с ярким неоновым электрик-циановым логотипом KB и KBL",
+    "skinFile": "kbl_min_03_midnight_stealth.png",
+    "avatarFile": "kbl_min_03_midnight_stealth_avatar.png",
+    "previewFile": "kbl_min_03_midnight_stealth_preview.png"
+  },
+  {
+    "index": 4,
+    "id": "kbl_min_04_white_streetwear",
+    "name": "KB White Streetwear",
+    "tag": "Чистый Стритвир",
+    "branding": "KB + KBL",
+    "desc": "Белая оверсайз-футболка с контрастным черным лого KB спереди и KBL на спине",
+    "skinFile": "kbl_min_04_white_streetwear.png",
+    "avatarFile": "kbl_min_04_white_streetwear_avatar.png",
+    "previewFile": "kbl_min_04_white_streetwear_preview.png"
+  },
+  {
+    "index": 5,
+    "id": "kbl_min_05_sand_dune_knit",
+    "name": "⭐ KB Sand Dune Knit",
+    "tag": "Песочный Вязаный",
+    "branding": "KB",
+    "desc": "Любимый скин: песочный свитер фактурной вязки, темные волосы-шторки, брюки айвори с ремнем и лоферами",
+    "skinFile": "kbl_min_05_sand_dune_knit.png",
+    "avatarFile": "kbl_min_05_sand_dune_knit_avatar.png",
+    "previewFile": "kbl_min_05_sand_dune_knit_preview.png"
+  },
+  {
+    "index": 6,
+    "id": "kbl_min_06_sand_dune_white",
+    "name": "⭐ KB Sand Dune (White Edition)",
+    "tag": "White Edition",
+    "branding": "KB",
+    "desc": "Копия любимого скина: платиново-белые волосы (шторки), сапфировые глаза, белые брюки со складками и 3D-подворотами",
+    "skinFile": "kbl_min_06_sand_dune_white.png",
+    "avatarFile": "kbl_min_06_sand_dune_white_avatar.png",
+    "previewFile": "kbl_min_06_sand_dune_white_preview.png"
+  },
+  {
+    "index": 7,
+    "id": "kbl_min_07_emerald_varsity",
+    "name": "KB Emerald Varsity",
+    "tag": "Изумрудный Бомбер",
+    "branding": "KB + KBL",
+    "desc": "Колледж-бомбер цвета изумруда с айвори рукавами и четкой нашивкой KB",
+    "skinFile": "kbl_min_07_emerald_varsity.png",
+    "avatarFile": "kbl_min_07_emerald_varsity_avatar.png",
+    "previewFile": "kbl_min_07_emerald_varsity_preview.png"
+  },
+  {
+    "index": 8,
+    "id": "kbl_min_08_graphite_minimal",
+    "name": "KB Graphite Minimal",
+    "tag": "Графит & Пламя",
+    "branding": "KB + KBL",
+    "desc": "Графитовый лонгслив с пламенно-оранжевым четким лого KB и KBL на спине",
+    "skinFile": "kbl_min_08_graphite_minimal.png",
+    "avatarFile": "kbl_min_08_graphite_minimal_avatar.png",
+    "previewFile": "kbl_min_08_graphite_minimal_preview.png"
+  },
+  {
+    "index": 9,
+    "id": "kbl_min_09_vintage_denim",
+    "name": "KB Vintage Denim",
+    "tag": "Винтажный Деним",
+    "branding": "KB + KBL",
+    "desc": "Джинсовка поверх серого худи с белым лого KB спереди и KBL на спине джинсовки",
+    "skinFile": "kbl_min_09_vintage_denim.png",
+    "avatarFile": "kbl_min_09_vintage_denim_avatar.png",
+    "previewFile": "kbl_min_09_vintage_denim_preview.png"
+  },
+  {
+    "index": 10,
+    "id": "kbl_min_10_pastel_breeze",
+    "name": "KB Pastel Breeze",
+    "tag": "Мятная Пастель",
+    "branding": "KB + KBL",
+    "desc": "Мятный лонгслив с контрастным ягодно-розовым читаемым лого KB и KBL",
+    "skinFile": "kbl_min_10_pastel_breeze.png",
+    "avatarFile": "kbl_min_10_pastel_breeze_avatar.png",
+    "previewFile": "kbl_min_10_pastel_breeze_preview.png"
+  },
+  {
+    "index": 11,
+    "id": "kbl_min_11_24k_gold",
+    "name": "KB 24K Gold Minimal",
+    "tag": "Черный & Золото",
+    "branding": "KB + KBL",
+    "desc": "Лаконичный черный худи с благородным 24K золотым логотипом KB и KBL на спине",
+    "skinFile": "kbl_min_11_24k_gold.png",
+    "avatarFile": "kbl_min_11_24k_gold_avatar.png",
+    "previewFile": "kbl_min_11_24k_gold_preview.png"
+  }
+]
