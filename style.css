@@ -4541,3 +4541,114 @@ html, body {
   font-size: 10.5px;
   color: #64748b;
 }
+
+/* ==========================================================================
+   MODS TARGET INSTANCE & AUTHENTIC MOD ICONS (MODRINTH & LOCAL)
+   ========================================================================== */
+
+.mods-instance-target-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 20px !important;
+  margin-bottom: 16px !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  gap: 16px !important;
+}
+
+.mods-instance-target-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.mods-instance-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+  white-space: nowrap;
+}
+
+.mods-select-styled-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.mods-instance-dropdown {
+  width: 100%;
+  background: #171827;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.mods-instance-dropdown:hover,
+.mods-instance-dropdown:focus {
+  border-color: #6366f1;
+  background: #1c1e32;
+}
+
+.mods-instance-target-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inst-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Authentic Mod Icons (Sodium, Iris, Modrinth, etc.) */
+.mod-entry-icon,
+.mod-icon-img {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  object-fit: cover !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: block !important;
+}
+
+.mod-icon-box {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.mod-install-toggle-btn.installed {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  font-weight: 600 !important;
+}
+
+.mod-install-toggle-btn.installed:hover {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
