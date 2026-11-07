@@ -84,7 +84,7 @@ class InstallerApp(ctk.CTk):
 
         sub_label = ctk.CTkLabel(
             header_frame,
-            text="Ультра-современный Minecraft лаунчер с «Жидким стеклом»",
+            text="Ультра-современный Minecraft лаунчер (Все версии 26.3 — 1.0)",
             font=ctk.CTkFont(family="Segoe UI", size=13),
             text_color="#a5b4fc"
         )
@@ -165,23 +165,66 @@ class InstallerApp(ctk.CTk):
         else:
             self._finish_and_launch()
 
+    def _kill_running_instances(self):
+        """Forcefully kills running KBLauncher and any processes in install directory"""
+        try:
+            subprocess.run(['taskkill', '/F', '/T', '/IM', 'KBLauncher.exe'], capture_output=True)
+        except Exception:
+            pass
+        try:
+            escaped_dir = self.install_dir.replace("'", "''")
+            ps_kill = f"Get-Process | Where-Object {{ $_.Path -like '{escaped_dir}*' }} | Stop-Process -Force -ErrorAction SilentlyContinue"
+            subprocess.run(['powershell', '-NoProfile', '-Command', ps_kill], capture_output=True)
+        except Exception:
+            pass
+
+    def _safe_copy_file(self, src, dst, max_wait_sec=12):
+        """Copies a file with retries, killing any locks if necessary"""
+        start_time = time.time()
+        while time.time() - start_time < max_wait_sec:
+            try:
+                if os.path.exists(dst):
+                    try:
+                        with open(dst, 'a+b'):
+                            pass
+                    except (PermissionError, OSError):
+                        self._kill_running_instances()
+                        time.sleep(0.6)
+                        continue
+                shutil.copy2(src, dst)
+                return True
+            except (PermissionError, OSError):
+                self._kill_running_instances()
+                time.sleep(0.6)
+        
+        raise RuntimeError("Файл KBLauncher.exe занят запущенным приложением. Пожалуйста, закройте лаунчер (или снимите задачу в Диспетчере задач) и нажмите «Повторить».")
+
     def _run_installation(self):
         try:
-            self._update_progress(0.1, "Создание папки приложения...")
+            self._update_progress(0.1, "Подготовка к установке...")
             os.makedirs(self.install_dir, exist_ok=True)
-            time.sleep(0.3)
+            time.sleep(0.2)
 
-            self._update_progress(0.3, "Распаковка KBLauncher.exe...")
+            # 1. Close any running instances of KBLauncher before copying
+            self._update_progress(0.2, "Остановка предыдущей версии KBLauncher...")
+            self._kill_running_instances()
+            time.sleep(0.5)
+
+            self._update_progress(0.4, "Распаковка KBLauncher.exe...")
             src_exe = os.path.join(BUNDLE_DIR, "KBLauncher.exe")
             target_exe = os.path.join(self.install_dir, "KBLauncher.exe")
-            shutil.copy2(src_exe, target_exe)
-            time.sleep(0.4)
+
+            self._safe_copy_file(src_exe, target_exe)
+            time.sleep(0.3)
 
             self._update_progress(0.6, "Копирование ресурсов и иконок...")
             src_ico = os.path.join(BUNDLE_DIR, "app.ico")
             target_ico = os.path.join(self.install_dir, "app.ico")
             if os.path.exists(src_ico):
-                shutil.copy2(src_ico, target_ico)
+                try:
+                    shutil.copy2(src_ico, target_ico)
+                except Exception:
+                    pass
             time.sleep(0.3)
 
             self._update_progress(0.8, "Создание ярлыка на Рабочем столе...")
@@ -209,7 +252,7 @@ class InstallerApp(ctk.CTk):
             ))
 
         except Exception as e:
-            self._update_progress(0.0, f"Ошибка при установке: {e}")
+            self._update_progress(0.0, f"{e}")
             self.after(0, lambda: self.action_btn.configure(state="normal", text="Повторить"))
 
     def _update_progress(self, val, msg):
