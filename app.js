@@ -1,10 +1,110 @@
+// Ensure Liquid Glass (iOS 18 / Apple VisionOS) is active IMMEDIATELY
+document.documentElement.classList.add('liquid-glass-active');
+if (document.body) {
+  document.body.classList.add('liquid-glass-active');
+}
+
 /**
  * KBLauncher - Application Controller
  * Handles navigation, state, instances, mods catalog, skin preview, server manager & settings.
  */
 
 // Global Launcher State
+
+// ==========================================================================
+// COMPREHENSIVE MINECRAFT VERSIONS DATABASE (ALL VERSIONS + MODLOADERS)
+// Covers all major releases (1.21.4 down to 1.0), Fabric, Forge, NeoForge, OptiFine, Snapshots
+// ==========================================================================
+const BASE_MINECRAFT_VERSIONS = [
+  // --- LATEST & ACTIVE RELEASES (1.21 Tricky Trials & 1.20 Trails) ---
+  { id: '1.21.4', ver: 'Release 1.21.4', category: 'release', typeName: 'Официальный релиз', date: '03.12.2024', installed: true, popular: true, tag: 'Последний релиз' },
+  { id: '1.21.3', ver: 'Release 1.21.3', category: 'release', typeName: 'Официальный релиз', date: '23.10.2024', installed: false, popular: false },
+  { id: '1.21.1', ver: 'Release 1.21.1', category: 'release', typeName: 'Официальный релиз', date: '08.08.2024', installed: true, popular: true, tag: 'Стабильный' },
+  { id: '1.21', ver: 'Release 1.21', category: 'release', typeName: 'Официальный релиз', date: '13.06.2024', installed: false, popular: false },
+  { id: '1.20.6', ver: 'Release 1.20.6', category: 'release', typeName: 'Официальный релиз', date: '29.04.2024', installed: false, popular: false },
+  { id: '1.20.4', ver: 'Release 1.20.4', category: 'release', typeName: 'Официальный релиз', date: '07.12.2023', installed: true, popular: true },
+  { id: '1.20.2', ver: 'Release 1.20.2', category: 'release', typeName: 'Официальный релиз', date: '21.09.2023', installed: false, popular: false },
+  { id: '1.20.1', ver: 'Release 1.20.1', category: 'release', typeName: 'Официальный релиз', date: '12.06.2023', installed: true, popular: true, tag: 'Топ для модов' },
+  { id: '1.20', ver: 'Release 1.20', category: 'release', typeName: 'Официальный релиз', date: '07.06.2023', installed: false, popular: false },
+
+  // --- 1.19 THE WILD & 1.18 CAVES & CLIFFS ---
+  { id: '1.19.4', ver: 'Release 1.19.4', category: 'release', typeName: 'Официальный релиз', date: '14.03.2023', installed: false, popular: true },
+  { id: '1.19.3', ver: 'Release 1.19.3', category: 'release', typeName: 'Официальный релиз', date: '07.12.2022', installed: false, popular: false },
+  { id: '1.19.2', ver: 'Release 1.19.2', category: 'release', typeName: 'Официальный релиз', date: '05.08.2022', installed: true, popular: true, tag: 'Популярно' },
+  { id: '1.18.2', ver: 'Release 1.18.2', category: 'release', typeName: 'Официальный релиз', date: '28.02.2022', installed: false, popular: true, tag: 'Caves & Cliffs II' },
+  { id: '1.18.1', ver: 'Release 1.18.1', category: 'release', typeName: 'Официальный релиз', date: '10.12.2021', installed: false, popular: false },
+  { id: '1.17.1', ver: 'Release 1.17.1', category: 'release', typeName: 'Официальный релиз', date: '06.07.2021', installed: false, popular: false },
+
+  // --- 1.16 NETHER UPDATE (LEGENDARY) ---
+  { id: '1.16.5', ver: 'Release 1.16.5', category: 'release', typeName: 'Официальный релиз', date: '15.01.2021', installed: true, popular: true, tag: 'Легендарная' },
+  { id: '1.16.4', ver: 'Release 1.16.4', category: 'release', typeName: 'Официальный релиз', date: '02.11.2020', installed: false, popular: false },
+  { id: '1.15.2', ver: 'Release 1.15.2', category: 'release', typeName: 'Официальный релиз', date: '21.01.2020', installed: false, popular: false },
+  { id: '1.14.4', ver: 'Release 1.14.4', category: 'release', typeName: 'Официальный релиз', date: '19.07.2019', installed: false, popular: false },
+  { id: '1.13.2', ver: 'Release 1.13.2', category: 'release', typeName: 'Официальный релиз', date: '22.10.2018', installed: false, popular: false },
+
+  // --- CLASSIC & GOLDEN AGE (1.12.2, 1.8.9, 1.7.10) ---
+  { id: '1.12.2', ver: 'Release 1.12.2', category: 'release', typeName: 'Официальный релиз', date: '18.09.2017', installed: true, popular: true, tag: 'Золотой стандарт Forge' },
+  { id: '1.11.2', ver: 'Release 1.11.2', category: 'release', typeName: 'Официальный релиз', date: '21.12.2016', installed: false, popular: false },
+  { id: '1.10.2', ver: 'Release 1.10.2', category: 'release', typeName: 'Официальный релиз', date: '23.06.2016', installed: false, popular: false },
+  { id: '1.9.4', ver: 'Release 1.9.4', category: 'release', typeName: 'Официальный релиз', date: '10.05.2016', installed: false, popular: false },
+  { id: '1.8.9', ver: 'Release 1.8.9', category: 'release', typeName: 'Официальный релиз', date: '09.12.2015', installed: true, popular: true, tag: 'Топ для PvP / Hypixel' },
+  { id: '1.8', ver: 'Release 1.8', category: 'release', typeName: 'Официальный релиз', date: '02.09.2014', installed: false, popular: false },
+  { id: '1.7.10', ver: 'Release 1.7.10', category: 'release', typeName: 'Официальный релиз', date: '26.06.2014', installed: true, popular: true, tag: 'Классика модов' },
+  { id: '1.6.4', ver: 'Release 1.6.4', category: 'release', typeName: 'Официальный релиз', date: '19.09.2013', installed: false, popular: false },
+  { id: '1.5.2', ver: 'Release 1.5.2', category: 'release', typeName: 'Официальный релиз', date: '02.05.2013', installed: false, popular: true, tag: 'Ностальгия' },
+  { id: '1.4.7', ver: 'Release 1.4.7', category: 'release', typeName: 'Официальный релиз', date: '09.01.2013', installed: false, popular: false },
+  { id: '1.2.5', ver: 'Release 1.2.5', category: 'release', typeName: 'Официальный релиз', date: '04.04.2012', installed: false, popular: false },
+  { id: '1.0.0', ver: 'Release 1.0.0', category: 'release', typeName: 'Официальный релиз', date: '18.11.2011', installed: false, popular: false, tag: 'Первый релиз' },
+
+  // --- FABRIC LOADERS ---
+  { id: 'fabric-1.21.4', ver: 'Fabric 1.21.4', category: 'fabric', typeName: 'Fabric Loader', date: '05.12.2024', installed: true, popular: true, tag: 'FPS Оптимизация' },
+  { id: 'fabric-1.21.1', ver: 'Fabric 1.21.1', category: 'fabric', typeName: 'Fabric Loader', date: '10.08.2024', installed: true, popular: true },
+  { id: 'fabric-1.20.4', ver: 'Fabric 1.20.4', category: 'fabric', typeName: 'Fabric Loader', date: '10.12.2023', installed: false, popular: false },
+  { id: 'fabric-1.20.1', ver: 'Fabric 1.20.1', category: 'fabric', typeName: 'Fabric Loader', date: '15.06.2023', installed: true, popular: true, tag: 'Сборка KBL' },
+  { id: 'fabric-1.19.4', ver: 'Fabric 1.19.4', category: 'fabric', typeName: 'Fabric Loader', date: '18.03.2023', installed: false, popular: false },
+  { id: 'fabric-1.19.2', ver: 'Fabric 1.19.2', category: 'fabric', typeName: 'Fabric Loader', date: '10.08.2022', installed: false, popular: true },
+  { id: 'fabric-1.18.2', ver: 'Fabric 1.18.2', category: 'fabric', typeName: 'Fabric Loader', date: '05.03.2022', installed: false, popular: false },
+  { id: 'fabric-1.16.5', ver: 'Fabric 1.16.5', category: 'fabric', typeName: 'Fabric Loader', date: '20.01.2021', installed: false, popular: true },
+
+  // --- FORGE LOADERS ---
+  { id: 'forge-1.20.4', ver: 'Forge 1.20.4', category: 'forge', typeName: 'Minecraft Forge', date: '12.12.2023', installed: false, popular: false },
+  { id: 'forge-1.20.1', ver: 'Forge 1.20.1', category: 'forge', typeName: 'Minecraft Forge', date: '18.06.2023', installed: true, popular: true, tag: 'Топ модпаков' },
+  { id: 'forge-1.19.4', ver: 'Forge 1.19.4', category: 'forge', typeName: 'Minecraft Forge', date: '20.03.2023', installed: false, popular: false },
+  { id: 'forge-1.19.2', ver: 'Forge 1.19.2', category: 'forge', typeName: 'Minecraft Forge', date: '12.08.2022', installed: false, popular: true },
+  { id: 'forge-1.18.2', ver: 'Forge 1.18.2', category: 'forge', typeName: 'Minecraft Forge', date: '10.03.2022', installed: false, popular: false },
+  { id: 'forge-1.16.5', ver: 'Forge 1.16.5', category: 'forge', typeName: 'Minecraft Forge', date: '22.01.2021', installed: true, popular: true, tag: 'Супер-стабильно' },
+  { id: 'forge-1.12.2', ver: 'Forge 1.12.2', category: 'forge', typeName: 'Minecraft Forge', date: '25.09.2017', installed: true, popular: true, tag: 'Тяжёлые модпаки' },
+  { id: 'forge-1.7.10', ver: 'Forge 1.7.10', category: 'forge', typeName: 'Minecraft Forge', date: '01.07.2014', installed: false, popular: true, tag: 'Ретро-моды' },
+
+  // --- NEOFORGE ---
+  { id: 'neoforge-1.21.4', ver: 'NeoForge 1.21.4', category: 'neoforge', typeName: 'NeoForged Loader', date: '08.12.2024', installed: false, popular: true, tag: 'Новое ядро' },
+  { id: 'neoforge-1.21.1', ver: 'NeoForge 1.21.1', category: 'neoforge', typeName: 'NeoForged Loader', date: '12.08.2024', installed: true, popular: true },
+  { id: 'neoforge-1.20.4', ver: 'NeoForge 1.20.4', category: 'neoforge', typeName: 'NeoForged Loader', date: '15.12.2023', installed: false, popular: false },
+
+  // --- OPTIFINE ---
+  { id: 'optifine-1.21.1', ver: 'OptiFine 1.21.1', category: 'optifine', typeName: 'OptiFine HD', date: '20.08.2024', installed: false, popular: false },
+  { id: 'optifine-1.20.1', ver: 'OptiFine 1.20.1', category: 'optifine', typeName: 'OptiFine HD', date: '25.06.2023', installed: true, popular: true, tag: 'Шейдеры' },
+  { id: 'optifine-1.19.2', ver: 'OptiFine 1.19.2', category: 'optifine', typeName: 'OptiFine HD', date: '18.08.2022', installed: false, popular: false },
+  { id: 'optifine-1.16.5', ver: 'OptiFine 1.16.5', category: 'optifine', typeName: 'OptiFine HD', date: '02.02.2021', installed: true, popular: true },
+  { id: 'optifine-1.12.2', ver: 'OptiFine 1.12.2', category: 'optifine', typeName: 'OptiFine HD', date: '01.10.2017', installed: false, popular: true },
+  { id: 'optifine-1.8.9', ver: 'OptiFine 1.8.9', category: 'optifine', typeName: 'OptiFine HD', date: '15.12.2015', installed: true, popular: true, tag: 'PvP буст' },
+
+  // --- POPULAR SNAPSHOTS ---
+  { id: '24w46a', ver: 'Snapshot 24w46a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '14.11.2024', installed: false, popular: false },
+  { id: '24w45a', ver: 'Snapshot 24w45a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '06.11.2024', installed: false, popular: false },
+  { id: '1.21.4-pre1', ver: '1.21.4 Pre-Release 1', category: 'snapshot', typeName: 'Пре-релиз', date: '20.11.2024', installed: false, popular: false },
+  { id: '23w51b', ver: 'Snapshot 23w51b', category: 'snapshot', typeName: 'Снапшот Mojang', date: '21.12.2023', installed: false, popular: false },
+
+  // --- RETRO BETA & ALPHA ---
+  { id: 'b1.7.3', ver: 'Beta 1.7.3', category: 'old', typeName: 'Старая Beta', date: '08.07.2011', installed: true, popular: true, tag: 'Золотая эра' },
+  { id: 'b1.8.1', ver: 'Beta 1.8.1', category: 'old', typeName: 'Старая Beta', date: '19.09.2011', installed: false, popular: false },
+  { id: 'a1.2.6', ver: 'Alpha 1.2.6', category: 'old', typeName: 'Старая Alpha', date: '03.12.2010', installed: false, popular: false }
+];
+
 const LauncherState = {
+  allVersions: [...BASE_MINECRAFT_VERSIONS],
+  activeVersionFilter: 'all',
+  activeDropdownFilter: 'popular',
   activeTab: 'tab-home',
   activeSubTab: 'sub-overview',
   activeInstance: 'kblauncher-main',
@@ -70,15 +170,7 @@ const LauncherState = {
     { id: 'complementary', name: 'Complementary Reimagined', desc: 'Потрясающий шейдерпак с мягкими тенями, облаками и отражениями воды.', category: 'shaders', downloads: '14.5M', installed: true, icon: '🌅' }
   ],
   servers: [],
-  versions: [
-    { ver: 'Nightly 38609b7', type: 'Сборка KBLauncher', date: '05.11.2026', installed: true },
-    { ver: 'Release 1.21.4', type: 'Официальный релиз', date: '03.12.2024', installed: true },
-    { ver: 'Release 1.20.1', type: 'Официальный релиз', date: '12.06.2023', installed: true },
-    { ver: 'Fabric 1.20.1', type: 'Модифицированный', date: '12.06.2023', installed: true },
-    { ver: 'Forge 1.20.1', type: 'Модифицированный', date: '12.06.2023', installed: false },
-    { ver: 'Release 1.16.5', type: 'Официальный релиз', date: '15.01.2021', installed: false },
-    { ver: 'Release 1.12.2', type: 'Официальный релиз', date: '18.09.2017', installed: false }
-  ]
+  versions: BASE_MINECRAFT_VERSIONS
 };
 
 // ==========================================
@@ -100,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFirstRunOnboarding();
   initSettings();
   initLinks();
+  loadAllMojangVersions();
 });
 
 // ==========================================
@@ -266,31 +359,94 @@ function initVersionDropdown() {
   const trigger = document.getElementById('version-selector-trigger');
   const dropdown = document.getElementById('version-dropdown-menu');
   const selectedText = document.getElementById('selected-version-text');
+  const searchInput = document.getElementById('dropdown-ver-search');
+  const listContainer = document.getElementById('version-dropdown-list');
+  const tabs = document.querySelectorAll('.ver-tab');
 
-  trigger?.addEventListener('click', (e) => {
+  if (!trigger || !dropdown) return;
+
+  function renderDropdownList() {
+    if (!listContainer) return;
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const activeTab = LauncherState.activeDropdownFilter || 'popular';
+
+    const filtered = LauncherState.allVersions.filter(v => {
+      if (activeTab === 'popular' && !v.popular) return false;
+      if (activeTab === 'release' && v.category !== 'release') return false;
+      if (activeTab === 'modded' && !['fabric', 'forge', 'neoforge', 'optifine'].includes(v.category)) return false;
+      if (query) {
+        return v.ver.toLowerCase().includes(query) || v.id.toLowerCase().includes(query);
+      }
+      return true;
+    });
+
+    listContainer.innerHTML = filtered.slice(0, 80).map(v => {
+      let icon = '🟩';
+      if (v.category === 'fabric') icon = '⚡';
+      else if (v.category === 'forge') icon = '🔨';
+      else if (v.category === 'neoforge') icon = '🌀';
+      else if (v.category === 'optifine') icon = '💎';
+      else if (v.category === 'snapshot') icon = '🔬';
+      else if (v.category === 'old') icon = '📜';
+
+      const isActive = (LauncherState.selectedVersion === v.ver);
+
+      return `
+        <div class="version-dropdown-item ${isActive ? 'active' : ''}" data-ver="${v.ver}">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>${icon}</span>
+            <span>${v.ver}</span>
+          </div>
+          <span style="font-size: 10.5px; opacity: 0.75;">${v.tag || v.typeName || ''}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click events to items
+    listContainer.querySelectorAll('.version-dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const ver = item.getAttribute('data-ver');
+        LauncherState.selectedVersion = ver;
+        if (selectedText) selectedText.textContent = ver;
+        dropdown.classList.remove('show');
+        showToast(`Выбрана версия: ${ver}`);
+        initVersionsTable();
+      });
+    });
+  }
+
+  trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    dropdown?.classList.toggle('show');
+    dropdown.classList.toggle('show');
+    if (dropdown.classList.contains('show')) {
+      renderDropdownList();
+      searchInput?.focus();
+    }
+  });
+
+  dropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 
   document.addEventListener('click', () => {
-    dropdown?.classList.remove('show');
+    dropdown.classList.remove('show');
   });
 
-  dropdown?.querySelectorAll('.version-opt').forEach(opt => {
-    opt.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const ver = opt.getAttribute('data-ver');
-      LauncherState.selectedVersion = ver;
-      if (selectedText) selectedText.textContent = ver;
+  searchInput?.addEventListener('input', () => {
+    renderDropdownList();
+  });
 
-      dropdown.querySelectorAll('.version-opt').forEach(o => o.classList.remove('active'));
-      opt.classList.add('active');
-      dropdown.classList.remove('show');
-
-      showToast(`Выбрана версия: ${ver}`);
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      LauncherState.activeDropdownFilter = tab.getAttribute('data-vtab');
+      renderDropdownList();
     });
   });
 }
+
 
 // ==========================================
 // Primary Play Button & Launch Lifecycle
@@ -968,33 +1124,194 @@ function initSkinViewer() {
 // ==========================================
 function initVersionsTable() {
   const tbody = document.getElementById('versions-list-body');
+  const searchInput = document.getElementById('versions-search-input');
+  const filterPills = document.querySelectorAll('.v-pill');
+  const countBadge = document.getElementById('versions-count-number');
+
   if (!tbody) return;
 
-  tbody.innerHTML = LauncherState.versions.map(v => `
-    <div class="version-table-row">
-      <span style="font-weight:600;">${v.ver}</span>
-      <span style="color:#94a3b8;">${v.type}</span>
-      <span style="color:#64748b;">${v.date}</span>
-      <span>
-        <span class="status-dot ${v.installed ? 'green' : 'gray'}" style="display:inline-block; margin-right:4px;"></span>
-        ${v.installed ? 'Установлено' : 'Не загружено'}
-      </span>
-      <span>
-        <button class="secondary-glass-btn" style="padding:4px 10px; font-size:11px;" onclick="toggleVersionInstall('${v.ver}')">
-          ${v.installed ? 'Удалить' : 'Скачать'}
-        </button>
-      </span>
-    </div>
-  `).join('');
+  function renderTable() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const activeFilter = LauncherState.activeVersionFilter || 'all';
+
+    const filtered = LauncherState.allVersions.filter(v => {
+      if (activeFilter !== 'all') {
+        if (activeFilter === 'release' && v.category !== 'release') return false;
+        if (activeFilter === 'fabric' && v.category !== 'fabric') return false;
+        if (activeFilter === 'forge' && v.category !== 'forge') return false;
+        if (activeFilter === 'neoforge' && v.category !== 'neoforge') return false;
+        if (activeFilter === 'optifine' && v.category !== 'optifine') return false;
+        if (activeFilter === 'snapshot' && v.category !== 'snapshot') return false;
+        if (activeFilter === 'old' && v.category !== 'old') return false;
+      }
+      if (query) {
+        return (
+          v.ver.toLowerCase().includes(query) ||
+          v.id.toLowerCase().includes(query) ||
+          (v.typeName && v.typeName.toLowerCase().includes(query)) ||
+          (v.tag && v.tag.toLowerCase().includes(query))
+        );
+      }
+      return true;
+    });
+
+    if (countBadge) {
+      countBadge.textContent = filtered.length;
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+          <div style="font-size: 28px; margin-bottom: 8px;">🔍</div>
+          <div>Версий по запросу <strong>«${query}»</strong> не найдено.</div>
+          <button class="secondary-glass-btn" style="margin-top: 12px; padding: 6px 14px;" onclick="document.getElementById('versions-search-input').value=''; initVersionsTable();">Сбросить поиск</button>
+        </div>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(v => {
+      let tagClass = 'v-tag-release';
+      let icon = '🟩';
+      if (v.category === 'fabric') { tagClass = 'v-tag-fabric'; icon = '⚡'; }
+      else if (v.category === 'forge') { tagClass = 'v-tag-forge'; icon = '🔨'; }
+      else if (v.category === 'neoforge') { tagClass = 'v-tag-neoforge'; icon = '🌀'; }
+      else if (v.category === 'optifine') { tagClass = 'v-tag-optifine'; icon = '💎'; }
+      else if (v.category === 'snapshot') { tagClass = 'v-tag-snapshot'; icon = '🔬'; }
+      else if (v.category === 'old') { tagClass = 'v-tag-old'; icon = '📜'; }
+
+      const isCurrentSelected = (LauncherState.selectedVersion === v.ver || LauncherState.selectedVersion === v.id);
+
+      return `
+        <div class="version-table-row ${isCurrentSelected ? 'active' : ''}">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size: 14px;">${icon}</span>
+            <span style="font-weight: 700; color: #fff;">${v.ver}</span>
+            ${v.tag ? `<span class="v-badge-tag ${tagClass}" style="font-size:10px; padding:1px 6px;">${v.tag}</span>` : ''}
+          </div>
+          <div>
+            <span class="v-badge-tag ${tagClass}">${v.typeName || v.type || 'Релиз'}</span>
+          </div>
+          <div style="color: #94a3b8; font-size: 12px;">${v.date || 'Недавно'}</div>
+          <div>
+            <span class="status-dot ${v.installed ? 'green' : 'gray'}" style="display:inline-block; margin-right:4px;"></span>
+            <span style="color: ${v.installed ? '#34d399' : '#94a3b8'}; font-weight: 500;">
+              ${v.installed ? 'Установлено' : 'Готово'}
+            </span>
+          </div>
+          <div style="display: flex; gap: 6px; justify-content: flex-end;">
+            <button class="secondary-glass-btn" style="padding: 5px 12px; font-size: 11px; font-weight: 600;" onclick="selectVersionFromTable('${v.ver}')">
+              ${isCurrentSelected ? '✓ Выбрано' : 'Выбрать'}
+            </button>
+            <button class="primary-play-btn" style="padding: 5px 12px; font-size: 11px; font-weight: 700; border-radius: 8px;" onclick="launchDirectVersion('${v.ver}')">
+              ▶ Играть
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderTable();
+
+  searchInput?.addEventListener('input', () => {
+    renderTable();
+  });
+
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      LauncherState.activeVersionFilter = pill.getAttribute('data-vfilter');
+      renderTable();
+    });
+  });
 }
 
+window.selectVersionFromTable = function(verName) {
+  LauncherState.selectedVersion = verName;
+  const selText = document.getElementById('selected-version-text');
+  if (selText) selText.textContent = verName;
+  initVersionsTable();
+  showToast(`✨ Версия ${verName} выбрана для запуска!`);
+};
+
+window.launchDirectVersion = function(verName) {
+  LauncherState.selectedVersion = verName;
+  const selText = document.getElementById('selected-version-text');
+  if (selText) selText.textContent = verName;
+  switchNavTab('tab-home');
+  showToast(`Запуск Minecraft ${verName}...`);
+  const playBtn = document.getElementById('main-play-btn');
+  if (playBtn) playBtn.click();
+};
+
 window.toggleVersionInstall = function(verName) {
-  const v = LauncherState.versions.find(x => x.ver === verName);
+  const v = LauncherState.allVersions.find(x => x.ver === verName || x.id === verName);
   if (!v) return;
   v.installed = !v.installed;
   initVersionsTable();
-  showToast(v.installed ? `Версия ${verName} скачана.` : `Версия ${verName} удалена.`);
+  showToast(v.installed ? `Версия ${verName} установлена.` : `Версия ${verName} удалена.`);
 };
+
+// ==========================================
+// Mojang & Python Core Manifest Sync
+// ==========================================
+async function loadAllMojangVersions() {
+  try {
+    if (window._pyApi && typeof window._pyApi.get_minecraft_versions === 'function') {
+      const res = await window._pyApi.get_minecraft_versions();
+      if (res && res.success && Array.isArray(res.versions)) {
+        mergeMojangVersions(res.versions);
+        return;
+      }
+    }
+
+    const response = await fetch('https://launchermeta.mojang.com/mc/game/version_manifest_v2.json');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Array.isArray(data.versions)) {
+        mergeMojangVersions(data.versions);
+      }
+    }
+  } catch (err) {
+    console.log('[KBLauncher] Running in offline version mode, pre-bundled catalog active:', err);
+  }
+}
+
+function mergeMojangVersions(mojangVersions) {
+  const existingIds = new Set(LauncherState.allVersions.map(v => v.id));
+  const newVersions = [];
+
+  mojangVersions.forEach(v => {
+    const id = v.id;
+    if (!existingIds.has(id)) {
+      const isRelease = (v.type === 'release');
+      const isSnapshot = (v.type === 'snapshot');
+      const isOld = (v.type === 'old_beta' || v.type === 'old_alpha');
+
+      newVersions.push({
+        id: id,
+        ver: isRelease ? `Release ${id}` : (isSnapshot ? `Snapshot ${id}` : id),
+        category: isRelease ? 'release' : (isSnapshot ? 'snapshot' : (isOld ? 'old' : 'release')),
+        typeName: isRelease ? 'Официальный релиз' : (isSnapshot ? 'Снапшот Mojang' : 'Старая версия'),
+        date: (v.releaseTime || v.date || '').substring(0, 10),
+        installed: false,
+        popular: false
+      });
+      existingIds.add(id);
+    }
+  });
+
+  if (newVersions.length > 0) {
+    LauncherState.allVersions = [...LauncherState.allVersions, ...newVersions];
+    const badge = document.getElementById('versions-count-number');
+    if (badge) badge.textContent = LauncherState.allVersions.length;
+    initVersionsTable();
+    console.log(`[KBLauncher] Loaded total ${LauncherState.allVersions.length} Minecraft versions!`);
+  }
+}
+
 
 // ==========================================
 // Modals & Popups System
