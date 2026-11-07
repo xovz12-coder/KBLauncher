@@ -1,8 +1,4 @@
-// Ensure Liquid Glass (iOS 18 / Apple VisionOS) is active IMMEDIATELY
-document.documentElement.classList.add('liquid-glass-active');
-if (document.body) {
-  document.body.classList.add('liquid-glass-active');
-}
+
 
 /**
  * KBLauncher - Application Controller
