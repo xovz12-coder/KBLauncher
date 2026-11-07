@@ -1,1470 +1,2949 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KBLauncher</title>
-  <link rel="icon" type="image/png" href="assets/icon-32.png">
-  <link rel="stylesheet" href="style.css">
-  <script>
-    // Universal Bridge Shim for Python (pywebview) and Electron
-    window._pyApi = null;
-    window.addEventListener('pywebviewready', () => {
-      window._pyApi = window.pywebview.api;
-    });
-
-    if (!window.electronAPI) {
-      window.electronAPI = {
-        minimize: () => window._pyApi ? window._pyApi.minimize() : (window.pywebview?.api?.minimize()),
-        maximize: () => window._pyApi ? window._pyApi.maximize() : (window.pywebview?.api?.maximize()),
-        close: () => window._pyApi ? window._pyApi.close() : (window.pywebview?.api?.close()),
-        isMaximized: () => window._pyApi ? window._pyApi.is_maximized() : Promise.resolve(false),
-        openExternal: (url) => window._pyApi ? window._pyApi.open_external(url) : window.open(url, '_blank'),
-        openFolder: (p) => window._pyApi ? window._pyApi.open_folder(p) : console.log('Folder', p),
-        launchGame: (cfg) => window._pyApi ? window._pyApi.launch_game(cfg) : Promise.resolve({ success: true, pid: 3450 }),
-        killGame: (instId) => window._pyApi ? window._pyApi.kill_game(instId) : Promise.resolve({ success: true }),
-        openInstanceFolder: (instId) => window._pyApi ? window._pyApi.open_instance_folder(instId) : Promise.resolve({ success: true }),
-        onMaximizedChange: (cb) => { window._onMaxChange = cb; }
-      };
-    }
-  </script>
-  
-</head>
-<body class="theme-dark">
-  
-  <div class="kbl-bg-art"></div>
-  <div class="kbl-bg-mesh"></div>
-  <div class="kbl-bg-grid"></div>
-  <div class="bg-stars-canvas" id="stars-layer"></div>
-  <div class="bg-overlay"></div>
-
-  <!-- App Wrapper -->
-  <div class="app-container">
-
-    <!-- Custom Title Bar (Frameless Draggable Window Header) -->
-    <header class="titlebar pywebview-drag-region">
-      <div class="titlebar-drag-area pywebview-drag-region">
-        <div class="app-brand">
-          <img src="assets/kbl-logo-circle.png" alt="KBLauncher" class="brand-icon">
-          <span class="brand-title">KBLauncher</span>
-        </div>
-      </div>
-      <div class="titlebar-window-controls">
-        <button class="win-btn minimize-btn" id="btn-minimize" title="Свернуть">
-          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.5"/></svg>
-        </button>
-        <button class="win-btn maximize-btn" id="btn-maximize" title="Развернуть">
-          <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.5" rx="1"/></svg>
-        </button>
-        <button class="win-btn close-btn" id="btn-close" title="Закрыть">
-          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
-        </button>
-      </div>
-    </header>
-
-    <!-- Top Navigation Bar & Profile -->
-    <nav class="top-nav-bar">
-      <!-- Centered Navigation Pills -->
-      <div class="nav-pills-container">
-        <div class="nav-pill-glider" id="nav-glider"></div>
-        <button class="nav-pill active" data-tab="tab-home">Главная</button>
-        <button class="nav-pill" data-tab="tab-mods">Моды</button>
-        <button class="nav-pill" data-tab="tab-servers">Серверы</button>
-        <button class="nav-pill" data-tab="tab-wardrobe">Гардероб</button>
-        <button class="nav-pill" data-tab="tab-versions">Версии</button>
-        <button class="nav-pill" data-tab="tab-changelog">Список изменений</button>
-      </div>
-
-      <!-- Right User Profile Chip & Settings -->
-      <div class="top-right-group">
-        <div class="profile-dropdown-wrapper">
-          <div class="user-profile-chip" id="profile-chip" title="Управление аккаунтом">
-            <div class="avatar-wrapper">
-              <img src="assets/user-avatar.png" alt="Avatar" class="user-avatar" id="current-user-avatar">
-            </div>
-            <div class="user-info">
-              <span class="user-name" id="current-user-name">Player</span>
-              <span class="user-subtext" id="current-user-type">Офлайн-аккаунт</span>
-            </div>
-            <svg class="chevron-down" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-
-          <!-- Attached Dropdown Popup Menu (Photo 2) -->
-          <div class="account-dropdown-popup" id="account-dropdown-popup">
-            <div class="account-dropdown-list" id="account-dropdown-list">
-              <!-- Dynamically populated from LauncherState.accounts -->
-            </div>
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-manage-row" id="btn-dropdown-manage-accounts">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <span>Управление аккаунтами</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="icon-action-btn settings-btn" id="open-settings-btn" title="Настройки лаунчера">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="4" y1="21" x2="4" y2="14"></line>
-            <line x1="4" y1="10" x2="4" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12" y2="3"></line>
-            <line x1="20" y1="21" x2="20" y2="16"></line>
-            <line x1="20" y1="12" x2="20" y2="3"></line>
-            <line x1="1" y1="14" x2="7" y2="14"></line>
-            <line x1="9" y1="8" x2="15" y2="8"></line>
-            <line x1="17" y1="16" x2="23" y2="16"></line>
-          </svg>
-        </button>
-      </div>
-    </nav>
-
-    <!-- Main Content Workspace (Sidebar + Pages) -->
-    <div class="main-layout">
-
-      <!-- Left Sidebar (Сборки / Instances) -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-title-group">
-            <span class="sidebar-title">Сборки</span>
-            <span class="sidebar-builds-count" id="sidebar-builds-count">3</span>
-          </div>
-          <button class="add-instance-btn" id="add-build-btn" title="Создать сборку">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Instances List -->
-        <div class="instances-list" id="instances-container">
-          <!-- Active Instance Card 1: KBLauncher Main -->
-          <div class="instance-card active" data-instance-id="kblauncher-main">
-            <div class="instance-icon-box">
-              <img src="assets/kbl-logo-circle.png" alt="Logo" class="instance-logo">
-            </div>
-            <div class="instance-details">
-              <div class="instance-name">KBLauncher</div>
-              <div class="instance-status">
-                <span class="status-dot green"></span>
-                <span class="status-text">Готово</span>
-                <span class="instance-tag">Fabric · 42 мода</span>
-              </div>
-            </div>
-            <button class="instance-menu-btn" title="Опции сборки">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="1.5"></circle>
-                <circle cx="12" cy="5" r="1.5"></circle>
-                <circle cx="12" cy="19" r="1.5"></circle>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Instance Card 2: Vanilla 1.21.4 -->
-          <div class="instance-card" data-instance-id="vanilla-1-21">
-            <div class="instance-icon-box vanilla-box">
-              <span class="vanilla-cube-icon">🧊</span>
-            </div>
-            <div class="instance-details">
-              <div class="instance-name">Vanilla 1.21.4</div>
-              <div class="instance-status">
-                <span class="status-dot grey"></span>
-                <span class="status-text">Чистый клиент</span>
-                <span class="instance-tag">Release</span>
-              </div>
-            </div>
-            <button class="instance-menu-btn" title="Опции сборки">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="1.5"></circle>
-                <circle cx="12" cy="5" r="1.5"></circle>
-                <circle cx="12" cy="19" r="1.5"></circle>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Instance Card 3: Shaders & OptiFine -->
-          <div class="instance-card" data-instance-id="shaders-optifine">
-            <div class="instance-icon-box shaders-box">
-              <span class="shaders-star-icon">✨</span>
-            </div>
-            <div class="instance-details">
-              <div class="instance-name">Shaders & RT</div>
-              <div class="instance-status">
-                <span class="status-dot purple"></span>
-                <span class="status-text">Шейдеры</span>
-                <span class="instance-tag">Iris + BSL</span>
-              </div>
-            </div>
-            <button class="instance-menu-btn" title="Опции сборки">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="1.5"></circle>
-                <circle cx="12" cy="5" r="1.5"></circle>
-                <circle cx="12" cy="19" r="1.5"></circle>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Sidebar Bottom Footer -->
-        <div class="sidebar-footer">
-          <!-- Discord Button with online badge -->
-          <button class="discord-join-btn" id="btn-discord">
-            <div class="discord-btn-inner">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-              </svg>
-              <span>Дискорд</span>
-            </div>
-            <span class="discord-online-pill"><span class="pulse-indicator"></span> 1,420</span>
-          </button>
-
-          <!-- Links Row: Support, Site, Telegram -->
-          <div class="sidebar-links-row">
-            <button class="footer-link-btn btn-support-styled" id="btn-support" title="Поддержать проект">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-              <span>Донат</span>
-            </button>
-            <button class="footer-link-btn btn-site-styled" id="btn-site" title="Официальный сайт">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-              </svg>
-              <span>Сайт</span>
-            </button>
-            <button class="footer-link-btn btn-tg-styled" id="btn-telegram" title="Telegram канал">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-              <span>ТГ</span>
-            </button>
-          </div>
-
-          <!-- Network Health Status -->
-          <div class="sidebar-network-status">
-            <span class="net-status-dot"></span>
-            <span class="net-status-text">Службы KBL: В сети (12ms)</span>
-          </div>
-
-          <div class="sidebar-version-tag">
-            <span class="version-label">Лаунчер 0.2.42 · Nightly</span>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Pages Viewport -->
-      <main class="content-viewport">
-
-        <!-- ================= PAGE 1: ГЛАВНАЯ (HOME) ================= -->
-        <section class="tab-page active" id="tab-home">
-          
-          <!-- Badges / Editions Pill Group -->
-          <div class="editions-row">
-            <div class="edition-pill">
-              <img src="assets/kbl-logo-circle.png" class="edition-mini-icon">
-              <span>KBLauncher Edition</span>
-            </div>
-            <div class="edition-pill">
-              <span class="java-cube-icon">☕</span>
-              <span>Java Edition</span>
-            </div>
-          </div>
-
-          <!-- Hero App Title -->
-          <div class="hero-brand-section">
-            <div class="hero-title-group">
-              <img src="assets/kbl-logo-circle.png" alt="KBLauncher" class="hero-kbl-logo">
-              <h1 class="hero-title-text">KBLauncher</h1>
-            </div>
-            <p class="hero-subtitle-stats">
-              Вы наиграли 5 мин! Последняя игра: вчера. · 1,168 сейчас в игре · 128,490+ скачиваний
-            </p>
-          </div>
-
-          <!-- Primary Action Bar (Play, Version Selector, Invite) -->
-          <div class="action-bar-row">
-            <!-- Left Action Cluster -->
-            <div class="action-cluster-left">
-              <!-- Big Violet Play Button -->
-              <div class="play-btn-split">
-                <button class="primary-play-btn" id="main-play-btn">
-                  <span class="play-icon-triangle">▶</span>
-                  <span class="play-btn-label" id="play-status-label">Играть</span>
-                </button>
-                <button class="play-more-btn" id="play-options-btn" title="Параметры запуска">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <circle cx="12" cy="12" r="1.5"></circle>
-                    <circle cx="6" cy="12" r="1.5"></circle>
-                    <circle cx="18" cy="12" r="1.5"></circle>
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Version Selector Dropdown -->
-              <div class="version-selector-box" id="version-selector-trigger">
-                <div class="version-meta">
-                  <span class="version-prefix">Версия</span>
-                  <span class="version-name" id="selected-version-text">Release 26.3</span>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-
-                
-                <div class="version-dropdown-menu" id="version-dropdown-menu">
-                  <div class="version-dropdown-header">
-                    <div class="version-dropdown-search-box">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                      </svg>
-                      <input type="text" id="dropdown-ver-search" placeholder="Поиск версии (1.20, 1.16.5, Fabric...)" autocomplete="off">
-                    </div>
-                    <div class="version-dropdown-tabs">
-                      <button class="ver-tab active" data-vtab="all">Все версии</button>
-                      <button class="ver-tab" data-vtab="release">🟩 Релизы</button>
-                      <button class="ver-tab" data-vtab="snapshot">🔬 Снапшоты</button>
-                    </div>
-                  </div>
-                  <div class="version-dropdown-scrollable" id="version-dropdown-list">
-                    <!-- Populated dynamically with all versions in JS -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Official Website Quick Button -->
-              <button class="action-square-btn" id="btn-quick-site" title="Официальный сайт KBLauncher">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="2" y1="12" x2="22" y2="12"></line>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                </svg>
-              </button>
-
-              <!-- Folder Button -->
-              <button class="action-square-btn" id="btn-open-folder" title="Открыть папку игры">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                </svg>
-              </button>
-            </div>
-
-            <!-- Right: Friend Invitation Code Input -->
-            <div class="friend-invite-box">
-              <div class="invite-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-              <input type="text" class="invite-input" id="friend-code-input" placeholder="Вставьте код приглашения друга">
-              <button class="invite-submit-btn" id="btn-join-friend">Войти</button>
-            </div>
-          </div>
-
-          <!-- Secondary Sub-Navigation Pills -->
-          <div class="subnav-tabs-row">
-            <button class="subnav-tab active" data-subtab="sub-overview">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
-              <span>Обзор</span>
-            </button>
-            <button class="subnav-tab" data-subtab="sub-mods-list">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              </svg>
-              <span>Моды (42)</span>
-            </button>
-            <button class="subnav-tab" data-subtab="sub-worlds">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-              </svg>
-              <span>Миры 1</span>
-            </button>
-            <button class="subnav-tab" data-subtab="sub-multiplayer">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-              <span>Сетевая игра 1</span>
-            </button>
-            <button class="subnav-tab" data-subtab="sub-resourcepacks">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-              </svg>
-              <span>Наборы</span>
-            </button>
-          </div>
-
-          <!-- Sub-Tab View Containers -->
-          <div class="subtab-content-container">
-
-            <!-- 1. Overview Content: Screenshots + Changelog split cards -->
-            <div class="subview active" id="subview-overview">
-              <div class="cards-grid-two-columns">
-                <!-- Left Card: Screenshots -->
-                <div class="glass-card screenshots-card">
-                  <div class="card-inner-header">
-                    <h3 class="card-title">Скриншоты</h3>
-                  </div>
-                  <div class="card-empty-placeholder">
-                    <p class="empty-text">Скриншотов пока нет. Нажмите F2 в игре.</p>
-                    <button class="secondary-glass-btn mt-12" id="btn-add-screenshot">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                      <span>Открыть галерею</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Right Card: Changelog -->
-                <div class="glass-card changelog-card">
-                  <div class="card-inner-header space-between">
-                    <h3 class="card-title">Журнал изменений</h3>
-                    <a href="#" class="card-link" id="link-all-changelog">Все заметки</a>
-                  </div>
-                  <div class="changelog-version-header">
-                    <span class="changelog-build-id">Nightly 2026-11-05 · 38609b7 · 5 нояб</span>
-                  </div>
-                  <div class="changelog-scroll-list">
-                    <div class="changelog-group">
-                      <span class="changelog-badge-new">New</span>
-                      <ul class="changelog-bullet-list">
-                        <li>Cosmetics: KBLauncher players' mark by their names; the founder badge after the name</li>
-                        <li>Cosmetics: show my cosmetics in single player (setting, off by default)</li>
-                      </ul>
-                    </div>
-                    <div class="changelog-group mt-8">
-                      <span class="changelog-badge-fixed">Fixed</span>
-                      <ul class="changelog-bullet-list">
-                        <li>Realms: the owner's configuration screen and its subscription tab</li>
-                        <li>fix(windows): avoid repeated firewall prompts in fixtures and launcher updates</li>
-                        <li>Native mods: structure_template, a template's auto-generation hook</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 2. Subview: Installed Mods List -->
-            <div class="subview" id="subview-mods-list">
-              <div class="glass-card">
-                <div class="card-inner-header space-between">
-                  <h3 class="card-title">Установленные моды в сборке KBLauncher</h3>
-                  <button class="secondary-glass-btn" onclick="switchNavTab('tab-mods')">+ Добавить моды</button>
-                </div>
-                <div class="installed-mods-table" id="installed-mods-tbody">
-                  <!-- Generated dynamically in JS -->
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. Subview: Worlds -->
-            <div class="subview" id="subview-worlds">
-              <div class="glass-card">
-                <div class="card-inner-header space-between">
-                  <h3 class="card-title">Одиночные миры</h3>
-                  <button class="secondary-glass-btn" id="btn-create-world">+ Новый мир</button>
-                </div>
-                <div class="worlds-list-grid" id="worlds-list-container">
-                  <div class="world-item-card">
-                    <div class="world-thumb">🌄</div>
-                    <div class="world-info">
-                      <div class="world-name">Новый мир (Выживание)</div>
-                      <div class="world-meta">1.21.4 · Режим выживания · 12.4 МБ</div>
-                    </div>
-                    <button class="world-play-btn">Играть</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 4. Subview: Multiplayer -->
-            <div class="subview" id="subview-multiplayer">
-              <div class="glass-card">
-                <div class="card-inner-header space-between">
-                  <h3 class="card-title">Сетевая игра</h3>
-                  <button class="secondary-glass-btn" id="btn-add-server-entry">+ Добавить сервер</button>
-                </div>
-                <div class="server-entries-list" id="saved-servers-container">
-                  <div class="server-entry-row">
-                    <div class="server-status-led online"></div>
-                    <div class="server-entry-info">
-                      <div class="server-entry-title">Локальный сервер друзей</div>
-                      <div class="server-entry-ip">127.0.0.1:25565</div>
-                    </div>
-                    <div class="server-entry-stats">
-                      <span class="ping-badge">2ms</span>
-                      <span class="players-badge">4/10</span>
-                    </div>
-                    <button class="secondary-glass-btn">Подключиться</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 5. Subview: Resourcepacks -->
-            <div class="subview" id="subview-resourcepacks">
-              <div class="glass-card">
-                <div class="card-inner-header space-between">
-                  <h3 class="card-title">Наборы ресурсов и шейдеры</h3>
-                  <button class="secondary-glass-btn" id="btn-open-res-folder">Открыть папку</button>
-                </div>
-                <p class="empty-text">Шейдер Complementary Reimagined активен. Текстуры: Default 16x.</p>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-
-        <!-- ================= PAGE 2: МОДЫ (MODS CATALOG - IMAGE 1) ================= -->
-        <section class="tab-page" id="tab-mods">
-          
-          <div class="page-top-header">
-            <div class="header-text-block">
-              <h2 class="page-main-heading">Моды</h2>
-              <p class="page-subheading">
-                Всё, что вы устанавливаете, попадает в KBLauncher. Выберите слева другую сборку, чтобы наполнить её.
-              </p>
-            </div>
-
-            <!-- Mod Categories Selector Pills -->
-            <div class="mod-category-pills">
-              <button class="category-pill active" data-category="mods">Моды</button>
-              <button class="category-pill" data-category="modpacks">Модпаки</button>
-              <button class="category-pill" data-category="resourcepacks">Наборы ресурсов</button>
-              <button class="category-pill" data-category="shaders">Наборы шейдеров</button>
-              <button class="category-pill" data-category="datapacks">Датапаки</button>
-            </div>
-          </div>
-
-          <!-- Target Instance Selector Bar -->
-          <div class="glass-card mods-instance-target-card" id="mods-instance-target-card">
-            <div class="mods-instance-target-left">
-              <span class="mods-instance-label">🎯 Сборка для установки модов:</span>
-              <div class="mods-select-styled-wrap">
-                <select class="mods-instance-dropdown" id="mods-target-instance-select">
-                  <!-- Populated in JS: KBLauncher, Vanilla 1.21.4, Shaders & RT -->
-                </select>
-              </div>
-            </div>
-            <div class="mods-instance-target-right">
-              <span class="inst-pill-badge" id="mods-target-loader-badge">⚡ Fabric · Release 26.3</span>
-              <button class="secondary-glass-btn btn-sm" id="btn-open-instance-mods-folder" title="Открыть изолированную папку модов этой сборки">
-                📁 Папка модов этой сборки
-              </button>
-            </div>
-          </div>
-
-          <!-- Search and Sort Filter Bar -->
-          <div class="mods-filter-bar">
-            <div class="search-input-wrapper">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input type="text" class="mods-search-input" id="mods-search-field" placeholder="Поиск, затем Enter">
-            </div>
-
-            <div class="sort-selector-dropdown">
-              <span class="sort-text">Сортировка: <strong id="current-sort-label">Лучшее совпадение</strong></span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Toggle & Source Filters Bar -->
-          <div class="sources-toggle-bar">
-            <label class="custom-switch-label">
-              <input type="checkbox" id="toggle-show-all">
-              <span class="switch-slider"></span>
-              <span class="switch-title">Показать всё</span>
-            </label>
-
-            <div class="source-pills-group">
-              <button class="source-pill active" data-source="kblauncher">KBLauncher</button>
-              <button class="source-pill" data-source="modrinth">Modrinth</button>
-              <button class="source-pill disabled" data-source="curseforge">CurseForge скоро</button>
-            </div>
-          </div>
-
-          <!-- Filter Section & Mod Items Grid -->
-          <div class="mods-main-grid-layout">
-            
-            <!-- Left Filter Side Column -->
-            <div class="mods-filters-sidebar">
-              <div class="filter-header-title">Фильтры</div>
-              <div class="filter-chip-status">
-                <span class="filter-badge">Устанавливается в KBLauncher</span>
-              </div>
-              <div class="filter-search-box">
-                <input type="text" class="filter-input-small" id="filter-subsearch" placeholder="Поиск...">
-              </div>
-              
-              <div class="filter-categories-list">
-                <label class="filter-checkbox-item">
-                  <input type="checkbox" checked>
-                  <span>Оптимизация (FPS)</span>
-                </label>
-                <label class="filter-checkbox-item">
-                  <input type="checkbox" checked>
-                  <span>Интерфейс & HUD</span>
-                </label>
-                <label class="filter-checkbox-item">
-                  <input type="checkbox" checked>
-                  <span>Графика & Освещение</span>
-                </label>
-                <label class="filter-checkbox-item">
-                  <input type="checkbox">
-                  <span>Магия & Приключения</span>
-                </label>
-                <label class="filter-checkbox-item">
-                  <input type="checkbox">
-                  <span>Технологии</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Right Mods Catalog Items List -->
-            <div class="mods-catalog-container" id="mods-catalog-cards">
-              <!-- Rendered via JS -->
-            </div>
-
-          </div>
-
-          <!-- Bottom: Add Native Mod from GitHub Card (Image 1) -->
-          <div class="github-native-mod-card">
-            <div class="github-card-header">
-              <h3 class="github-card-title">Добавить нативный мод с GitHub</h3>
-              <p class="github-card-desc">
-                Ссылка на репозиторий [его последний релиз] релиз, ветку, тег или коммит. Лаунчер устанавливает точный файл релиза или коммит, а не изменяющуюся ветку.
-              </p>
-            </div>
-            <div class="github-input-row">
-              <input type="text" class="github-repo-input" id="github-url-input" placeholder="https://github.com/owner/repo">
-              <button class="github-submit-btn" id="btn-add-github-mod">Добавить с GitHub</button>
-            </div>
-          </div>
-
-        </section>
-
-
-        <!-- ================= PAGE 3: СЕРВЕРЫ (SERVERS - IMAGE 3) ================= -->
-        <section class="tab-page" id="tab-servers">
-          
-          <div class="page-top-header">
-            <div class="header-text-block">
-              <h2 class="page-main-heading">Серверы</h2>
-              <p class="page-subheading">
-                Запустите мир для друзей кнопками, без команд. Та же программа работает на VPS.
-              </p>
-            </div>
-          </div>
-
-          <div class="servers-view-split">
-            <!-- Left: Servers Container (Empty or active server cards) -->
-            <div class="servers-main-column">
-              <!-- Default Empty Box (as seen in Image 3) -->
-              <div class="glass-card server-empty-box" id="servers-empty-card">
-                <p class="server-empty-desc">
-                  Серверов пока нет. Создайте его: это займёт несколько секунд, а с настройками по умолчанию (отметьте EULA и нажмите «Создать») вы получите мир выживания только для друзей.
-                </p>
-                <button class="primary-play-btn server-create-btn" id="btn-open-create-server">
-                  <span>Создать сервер</span>
-                </button>
-              </div>
-
-              <!-- Servers List Container -->
-              <div class="active-servers-list" id="active-servers-list" style="display: none;">
-                <!-- Dynamically populated in JS -->
-              </div>
-            </div>
-
-            <!-- Right: Action Buttons Column (Image 3) -->
-            <div class="servers-actions-column">
-              <button class="server-action-pill-btn" id="btn-action-create-server">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>Создать сервер</span>
-              </button>
-
-              <button class="server-action-pill-btn" id="btn-action-add-folder">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <span>Добавить папку сервера...</span>
-              </button>
-            </div>
-          </div>
-
-        </section>
-
-
-        <!-- ================= PAGE 4: ГАРДЕРОБ (SKINS & CAPES) ================= -->
-        <section class="tab-page" id="tab-wardrobe">
-          <div class="page-top-header">
-            <div class="header-text-block">
-              <h2 class="page-main-heading">Гардероб</h2>
-              <p class="page-subheading">Настройте свой внешний вид, плащи и кастомизацию KBLauncher.</p>
-            </div>
-          </div>
-
-          <div class="wardrobe-split-layout">
-            <!-- 3D Skin Renderer Canvas -->
-            <div class="glass-card skin-viewer-card">
-              <div class="skin-canvas-box">
-                <canvas id="skin-canvas" width="300" height="420"></canvas>
-                <div class="skin-viewer-hint">Вращайте мышью • Прокрутка для масштаба</div>
-              </div>
-              <div class="skin-controls-row">
-                <button class="secondary-glass-btn" id="btn-toggle-skin-anim">Пауза анимации</button>
-                <button class="secondary-glass-btn" id="btn-reset-skin-rot">Сбросить вид</button>
-              </div>
-            </div>
-
-            <!-- Skin & Cape Selector Options -->
-            <div class="glass-card wardrobe-options-card">
-              <div class="wardrobe-header-row">
-                <h3 class="card-title">Скин персонажа</h3>
-                <span class="wardrobe-count-pill">13 скинов</span>
-              </div>
-
-              <!-- Section 1: Базовые скины Minecraft (наверху) -->
-              <div class="wardrobe-subgroup-title">
-                <span>Базовые скины Minecraft</span>
-                <span class="subgroup-badge">Классика</span>
-              </div>
-              <div class="skins-preset-grid base-skins-grid">
-                <div class="skin-preset-item" data-skin="steve" data-path="assets/default-skin.png" data-avatar="assets/user-avatar.png" data-name="Steve (Классик)">
-                  <div class="skin-preview-face"><img src="assets/user-avatar.png" alt="Steve" style="width:30px;height:30px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Steve (Классик)</span>
-                  <span class="preset-tag">4px руки</span>
-                </div>
-                <div class="skin-preset-item" data-skin="alex" data-path="assets/alex-skin.png" data-avatar="assets/alex-avatar.png" data-slim="true" data-name="Alex (Слим)">
-                  <div class="skin-preview-face"><img src="assets/alex-avatar.png" alt="Alex" style="width:30px;height:30px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Alex (Слим)</span>
-                  <span class="preset-tag">3px руки</span>
-                </div>
-              </div>
-
-              <!-- Section 2: Избранные KB (Любимый и White Edition) -->
-              <div class="wardrobe-subgroup-title mt-16">
-                <span>⭐ Избранный стиль KB</span>
-                <span class="subgroup-badge">Выбор игрока</span>
-              </div>
-              <div class="skins-preset-grid featured-presets">
-                <div class="skin-preset-item featured active" data-skin="kbl" data-path="assets/kbl-skin.png" data-avatar="assets/kbl-avatar.png" data-name="KB Sand Dune">
-                  <div class="skin-preview-face"><img src="assets/kbl-avatar.png" alt="KB" style="width:34px;height:34px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">KB Sand Dune</span>
-                  <span class="preset-tag favorite-tag">⭐ Любимый</span>
-                </div>
-                <div class="skin-preset-item featured" data-skin="kbl-white" data-path="assets/kbl-white-skin.png" data-avatar="assets/kbl-white-avatar.png" data-name="KB Sand Dune (White)">
-                  <div class="skin-preview-face"><img src="assets/kbl-white-avatar.png" alt="KB White" style="width:34px;height:34px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">KB Sand (White)</span>
-                  <span class="preset-tag white-tag">❄️ White Edition</span>
-                </div>
-              </div>
-
-              <!-- Section 3: Вся минималистичная линейка KB & KBL -->
-              <div class="wardrobe-subgroup-title mt-16">
-                <span>✨ Коллекция KB Minimalist (9 вариантов)</span>
-              </div>
-              <div class="skins-preset-grid minimal-collection-grid">
-                <div class="skin-preset-item" data-skin="kbl_min_01" data-path="assets/skins/kbl_min_01_onyx_hoodie.png" data-avatar="assets/skins/kbl_min_01_onyx_hoodie_avatar.png" data-name="KB Onyx Hoodie">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_01_onyx_hoodie_avatar.png" alt="Onyx Hoodie" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Onyx Hoodie</span>
-                  <span class="preset-tag">Черный худи</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_02" data-path="assets/skins/kbl_min_02_oat_sweatshirt.png" data-avatar="assets/skins/kbl_min_02_oat_sweatshirt_avatar.png" data-name="KB Oat Sweatshirt">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_02_oat_sweatshirt_avatar.png" alt="Oat Sweatshirt" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Oat Sweatshirt</span>
-                  <span class="preset-tag">Кремовый</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_03" data-path="assets/skins/kbl_min_03_midnight_stealth.png" data-avatar="assets/skins/kbl_min_03_midnight_stealth_avatar.png" data-name="KB Midnight Stealth">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_03_midnight_stealth_avatar.png" alt="Midnight Stealth" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Midnight Stealth</span>
-                  <span class="preset-tag">Циан Неон</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_04" data-path="assets/skins/kbl_min_04_white_streetwear.png" data-avatar="assets/skins/kbl_min_04_white_streetwear_avatar.png" data-name="KB White Streetwear">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_04_white_streetwear_avatar.png" alt="White Streetwear" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">White Street</span>
-                  <span class="preset-tag">Стритвир</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_07" data-path="assets/skins/kbl_min_07_emerald_varsity.png" data-avatar="assets/skins/kbl_min_07_emerald_varsity_avatar.png" data-name="KB Emerald Varsity">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_07_emerald_varsity_avatar.png" alt="Emerald Varsity" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Emerald Varsity</span>
-                  <span class="preset-tag">Бомбер</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_08" data-path="assets/skins/kbl_min_08_graphite_minimal.png" data-avatar="assets/skins/kbl_min_08_graphite_minimal_avatar.png" data-name="KB Graphite Minimal">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_08_graphite_minimal_avatar.png" alt="Graphite Minimal" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Graphite</span>
-                  <span class="preset-tag">Графит</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_09" data-path="assets/skins/kbl_min_09_vintage_denim.png" data-avatar="assets/skins/kbl_min_09_vintage_denim_avatar.png" data-name="KB Vintage Denim">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_09_vintage_denim_avatar.png" alt="Vintage Denim" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Vintage Denim</span>
-                  <span class="preset-tag">Деним</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_10" data-path="assets/skins/kbl_min_10_pastel_breeze.png" data-avatar="assets/skins/kbl_min_10_pastel_breeze_avatar.png" data-name="KB Pastel Breeze">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_10_pastel_breeze_avatar.png" alt="Pastel Breeze" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">Pastel Breeze</span>
-                  <span class="preset-tag">Пастель</span>
-                </div>
-                <div class="skin-preset-item" data-skin="kbl_min_11" data-path="assets/skins/kbl_min_11_24k_gold.png" data-avatar="assets/skins/kbl_min_11_24k_gold_avatar.png" data-name="KB 24K Gold Founder">
-                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_11_24k_gold_avatar.png" alt="24K Gold Founder" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
-                  <span class="preset-name">24K Gold</span>
-                  <span class="preset-tag">👑 Золотой</span>
-                </div>
-              </div>
-
-              <div class="upload-skin-area mt-16">
-                <button class="primary-play-btn full-width" id="btn-upload-skin-file">
-                  <span>Загрузить скин (.png)</span>
-                </button>
-                <input type="file" id="skin-file-input" accept="image/png" style="display:none;">
-              </div>
-
-              <h3 class="card-title mt-24">Плащи KBLauncher</h3>
-              <div class="capes-selector-list">
-                <label class="cape-item-row">
-                  <input type="radio" name="cape" value="founder" checked>
-                  <span class="cape-name">KBLauncher Founder Cape (Золотой KBL)</span>
-                </label>
-                <label class="cape-item-row">
-                  <input type="radio" name="cape" value="migrator">
-                  <span class="cape-name">Mojang Migrator Cape</span>
-                </label>
-                <label class="cape-item-row">
-                  <input type="radio" name="cape" value="none">
-                  <span class="cape-name">Без плаща</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        <!-- ================= PAGE 5: ВЕРСИИ (VERSIONS MANAGER) ================= -->
-        <section class="tab-page" id="tab-versions">
-          <div class="page-top-header">
-            <div class="header-text-block">
-              <h2 class="page-main-heading">Все версии Minecraft</h2>
-              <p class="page-subheading">Полный каталог официальных релизов (26.3 — 1.0, 2026), ядер Fabric, Forge, NeoForge, OptiFine и снапшотов Mojang.</p>
-            </div>
-            <div class="versions-stats-chip" id="versions-total-badge">
-              <span class="pulse-dot"></span>
-              <span>Доступно версий: <strong id="versions-count-number">922</strong></span>
-            </div>
-          </div>
-
-          <!-- Versions Filter & Search Controls Bar -->
-          <div class="versions-controls-bar glass-card">
-            <div class="versions-search-wrapper">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input type="text" class="versions-search-input" id="versions-search-input" placeholder="Поиск среди всех версий (например: 1.20.1, 1.16.5, 1.12.2, Fabric, Forge, 1.8.9)...">
-            </div>
-
-            <div class="versions-filter-pills" id="versions-filter-pills">
-              <button class="v-pill active" data-vfilter="all">Все версии</button>
-              <button class="v-pill" data-vfilter="release">🟩 Релизы</button>
-              <button class="v-pill" data-vfilter="snapshot">🔬 Снапшоты</button>
-            </div>
-          </div>
-
-          <!-- Versions List Table -->
-          <div class="glass-card versions-table-card">
-            <div class="versions-table-header">
-              <span>Версия</span>
-              <span>Поддерживаемые ядра</span>
-              <span>Дата релиза</span>
-              <span>Статус</span>
-              <span style="text-align: right;">Действия</span>
-            </div>
-            <div class="versions-list-rows" id="versions-list-body">
-              <!-- Dynamically populated in JS with all 900+ versions -->
-            </div>
-          </div>
-        </section>
-
-
-        <!-- ================= PAGE 6: СПИСОК ИЗМЕНЕНИЙ (CHANGELOG) ================= -->
-        <section class="tab-page" id="tab-changelog">
-          <div class="page-top-header">
-            <div class="header-text-block">
-              <h2 class="page-main-heading">Список изменений KBLauncher</h2>
-              <p class="page-subheading">История обновлений, новые возможности, оптимизации и исправления.</p>
-            </div>
-          </div>
-
-          <div class="glass-card full-changelog-card">
-            <div class="changelog-entry">
-              <div class="changelog-entry-title">
-                <h3>Версия 0.2.42 · Nightly 38609b7</h3>
-                <span class="changelog-date">5 ноября 2026</span>
-              </div>
-              <div class="changelog-section">
-                <h4>🚀 Новое в KBLauncher</h4>
-                <ul>
-                  <li>Полный ребрендинг в KBLauncher с новым 3D-логотипом и обновлённой темой оформления.</li>
-                  <li>Поддержка косметики: значок основателя KBLauncher возле никнейма в игре.</li>
-                  <li>Отображение плащей и косметических предметов в одиночной игре.</li>
-                  <li>Быстрый установщик нативных модов напрямую по ссылке с GitHub репозитория.</li>
-                  <li>Интеграция менеджера локальных серверов с автогенерацией настроек и EULA.</li>
-                </ul>
-              </div>
-              <div class="changelog-section">
-                <h4>🛠 Исправления и оптимизация</h4>
-                <ul>
-                  <li>Realms: экран конфигурации владельца и вкладка подписок.</li>
-                  <li>Windows: предотвращены повторные запросы брандмауэра при обновлениях лаунчера.</li>
-                  <li>Оптимизировано выделение оперативной памяти Java при запуске тяжёлых модпаков.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </main>
-    </div>
-
-  </div>
-
-  <!-- ================= MODALS & DIALOGS ================= -->
-
-  <!-- Modal 1: Create Build (Создать сборку) -->
-  <div class="modal-backdrop" id="modal-create-build">
-    <div class="modal-window">
-      <div class="modal-header">
-        <h3 class="modal-title">Создать новую сборку</h3>
-        <button class="modal-close-btn" data-close-modal="modal-create-build">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Название сборки</label>
-          <input type="text" class="form-input" id="new-build-name" placeholder="Например: Моя сборка 1.21">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Версия игры</label>
-          <select class="form-input" id="new-build-version">
-            <option value="26.3" selected>Release 26.3 (Новейший релиз 2026 · Рекомендуется)</option>
-            <option value="26.2">Release 26.2</option>
-            <option value="26.1.2">Release 26.1.2</option>
-            <option value="26.1">Release 26.1</option>
-            <option value="26.0">Release 26.0</option>
-            <option value="26w14a">Snapshot 26w14a (Самый свежий снапшот)</option>
-            <option value="26w12b">Snapshot 26w12b</option>
-            <option value="26w10a">Snapshot 26w10a</option>
-            <option value="1.21.4">1.21.4</option>
-            <option value="1.20.1">1.20.1 (Стабильный для модов)</option>
-            <option value="1.19.4">1.19.4</option>
-            <option value="1.16.5">1.16.5</option>
-            <option value="1.12.2">1.12.2</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Загрузчик модов</label>
-          <div class="modloader-selector-row">
-            <label class="loader-chip active">
-              <input type="radio" name="modloader" value="fabric" checked>
-              <span>Fabric</span>
-            </label>
-            <label class="loader-chip">
-              <input type="radio" name="modloader" value="forge">
-              <span>Forge</span>
-            </label>
-            <label class="loader-chip">
-              <input type="radio" name="modloader" value="neoforge">
-              <span>NeoForge</span>
-            </label>
-            <label class="loader-chip">
-              <input type="radio" name="modloader" value="vanilla">
-              <span>Vanilla</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="secondary-glass-btn" data-close-modal="modal-create-build">Отмена</button>
-        <button class="primary-play-btn" id="btn-confirm-create-build">Создать сборку</button>
-      </div>
-    </div>
-  </div>
-
-  
-  <!-- Modal: Выбор ядра/загрузчика модов (Fabric / Quilt / NeoForge / Forge / Vanilla) -->
-  <div class="modal-backdrop" id="modal-select-loader">
-    <div class="modal-window loader-select-window">
-      <div class="modal-header">
-        <div class="loader-modal-title-box">
-          <h3 class="modal-title" id="loader-modal-title">Выбор ядра для Minecraft</h3>
-          <p class="modal-subtitle" id="loader-modal-sub">Выберите модификацию клиента или чистую версию для установки и игры</p>
-        </div>
-        <button class="modal-close-btn" data-close-modal="modal-select-loader">&times;</button>
-      </div>
-      <div class="modal-body loader-modal-body">
-        <div class="loaders-grid" id="loaders-grid-container">
-          <!-- Dynamically populated in JS based on version's supported loaders -->
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="secondary-glass-btn" data-close-modal="modal-select-loader">Отмена</button>
-        <button class="primary-play-btn" id="btn-confirm-select-loader">✓ Выбрать и применить</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 2: Settings (Настройки лаунчера) -->
-  <div class="modal-backdrop" id="modal-settings">
-    <div class="modal-window wide">
-      <div class="modal-header">
-        <h3 class="modal-title">Настройки KBLauncher</h3>
-        <button class="modal-close-btn" data-close-modal="modal-settings">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="settings-tabs-row">
-          <span class="settings-tab-btn active">Основные</span>
-          <span class="settings-tab-btn">Java & Память</span>
-          <span class="settings-tab-btn">О программе</span>
-        </div>
-
-        <div class="settings-content-pane">
-          
-          
-
-          <div class="form-group">
-            <label class="form-label">Разрешение игрового окна</label>
-            <select class="form-input" id="setting-resolution">
-              <option value="1920x1080">1920 x 1080 (Full HD)</option>
-              <option value="1280x720">1280 x 720 (HD)</option>
-              <option value="fullscreen">Полноэкранный режим</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Путь к Java Runtime</label>
-            <input type="text" class="form-input" id="setting-java-path" value="Автоопределение (OpenJDK 21 64-bit)">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Дополнительные аргументы JVM</label>
-            <input type="text" class="form-input" id="setting-jvm-args" value="-XX:+UseG1GC -XX:+ParallelRefProcEnabled">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="secondary-glass-btn" data-close-modal="modal-settings">Закрыть</button>
-        <button class="primary-play-btn" id="btn-save-settings">Сохранить</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 3: Account Switcher (Photo 3) -->
-  <div class="modal-backdrop" id="modal-account">
-    <div class="modal-window account-modal-window">
-      <div class="modal-header">
-        <h3 class="modal-title">Управление аккаунтом</h3>
-        <button class="modal-close-btn" data-close-modal="modal-account">&times;</button>
-      </div>
-      <div class="modal-body">
-        <!-- Current Account Banner (Photo 3 top) -->
-        <div class="account-card-active photo3-card">
-          <img src="assets/user-avatar.png" class="account-avatar-large" id="modal-acc-avatar">
-          <div class="account-card-info">
-            <div class="account-card-name" id="modal-acc-name">Player</div>
-            <div class="account-card-type" id="modal-acc-type">Аккаунт Microsoft - играет</div>
-            <div class="account-status-sub" id="modal-acc-status">
-              <span class="status-check-icon">✓</span> Готово к игре по сети
-            </div>
-          </div>
-          <button class="secondary-glass-btn account-play-offline-btn" id="btn-toggle-offline-mode">Играть офлайн</button>
-        </div>
-
-        <!-- Section: Другой аккаунт (Photo 3) -->
-        <div class="account-section-heading mt-24">
-          <div class="section-title-bold">Другой аккаунт</div>
-          <div class="section-subtext">Добавьте ещё один аккаунт для переключения в 1 клик.</div>
-        </div>
-
-        <div class="login-providers-list mt-16">
-          <!-- Button 1: Войти через Microsoft (Photo 3 style) -->
-          <button class="oauth-provider-btn ms-large-btn" id="btn-login-ms">
-            <svg width="22" height="22" viewBox="0 0 21 21">
-              <path fill="#f25022" d="M1 1h9v9H1z"/>
-              <path fill="#00a4ef" d="M1 11h9v9H1z"/>
-              <path fill="#7fba00" d="M11 1h9v9H11z"/>
-              <path fill="#ffb900" d="M11 11h9v9H11z"/>
-            </svg>
-            <span>Войти через Microsoft</span>
-          </button>
-
-          <!-- Button 2: Войти через Ely.by (Photo 3 requirement) -->
-          <button class="oauth-provider-btn ely-large-btn" id="btn-login-ely">
-            <svg width="22" height="22" viewBox="0 0 32 32">
-              <circle cx="16" cy="16" r="14" fill="#0ea5e9"/>
-              <path d="M10 16 L16 10 L22 16 L16 22 Z" fill="#ffffff"/>
-              <circle cx="16" cy="16" r="3.5" fill="#0ea5e9"/>
-            </svg>
-            <span>Войти через Ely.by</span>
-            <span class="provider-subbadge">Скины & Плащи</span>
-          </button>
-        </div>
-
-        <!-- Section 3: Войти через офлайн-аккаунт -->
-        <div class="offline-login-box mt-16">
-          <label class="form-label">Войти через офлайн-аккаунт</label>
-          <div class="input-with-button">
-            <input type="text" class="form-input" id="custom-nickname-input" placeholder="Введите никнейм игрока">
-            <button class="primary-play-btn" id="btn-apply-nickname">Войти</button>
-          </div>
-          <span class="form-help-text">Офлайн-режим работает без интернета и без пароля.</span>
-        </div>
-
-        <div class="auth-security-disclaimer mt-16">
-          Страница авторизации открывается в вашем браузере. KBLauncher никогда не видит ваш пароль.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="secondary-glass-btn" data-close-modal="modal-account">Закрыть</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 4: Create Server (Photo 1 Layout) -->
-  <div class="modal-backdrop" id="modal-create-server">
-    <div class="modal-window server-creation-window">
-      <!-- Left Column: Live Preview Card (Photo 1) -->
-      <div class="server-creation-sidebar">
-        <div class="server-preview-top-badge">Новый сервер</div>
-        <div class="server-preview-banner-box">
-          <img src="assets/bg-sunset.png" alt="World Banner" class="server-preview-banner-img">
-          <div class="server-preview-banner-overlay"></div>
-        </div>
-        <div class="server-preview-info">
-          <h3 class="server-preview-title" id="preview-server-name">Мой сервер</h3>
-          <p class="server-preview-desc" id="preview-server-desc">
-            Выживание · Нормальный · до 10 игроков · friends only · Новый мир со случайным зерном
-          </p>
-        </div>
-      </div>
-
-      <!-- Right Column: Server Config Form (Photo 1) -->
-      <div class="server-creation-main">
-        <div class="modal-header">
-          <div>
-            <h3 class="modal-title">Создать сервер</h3>
-            <p class="modal-subtext">Та же программа, что работает на VPS, запускается отсюда кнопками.</p>
-          </div>
-          <button class="modal-close-btn" data-close-modal="modal-create-server">&times;</button>
-        </div>
-
-        <div class="modal-body server-create-scrollable">
-          <!-- Field: Название -->
-          <div class="form-group">
-            <label class="form-label">Название</label>
-            <input type="text" class="form-input" id="server-name-input" value="Мой сервер" placeholder="Мой сервер">
-          </div>
-
-          <!-- Field: Мир -->
-          <div class="form-group">
-            <label class="form-label">Мир</label>
-            <div class="server-select-grid world-grid">
-              <div class="server-opt-card active" data-world-type="new">
-                <div class="opt-card-title">Новый мир</div>
-                <div class="opt-card-sub">Создаётся при первом запуске</div>
-              </div>
-              <div class="server-opt-card" data-world-type="copy">
-                <div class="opt-card-title">Скопировать один из моих миров</div>
-                <div class="opt-card-sub">1 миров на выбор</div>
-              </div>
-            </div>
-            <input type="text" class="form-input mt-8" id="server-seed-input" placeholder="Seed, optional: leave empty for a random world">
-          </div>
-
-          <!-- Field: Режим игры -->
-          <div class="form-group">
-            <label class="form-label">Режим игры</label>
-            <div class="server-select-grid gamemode-grid">
-              <div class="server-opt-card active" data-gamemode="survival">
-                <div class="opt-card-title">Выживание</div>
-                <div class="opt-card-sub">Gather, build and stay alive</div>
-              </div>
-              <div class="server-opt-card" data-gamemode="creative">
-                <div class="opt-card-title">Творчество</div>
-                <div class="opt-card-sub">Fly and build with every block</div>
-              </div>
-              <div class="server-opt-card" data-gamemode="adventure">
-                <div class="opt-card-title">Приключение</div>
-                <div class="opt-card-sub">Play a map the way it was made</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row: Сложность + Максимум игроков -->
-          <div class="server-split-row">
-            <div class="server-col-half">
-              <label class="form-label">Сложность</label>
-              <div class="difficulty-pills-row">
-                <span class="diff-pill" data-diff="peaceful">Мирный</span>
-                <span class="diff-pill" data-diff="easy">Легкий</span>
-                <span class="diff-pill active" data-diff="normal">Нормальный</span>
-                <span class="diff-pill" data-diff="hard">Сложный</span>
-              </div>
-            </div>
-            <div class="server-col-half">
-              <label class="form-label">Максимум игроков одновременно</label>
-              <div class="players-stepper-box">
-                <button type="button" class="stepper-btn" id="btn-player-dec">−</button>
-                <span class="stepper-val" id="server-players-val">10</span>
-                <button type="button" class="stepper-btn" id="btn-player-inc">+</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row: Выделение оперативной памяти (ОЗУ / RAM) для сервера -->
-          <div class="form-group mt-16 server-ram-section">
-            <div class="server-ram-header">
-              <label class="form-label mb-0">Выделение оперативной памяти (ОЗУ)</label>
-              <span class="server-ram-badge" id="server-ram-val">4096 МБ (4.0 ГБ)</span>
-            </div>
-            <div class="server-ram-slider-wrapper">
-              <input type="range" class="custom-slider" id="server-ram-slider" min="1024" max="16384" step="512" value="4096">
-            </div>
-            <div class="server-ram-presets-row">
-              <button type="button" class="ram-preset-pill" data-ram="2048">2 ГБ</button>
-              <button type="button" class="ram-preset-pill active" data-ram="4096">4 ГБ (Реком.)</button>
-              <button type="button" class="ram-preset-pill" data-ram="6144">6 ГБ</button>
-              <button type="button" class="ram-preset-pill" data-ram="8192">8 ГБ</button>
-              <button type="button" class="ram-preset-pill" data-ram="12288">12 ГБ</button>
-            </div>
-            <span class="form-help-text" id="server-ram-hint">💡 Оптимально для сервера с плагинами и 10 игроками.</span>
-          </div>
-
-          <!-- Row: Ядро сервера (Engine / Core) -->
-          <div class="form-group mt-16">
-            <label class="form-label">
-              <span>Ядро сервера</span>
-              <span class="subgroup-badge" id="server-core-badge">Paper 1.21.4</span>
-            </label>
-            <div class="server-select-grid core-grid">
-              <div class="server-opt-card active" data-core="paper">
-                <div class="opt-card-title">⚡ Paper</div>
-                <div class="opt-card-sub">Высокий TPS, анти-лаг и плагины</div>
-              </div>
-              <div class="server-opt-card" data-core="fabric">
-                <div class="opt-card-title">🧩 Fabric</div>
-                <div class="opt-card-sub">Легковесный сервер под моды</div>
-              </div>
-              <div class="server-opt-card" data-core="purpur">
-                <div class="opt-card-title">🔮 Purpur</div>
-                <div class="opt-card-sub">Максимум настроек и оптимизаций</div>
-              </div>
-              <div class="server-opt-card" data-core="vanilla">
-                <div class="opt-card-title">🛡️ Vanilla</div>
-                <div class="opt-card-sub">Официальное ядро от Mojang</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row: Порт сервера & Сетевые опции -->
-          <div class="server-split-row mt-16">
-            <div class="server-col-half">
-              <label class="form-label">Порт сервера</label>
-              <div class="input-with-button">
-                <input type="number" class="form-input" id="server-port-input" value="25565" min="1024" max="65535">
-                <button type="button" class="secondary-glass-btn" id="btn-rand-port" title="Случайный порт">🎲 Рандом</button>
-              </div>
-            </div>
-            <div class="server-col-half">
-              <label class="form-label">Режим авторизации</label>
-              <div class="server-auth-toggle-box">
-                <label class="custom-switch-label">
-                  <input type="checkbox" id="server-online-mode" checked>
-                  <span class="switch-slider"></span>
-                  <span class="switch-title" id="server-online-mode-label">Лицензия (Online Mode)</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row: Дополнительные настройки мира и сервера (PVP, Structures, Whitelist, Auto-Restart) -->
-          <div class="form-group mt-16">
-            <label class="form-label">Дополнительные опции сервера</label>
-            <div class="server-toggles-grid">
-              <label class="server-checkbox-card">
-                <input type="checkbox" id="toggle-server-upnp" checked>
-                <div class="chk-content">
-                  <span class="chk-title">🌐 Авто-UPnP (Открыть для друзей)</span>
-                  <span class="chk-sub">Автоматический проброс порта в роутере</span>
-                </div>
-              </label>
-              <label class="server-checkbox-card">
-                <input type="checkbox" id="toggle-server-pvp" checked>
-                <div class="chk-content">
-                  <span class="chk-title">⚔️ PVP сражения</span>
-                  <span class="chk-sub">Разрешить игрокам наносить урон друг другу</span>
-                </div>
-              </label>
-              <label class="server-checkbox-card">
-                <input type="checkbox" id="toggle-server-restart" checked>
-                <div class="chk-content">
-                  <span class="chk-title">🔄 Автоперезапуск при сбоях</span>
-                  <span class="chk-sub">Восстановление работы без зависаний</span>
-                </div>
-              </label>
-              <label class="server-checkbox-card">
-                <input type="checkbox" id="toggle-server-whitelist">
-                <div class="chk-content">
-                  <span class="chk-title">📝 Белый список (Whitelist)</span>
-                  <span class="chk-sub">Вход только по добавленным никам</span>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Field: Операторы сервера (Администраторы / OP) - Replacer of the red scribble -->
-          <div class="form-group mt-16 server-op-section">
-            <label class="form-label">
-              <span>Операторы сервера (Администраторы / OP)</span>
-              <span class="subgroup-badge">OP Level 4</span>
-            </label>
-            <div class="input-with-button">
-              <input type="text" class="form-input" id="server-op-input" placeholder="Введите никнейм игрока (например: Player)">
-              <button type="button" class="secondary-glass-btn" id="btn-add-server-op">Добавить OP</button>
-            </div>
-            <div class="server-ops-chips mt-8" id="server-ops-chips">
-              <span class="op-chip" data-op="Player">
-                👑 <span class="op-name">Player</span> (Вы)
-                <button type="button" class="remove-op-btn" title="Удалить">&times;</button>
-              </span>
-            </div>
-            <span class="form-help-text">Операторы получают высшие права: консоль, команды /gamemode, /op, /teleport, /stop.</span>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="secondary-glass-btn" data-close-modal="modal-create-server">Отмена</button>
-          <button class="primary-play-btn" id="btn-confirm-create-server">Создать сервер</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 5: First Run Onboarding (Вход при первом входе с нуля) -->
-  <div class="modal-backdrop" id="modal-first-run">
-    <div class="modal-window first-run-window">
-      <div class="modal-header">
-        <div class="first-run-header-titles">
-          <div class="launcher-brand-pill">KBLauncher • Первый запуск</div>
-          <h3 class="modal-title">Добро пожаловать в KBLauncher</h3>
-          <p class="modal-subtext">Выберите способ входа для запуска Minecraft и сохранения прогресса:</p>
-        </div>
-        <button class="modal-close-btn" id="btn-first-run-close" title="Выйти / закрыть">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="first-run-auth-grid">
-          <!-- Card 1: Microsoft -->
-          <div class="auth-method-card" id="first-run-login-ms">
-            <div class="auth-icon-box ms-box">
-              <svg width="26" height="26" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z"/><path fill="#00a4ef" d="M1 11h9v9H1z"/><path fill="#7fba00" d="M11 1h9v9H11z"/><path fill="#ffb900" d="M11 11h9v9H11z"/></svg>
-            </div>
-            <div class="auth-method-info">
-              <div class="auth-method-name">Войти через Microsoft</div>
-              <div class="auth-method-desc">Официальная лицензия Minecraft, Realms и лицензионные сервера</div>
-            </div>
-            <div class="auth-arrow">→</div>
-          </div>
-
-          <!-- Card 2: Ely.by -->
-          <div class="auth-method-card" id="first-run-login-ely">
-            <div class="auth-icon-box ely-box">
-              <svg width="26" height="26" viewBox="0 0 32 32">
-                <circle cx="16" cy="16" r="14" fill="#0ea5e9"/>
-                <path d="M10 16 L16 10 L22 16 L16 22 Z" fill="#ffffff"/>
-                <circle cx="16" cy="16" r="3.5" fill="#0ea5e9"/>
-              </svg>
-            </div>
-            <div class="auth-method-info">
-              <div class="auth-method-name">Войти через систему скинов Ely.by</div>
-              <div class="auth-method-desc">Бесплатная система HD-скинов, плащей и авторизации Ely.by</div>
-            </div>
-            <div class="auth-arrow">→</div>
-          </div>
-
-          <!-- Card 3: Offline Account -->
-          <div class="auth-method-card offline-card" id="first-run-login-offline-card">
-            <div class="auth-icon-box offline-box">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </div>
-            <div class="auth-method-info full-width">
-              <div class="auth-method-name">Войти через офлайн-аккаунт</div>
-              <div class="auth-method-desc">Быстрый вход без пароля и регистрации: введите ваш никнейм</div>
-              <div class="first-run-offline-input-row mt-8">
-                <input type="text" class="form-input" id="first-run-nick-input" placeholder="Введите ваш никнейм (например: Player)">
-                <button class="primary-play-btn" id="btn-first-run-confirm-offline">Играть</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer first-run-footer">
-        <span class="first-run-security-note">🔒 Авторизация безопасна. KBLauncher не собирает ваши пароли.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 6: First Run Confirmation Dialog (Вы точно хотите продолжить пока что без аккаунта?) -->
-  <div class="modal-backdrop" id="modal-first-run-confirm" style="z-index: 100000;">
-    <div class="modal-window confirm-dialog-window">
-      <div class="confirm-dialog-content">
-        <div class="confirm-icon-bubble">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-        </div>
-        <h3 class="confirm-title">Продолжить без аккаунта?</h3>
-        <p class="confirm-message">Вы точно хотите продолжить пока что без аккаунта?</p>
-        <p class="confirm-subtext">Вы сможете в любой момент привязать или сменить аккаунт через верхнюю панель профиля.</p>
-        <div class="confirm-buttons-row">
-          <button class="secondary-glass-btn confirm-btn-no" id="btn-confirm-no-account-no">Нет, остаться</button>
-          <button class="primary-play-btn confirm-btn-yes" id="btn-confirm-no-account-yes">Да, продолжить</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification Container -->
-  <div class="toast-container" id="toast-container"></div>
-
-  <script src="skin_3d_renderer.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>KBLauncher</title>
+
+  <link rel="icon" type="image/png" href="assets/icon-32.png">
+
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+
+    // Universal Bridge Shim for Python (pywebview) and Electron
+
+    window._pyApi = null;
+
+    window.addEventListener('pywebviewready', () => {
+
+      window._pyApi = window.pywebview.api;
+
+    });
+
+
+
+    if (!window.electronAPI) {
+
+      window.electronAPI = {
+
+        minimize: () => window._pyApi ? window._pyApi.minimize() : (window.pywebview?.api?.minimize()),
+
+        maximize: () => window._pyApi ? window._pyApi.maximize() : (window.pywebview?.api?.maximize()),
+
+        close: () => window._pyApi ? window._pyApi.close() : (window.pywebview?.api?.close()),
+
+        isMaximized: () => window._pyApi ? window._pyApi.is_maximized() : Promise.resolve(false),
+
+        openExternal: (url) => window._pyApi ? window._pyApi.open_external(url) : window.open(url, '_blank'),
+
+        openFolder: (p) => window._pyApi ? window._pyApi.open_folder(p) : console.log('Folder', p),
+
+        launchGame: (cfg) => window._pyApi ? window._pyApi.launch_game(cfg) : Promise.resolve({ success: true, pid: 3450 }),
+
+        killGame: (instId) => window._pyApi ? window._pyApi.kill_game(instId) : Promise.resolve({ success: true }),
+
+        openInstanceFolder: (instId) => window._pyApi ? window._pyApi.open_instance_folder(instId) : Promise.resolve({ success: true }),
+
+        onMaximizedChange: (cb) => { window._onMaxChange = cb; }
+
+      };
+
+    }
+
+  </script>
+
+  
+
+</head>
+
+<body class="theme-dark">
+
+  
+
+  <div class="kbl-bg-art"></div>
+
+  <div class="kbl-bg-mesh"></div>
+
+  <div class="kbl-bg-grid"></div>
+
+  <div class="bg-stars-canvas" id="stars-layer"></div>
+
+  <div class="bg-overlay"></div>
+
+
+
+  <!-- App Wrapper -->
+
+  <div class="app-container">
+
+
+
+    <!-- Custom Title Bar (Frameless Draggable Window Header) -->
+
+    <header class="titlebar pywebview-drag-region">
+
+      <div class="titlebar-drag-area pywebview-drag-region">
+
+        <div class="app-brand">
+
+          <img src="assets/kbl-logo-circle.png" alt="KBLauncher" class="brand-icon">
+
+          <span class="brand-title">KBLauncher</span>
+
+        </div>
+
+      </div>
+
+      <div class="titlebar-window-controls">
+
+        <button class="win-btn minimize-btn" id="btn-minimize" title="Свернуть">
+
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.5"/></svg>
+
+        </button>
+
+        <button class="win-btn maximize-btn" id="btn-maximize" title="Развернуть">
+
+          <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.5" rx="1"/></svg>
+
+        </button>
+
+        <button class="win-btn close-btn" id="btn-close" title="Закрыть">
+
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- Top Navigation Bar & Profile -->
+
+    <nav class="top-nav-bar">
+
+      <!-- Centered Navigation Pills -->
+
+      <div class="nav-pills-container">
+
+        <div class="nav-pill-glider" id="nav-glider"></div>
+
+        <button class="nav-pill active" data-tab="tab-home">Главная</button>
+
+        <button class="nav-pill" data-tab="tab-mods">Моды</button>
+
+        <button class="nav-pill" data-tab="tab-servers">Серверы</button>
+
+        <button class="nav-pill" data-tab="tab-wardrobe">Гардероб</button>
+
+        <button class="nav-pill" data-tab="tab-versions">Версии</button>
+
+        <button class="nav-pill" data-tab="tab-changelog">Список изменений</button>
+
+      </div>
+
+
+
+      <!-- Right User Profile Chip & Settings -->
+
+      <div class="top-right-group">
+
+        <div class="profile-dropdown-wrapper">
+
+          <div class="user-profile-chip" id="profile-chip" title="Управление аккаунтом">
+
+            <div class="avatar-wrapper">
+
+              <img src="assets/user-avatar.png" alt="Avatar" class="user-avatar" id="current-user-avatar">
+
+            </div>
+
+            <div class="user-info">
+
+              <span class="user-name" id="current-user-name">Player</span>
+
+              <span class="user-subtext" id="current-user-type">Офлайн-аккаунт</span>
+
+            </div>
+
+            <svg class="chevron-down" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+
+              <polyline points="6 9 12 15 18 9"></polyline>
+
+            </svg>
+
+          </div>
+
+
+
+          <!-- Attached Dropdown Popup Menu (Photo 2) -->
+
+          <div class="account-dropdown-popup" id="account-dropdown-popup">
+
+            <div class="account-dropdown-list" id="account-dropdown-list">
+
+              <!-- Dynamically populated from LauncherState.accounts -->
+
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <div class="dropdown-manage-row" id="btn-dropdown-manage-accounts">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+
+                <circle cx="12" cy="7" r="4"></circle>
+
+              </svg>
+
+              <span>Управление аккаунтами</span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <button class="icon-action-btn settings-btn" id="open-settings-btn" title="Настройки лаунчера">
+
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+
+            <line x1="1" y1="14" x2="7" y2="14"></line>
+
+            <line x1="9" y1="8" x2="15" y2="8"></line>
+
+            <line x1="17" y1="16" x2="23" y2="16"></line>
+
+          </svg>
+
+        </button>
+
+      </div>
+
+    </nav>
+
+
+
+    <!-- Main Content Workspace (Sidebar + Pages) -->
+
+    <div class="main-layout">
+
+
+
+      <!-- Left Sidebar (Сборки / Instances) -->
+
+      <aside class="sidebar">
+
+        <div class="sidebar-header">
+
+          <div class="sidebar-title-group">
+
+            <span class="sidebar-title">Сборки</span>
+
+            <span class="sidebar-builds-count" id="sidebar-builds-count">3</span>
+
+          </div>
+
+          <button class="add-instance-btn" id="add-build-btn" title="Создать сборку">
+
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+
+            </svg>
+
+          </button>
+
+        </div>
+
+
+
+        <!-- Instances List -->
+
+        <div class="instances-list" id="instances-container">
+
+          <!-- Active Instance Card 1: KBLauncher Main -->
+
+          <div class="instance-card active" data-instance-id="kblauncher-main">
+
+            <div class="instance-icon-box">
+
+              <img src="assets/kbl-logo-circle.png" alt="Logo" class="instance-logo">
+
+            </div>
+
+            <div class="instance-details">
+
+              <div class="instance-name">KBLauncher</div>
+
+              <div class="instance-status">
+
+                <span class="status-dot green"></span>
+
+                <span class="status-text">Готово</span>
+
+                <span class="instance-tag">Fabric · 42 мода</span>
+
+              </div>
+
+            </div>
+
+            <button class="instance-menu-btn" title="Опции сборки">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="12" cy="12" r="1.5"></circle>
+
+                <circle cx="12" cy="5" r="1.5"></circle>
+
+                <circle cx="12" cy="19" r="1.5"></circle>
+
+              </svg>
+
+            </button>
+
+          </div>
+
+
+
+          <!-- Instance Card 2: Vanilla 1.21.4 -->
+
+          <div class="instance-card" data-instance-id="vanilla-1-21">
+
+            <div class="instance-icon-box vanilla-box">
+
+              <span class="vanilla-cube-icon">🧊</span>
+
+            </div>
+
+            <div class="instance-details">
+
+              <div class="instance-name">Vanilla 1.21.4</div>
+
+              <div class="instance-status">
+
+                <span class="status-dot grey"></span>
+
+                <span class="status-text">Чистый клиент</span>
+
+                <span class="instance-tag">Release</span>
+
+              </div>
+
+            </div>
+
+            <button class="instance-menu-btn" title="Опции сборки">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="12" cy="12" r="1.5"></circle>
+
+                <circle cx="12" cy="5" r="1.5"></circle>
+
+                <circle cx="12" cy="19" r="1.5"></circle>
+
+              </svg>
+
+            </button>
+
+          </div>
+
+
+
+          <!-- Instance Card 3: Shaders & OptiFine -->
+
+          <div class="instance-card" data-instance-id="shaders-optifine">
+
+            <div class="instance-icon-box shaders-box">
+
+              <span class="shaders-star-icon">✨</span>
+
+            </div>
+
+            <div class="instance-details">
+
+              <div class="instance-name">Shaders & RT</div>
+
+              <div class="instance-status">
+
+                <span class="status-dot purple"></span>
+
+                <span class="status-text">Шейдеры</span>
+
+                <span class="instance-tag">Iris + BSL</span>
+
+              </div>
+
+            </div>
+
+            <button class="instance-menu-btn" title="Опции сборки">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="12" cy="12" r="1.5"></circle>
+
+                <circle cx="12" cy="5" r="1.5"></circle>
+
+                <circle cx="12" cy="19" r="1.5"></circle>
+
+              </svg>
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Sidebar Bottom Footer -->
+
+        <div class="sidebar-footer">
+
+          <!-- Discord Button with online badge -->
+
+          <button class="discord-join-btn" id="btn-discord">
+
+            <div class="discord-btn-inner">
+
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+
+              </svg>
+
+              <span>Дискорд</span>
+
+            </div>
+
+            <span class="discord-online-pill"><span class="pulse-indicator"></span> 1,420</span>
+
+          </button>
+
+
+
+          <!-- Links Row: Support, Site, Telegram -->
+
+          <div class="sidebar-links-row">
+
+            <button class="footer-link-btn btn-support-styled" id="btn-support" title="Поддержать проект">
+
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+
+              </svg>
+
+              <span>Донат</span>
+
+            </button>
+
+            <button class="footer-link-btn btn-site-styled" id="btn-site" title="Официальный сайт">
+
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="12" cy="12" r="10"></circle>
+
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+
+              </svg>
+
+              <span>Сайт</span>
+
+            </button>
+
+            <button class="footer-link-btn btn-tg-styled" id="btn-telegram" title="Telegram канал">
+
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+
+              </svg>
+
+              <span>ТГ</span>
+
+            </button>
+
+          </div>
+
+
+
+          <!-- Network Health Status -->
+
+          <div class="sidebar-network-status">
+
+            <span class="net-status-dot"></span>
+
+            <span class="net-status-text">Службы KBL: В сети (12ms)</span>
+
+          </div>
+
+
+
+          <div class="sidebar-version-tag">
+
+            <span class="version-label">Лаунчер 0.2.42 · Nightly</span>
+
+          </div>
+
+        </div>
+
+      </aside>
+
+
+
+      <!-- Pages Viewport -->
+
+      <main class="content-viewport">
+
+
+
+        <!-- ================= PAGE 1: ГЛАВНАЯ (HOME) ================= -->
+
+        <section class="tab-page active" id="tab-home">
+
+          
+
+          <!-- Badges / Editions Pill Group -->
+
+          <div class="editions-row">
+
+            <div class="edition-pill">
+
+              <img src="assets/kbl-logo-circle.png" class="edition-mini-icon">
+
+              <span>KBLauncher Edition</span>
+
+            </div>
+
+            <div class="edition-pill">
+
+              <span class="java-cube-icon">☕</span>
+
+              <span>Java Edition</span>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Hero App Title -->
+
+          <div class="hero-brand-section">
+
+            <div class="hero-title-group">
+
+              <img src="assets/kbl-logo-circle.png" alt="KBLauncher" class="hero-kbl-logo">
+
+              <h1 class="hero-title-text">KBLauncher</h1>
+
+            </div>
+
+            <p class="hero-subtitle-stats">
+
+              Вы наиграли 5 мин! Последняя игра: вчера. · 1,168 сейчас в игре · 128,490+ скачиваний
+
+            </p>
+
+          </div>
+
+
+
+          <!-- Primary Action Bar (Play, Version Selector, Invite) -->
+
+          <div class="action-bar-row">
+
+            <!-- Left Action Cluster -->
+
+            <div class="action-cluster-left">
+
+              <!-- Big Violet Play Button -->
+
+              <div class="play-btn-split">
+
+                <button class="primary-play-btn" id="main-play-btn">
+
+                  <span class="play-icon-triangle">▶</span>
+
+                  <span class="play-btn-label" id="play-status-label">Играть</span>
+
+                </button>
+
+                <button class="play-more-btn" id="play-options-btn" title="Параметры запуска">
+
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+
+                    <circle cx="12" cy="12" r="1.5"></circle>
+
+                    <circle cx="6" cy="12" r="1.5"></circle>
+
+                    <circle cx="18" cy="12" r="1.5"></circle>
+
+                  </svg>
+
+                </button>
+
+              </div>
+
+
+
+              <!-- Version Selector Dropdown -->
+
+              <div class="version-selector-box" id="version-selector-trigger">
+
+                <div class="version-meta">
+
+                  <span class="version-prefix">Версия</span>
+
+                  <span class="version-name" id="selected-version-text">Release 26.3</span>
+
+                </div>
+
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+
+                  <polyline points="6 9 12 15 18 9"></polyline>
+
+                </svg>
+
+
+
+                
+
+                <div class="version-dropdown-menu" id="version-dropdown-menu">
+
+                  <div class="version-dropdown-header">
+
+                    <div class="version-dropdown-search-box">
+
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                        <circle cx="11" cy="11" r="8"></circle>
+
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+                      </svg>
+
+                      <input type="text" id="dropdown-ver-search" placeholder="Поиск версии (1.20, 1.16.5, Fabric...)" autocomplete="off">
+
+                    </div>
+
+                    <div class="version-dropdown-tabs">
+
+                      <button class="ver-tab active" data-vtab="all">Все версии</button>
+
+                      <button class="ver-tab" data-vtab="release">🟩 Релизы</button>
+
+                      <button class="ver-tab" data-vtab="snapshot">🔬 Снапшоты</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="version-dropdown-scrollable" id="version-dropdown-list">
+
+                    <!-- Populated dynamically with all versions in JS -->
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
+              <!-- Official Website Quick Button -->
+
+              <button class="action-square-btn" id="btn-quick-site" title="Официальный сайт KBLauncher">
+
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                  <circle cx="12" cy="12" r="10"></circle>
+
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+
+                </svg>
+
+              </button>
+
+
+
+              <!-- Folder Button -->
+
+              <button class="action-square-btn" id="btn-open-folder" title="Открыть папку игры">
+
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+
+                </svg>
+
+              </button>
+
+              <!-- Game Logs & Console Button -->
+              <button class="action-square-btn" id="btn-open-logs" title="Журнал логов игры / консоль">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="4 17 10 11 4 5"></polyline>
+                  <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+              </button>
+
+            </div>
+
+
+
+            <!-- Right: Friend Invitation Code Input -->
+
+            <div class="friend-invite-box">
+
+              <div class="invite-icon">
+
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+
+                  <circle cx="12" cy="7" r="4"></circle>
+
+                </svg>
+
+              </div>
+
+              <input type="text" class="invite-input" id="friend-code-input" placeholder="Вставьте код приглашения друга">
+
+              <button class="invite-submit-btn" id="btn-join-friend">Войти</button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Secondary Sub-Navigation Pills -->
+
+          <div class="subnav-tabs-row">
+
+            <button class="subnav-tab active" data-subtab="sub-overview">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <rect x="3" y="3" width="7" height="7"></rect>
+
+                <rect x="14" y="3" width="7" height="7"></rect>
+
+                <rect x="14" y="14" width="7" height="7"></rect>
+
+                <rect x="3" y="14" width="7" height="7"></rect>
+
+              </svg>
+
+              <span>Обзор</span>
+
+            </button>
+
+            <button class="subnav-tab" data-subtab="sub-mods-list">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+
+              </svg>
+
+              <span>Моды (42)</span>
+
+            </button>
+
+            <button class="subnav-tab" data-subtab="sub-worlds">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="12" cy="12" r="10"></circle>
+
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+
+              </svg>
+
+              <span>Миры 1</span>
+
+            </button>
+
+            <button class="subnav-tab" data-subtab="sub-multiplayer">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+
+                <circle cx="9" cy="7" r="4"></circle>
+
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+
+              </svg>
+
+              <span>Сетевая игра 1</span>
+
+            </button>
+
+            <button class="subnav-tab" data-subtab="sub-resourcepacks">
+
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+
+                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+
+              </svg>
+
+              <span>Наборы</span>
+
+            </button>
+
+          </div>
+
+
+
+          <!-- Sub-Tab View Containers -->
+
+          <div class="subtab-content-container">
+
+
+
+            <!-- 1. Overview Content: Screenshots + Changelog split cards -->
+
+            <div class="subview active" id="subview-overview">
+
+              <div class="cards-grid-two-columns">
+
+                <!-- Left Card: Screenshots -->
+
+                <div class="glass-card screenshots-card">
+
+                  <div class="card-inner-header">
+
+                    <h3 class="card-title">Скриншоты</h3>
+
+                  </div>
+
+                  <div class="card-empty-placeholder">
+
+                    <p class="empty-text">Скриншотов пока нет. Нажмите F2 в игре.</p>
+
+                    <button class="secondary-glass-btn mt-12" id="btn-add-screenshot">
+
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+
+                      <span>Открыть галерею</span>
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+
+
+                <!-- Right Card: Changelog -->
+
+                <div class="glass-card changelog-card">
+
+                  <div class="card-inner-header space-between">
+
+                    <h3 class="card-title">Журнал изменений</h3>
+
+                    <a href="#" class="card-link" id="link-all-changelog">Все заметки</a>
+
+                  </div>
+
+                  <div class="changelog-version-header">
+
+                    <span class="changelog-build-id">Nightly 2026-11-05 · 38609b7 · 5 нояб</span>
+
+                  </div>
+
+                  <div class="changelog-scroll-list">
+
+                    <div class="changelog-group">
+
+                      <span class="changelog-badge-new">New</span>
+
+                      <ul class="changelog-bullet-list">
+
+                        <li>Cosmetics: KBLauncher players' mark by their names; the founder badge after the name</li>
+
+                        <li>Cosmetics: show my cosmetics in single player (setting, off by default)</li>
+
+                      </ul>
+
+                    </div>
+
+                    <div class="changelog-group mt-8">
+
+                      <span class="changelog-badge-fixed">Fixed</span>
+
+                      <ul class="changelog-bullet-list">
+
+                        <li>Realms: the owner's configuration screen and its subscription tab</li>
+
+                        <li>fix(windows): avoid repeated firewall prompts in fixtures and launcher updates</li>
+
+                        <li>Native mods: structure_template, a template's auto-generation hook</li>
+
+                      </ul>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- 2. Subview: Installed Mods List -->
+
+            <div class="subview" id="subview-mods-list">
+
+              <div class="glass-card">
+
+                <div class="card-inner-header space-between">
+
+                  <h3 class="card-title">Установленные моды в сборке KBLauncher</h3>
+
+                  <button class="secondary-glass-btn" onclick="switchNavTab('tab-mods')">+ Добавить моды</button>
+
+                </div>
+
+                <div class="installed-mods-table" id="installed-mods-tbody">
+
+                  <!-- Generated dynamically in JS -->
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- 3. Subview: Worlds -->
+
+            <div class="subview" id="subview-worlds">
+
+              <div class="glass-card">
+
+                <div class="card-inner-header space-between">
+
+                  <h3 class="card-title">Одиночные миры</h3>
+
+                  <button class="secondary-glass-btn" id="btn-create-world">+ Новый мир</button>
+
+                </div>
+
+                <div class="worlds-list-grid" id="worlds-list-container">
+
+                  <div class="world-item-card">
+
+                    <div class="world-thumb">🌄</div>
+
+                    <div class="world-info">
+
+                      <div class="world-name">Новый мир (Выживание)</div>
+
+                      <div class="world-meta">1.21.4 · Режим выживания · 12.4 МБ</div>
+
+                    </div>
+
+                    <button class="world-play-btn">Играть</button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- 4. Subview: Multiplayer -->
+
+            <div class="subview" id="subview-multiplayer">
+
+              <div class="glass-card">
+
+                <div class="card-inner-header space-between">
+
+                  <h3 class="card-title">Сетевая игра</h3>
+
+                  <button class="secondary-glass-btn" id="btn-add-server-entry">+ Добавить сервер</button>
+
+                </div>
+
+                <div class="server-entries-list" id="saved-servers-container">
+
+                  <div class="server-entry-row">
+
+                    <div class="server-status-led online"></div>
+
+                    <div class="server-entry-info">
+
+                      <div class="server-entry-title">Локальный сервер друзей</div>
+
+                      <div class="server-entry-ip">127.0.0.1:25565</div>
+
+                    </div>
+
+                    <div class="server-entry-stats">
+
+                      <span class="ping-badge">2ms</span>
+
+                      <span class="players-badge">4/10</span>
+
+                    </div>
+
+                    <button class="secondary-glass-btn">Подключиться</button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- 5. Subview: Resourcepacks -->
+
+            <div class="subview" id="subview-resourcepacks">
+
+              <div class="glass-card">
+
+                <div class="card-inner-header space-between">
+
+                  <h3 class="card-title">Наборы ресурсов и шейдеры</h3>
+
+                  <button class="secondary-glass-btn" id="btn-open-res-folder">Открыть папку</button>
+
+                </div>
+
+                <p class="empty-text">Шейдер Complementary Reimagined активен. Текстуры: Default 16x.</p>
+
+              </div>
+
+            </div>
+
+
+
+          </div>
+
+        </section>
+
+
+
+
+
+        <!-- ================= PAGE 2: МОДЫ (MODS CATALOG - IMAGE 1) ================= -->
+
+        <section class="tab-page" id="tab-mods">
+
+          
+
+          <div class="page-top-header">
+
+            <div class="header-text-block">
+
+              <h2 class="page-main-heading">Моды</h2>
+
+              <p class="page-subheading">
+
+                Всё, что вы устанавливаете, попадает в KBLauncher. Выберите слева другую сборку, чтобы наполнить её.
+
+              </p>
+
+            </div>
+
+
+
+            <!-- Mod Categories Selector Pills -->
+
+            <div class="mod-category-pills">
+
+              <button class="category-pill active" data-category="mods">Моды</button>
+
+              <button class="category-pill" data-category="modpacks">Модпаки</button>
+
+              <button class="category-pill" data-category="resourcepacks">Наборы ресурсов</button>
+
+              <button class="category-pill" data-category="shaders">Наборы шейдеров</button>
+
+              <button class="category-pill" data-category="datapacks">Датапаки</button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Target Instance Selector Bar -->
+
+          <div class="glass-card mods-instance-target-card" id="mods-instance-target-card">
+
+            <div class="mods-instance-target-left">
+
+              <span class="mods-instance-label">🎯 Сборка для установки модов:</span>
+
+              <div class="mods-select-styled-wrap">
+
+                <select class="mods-instance-dropdown" id="mods-target-instance-select">
+
+                  <!-- Populated in JS: KBLauncher, Vanilla 1.21.4, Shaders & RT -->
+
+                </select>
+
+              </div>
+
+            </div>
+
+            <div class="mods-instance-target-right">
+
+              <span class="inst-pill-badge" id="mods-target-loader-badge">⚡ Fabric · Release 26.3</span>
+
+              <button class="secondary-glass-btn btn-sm" id="btn-open-instance-mods-folder" title="Открыть изолированную папку модов этой сборки">
+
+                📁 Папка модов этой сборки
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Search and Sort Filter Bar -->
+
+          <div class="mods-filter-bar">
+
+            <div class="search-input-wrapper">
+
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="11" cy="11" r="8"></circle>
+
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+              </svg>
+
+              <input type="text" class="mods-search-input" id="mods-search-field" placeholder="Поиск, затем Enter">
+
+            </div>
+
+
+
+            <div class="sort-selector-dropdown">
+
+              <span class="sort-text">Сортировка: <strong id="current-sort-label">Лучшее совпадение</strong></span>
+
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+
+                <polyline points="6 9 12 15 18 9"></polyline>
+
+              </svg>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Toggle & Source Filters Bar -->
+
+          <div class="sources-toggle-bar">
+
+            <label class="custom-switch-label">
+
+              <input type="checkbox" id="toggle-show-all">
+
+              <span class="switch-slider"></span>
+
+              <span class="switch-title">Показать всё</span>
+
+            </label>
+
+
+
+            <div class="source-pills-group">
+
+              <button class="source-pill active" data-source="kblauncher">KBLauncher</button>
+
+              <button class="source-pill" data-source="modrinth">Modrinth</button>
+
+              <button class="source-pill disabled" data-source="curseforge">CurseForge скоро</button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Filter Section & Mod Items Grid -->
+
+          <div class="mods-main-grid-layout">
+
+            
+
+            <!-- Left Filter Side Column -->
+
+            <div class="mods-filters-sidebar">
+
+              <div class="filter-header-title">Фильтры</div>
+
+              <div class="filter-chip-status">
+
+                <span class="filter-badge">Устанавливается в KBLauncher</span>
+
+              </div>
+
+              <div class="filter-search-box">
+
+                <input type="text" class="filter-input-small" id="filter-subsearch" placeholder="Поиск...">
+
+              </div>
+
+              
+
+              <div class="filter-categories-list">
+
+                <label class="filter-checkbox-item">
+
+                  <input type="checkbox" checked>
+
+                  <span>Оптимизация (FPS)</span>
+
+                </label>
+
+                <label class="filter-checkbox-item">
+
+                  <input type="checkbox" checked>
+
+                  <span>Интерфейс & HUD</span>
+
+                </label>
+
+                <label class="filter-checkbox-item">
+
+                  <input type="checkbox" checked>
+
+                  <span>Графика & Освещение</span>
+
+                </label>
+
+                <label class="filter-checkbox-item">
+
+                  <input type="checkbox">
+
+                  <span>Магия & Приключения</span>
+
+                </label>
+
+                <label class="filter-checkbox-item">
+
+                  <input type="checkbox">
+
+                  <span>Технологии</span>
+
+                </label>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Right Mods Catalog Items List -->
+
+            <div class="mods-catalog-container" id="mods-catalog-cards">
+
+              <!-- Rendered via JS -->
+
+            </div>
+
+
+
+          </div>
+
+
+
+          <!-- Bottom: Add Native Mod from GitHub Card (Image 1) -->
+
+          <div class="github-native-mod-card">
+
+            <div class="github-card-header">
+
+              <h3 class="github-card-title">Добавить нативный мод с GitHub</h3>
+
+              <p class="github-card-desc">
+
+                Ссылка на репозиторий [его последний релиз] релиз, ветку, тег или коммит. Лаунчер устанавливает точный файл релиза или коммит, а не изменяющуюся ветку.
+
+              </p>
+
+            </div>
+
+            <div class="github-input-row">
+
+              <input type="text" class="github-repo-input" id="github-url-input" placeholder="https://github.com/owner/repo">
+
+              <button class="github-submit-btn" id="btn-add-github-mod">Добавить с GitHub</button>
+
+            </div>
+
+          </div>
+
+
+
+        </section>
+
+
+
+
+
+        <!-- ================= PAGE 3: СЕРВЕРЫ (SERVERS - IMAGE 3) ================= -->
+
+        <section class="tab-page" id="tab-servers">
+
+          
+
+          <div class="page-top-header">
+
+            <div class="header-text-block">
+
+              <h2 class="page-main-heading">Серверы</h2>
+
+              <p class="page-subheading">
+
+                Запустите мир для друзей кнопками, без команд. Та же программа работает на VPS.
+
+              </p>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="servers-view-split">
+
+            <!-- Left: Servers Container (Empty or active server cards) -->
+
+            <div class="servers-main-column">
+
+              <!-- Default Empty Box (as seen in Image 3) -->
+
+              <div class="glass-card server-empty-box" id="servers-empty-card">
+
+                <p class="server-empty-desc">
+
+                  Серверов пока нет. Создайте его: это займёт несколько секунд, а с настройками по умолчанию (отметьте EULA и нажмите «Создать») вы получите мир выживания только для друзей.
+
+                </p>
+
+                <button class="primary-play-btn server-create-btn" id="btn-open-create-server">
+
+                  <span>Создать сервер</span>
+
+                </button>
+
+              </div>
+
+
+
+              <!-- Servers List Container -->
+
+              <div class="active-servers-list" id="active-servers-list" style="display: none;">
+
+                <!-- Dynamically populated in JS -->
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Right: Action Buttons Column (Image 3) -->
+
+            <div class="servers-actions-column">
+
+              <button class="server-action-pill-btn" id="btn-action-create-server">
+
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+
+                </svg>
+
+                <span>Создать сервер</span>
+
+              </button>
+
+
+
+              <button class="server-action-pill-btn" id="btn-action-add-folder">
+
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+
+                </svg>
+
+                <span>Добавить папку сервера...</span>
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+
+        </section>
+
+
+
+
+
+        <!-- ================= PAGE 4: ГАРДЕРОБ (SKINS & CAPES) ================= -->
+
+        <section class="tab-page" id="tab-wardrobe">
+
+          <div class="page-top-header">
+
+            <div class="header-text-block">
+
+              <h2 class="page-main-heading">Гардероб</h2>
+
+              <p class="page-subheading">Настройте свой внешний вид, плащи и кастомизацию KBLauncher.</p>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="wardrobe-split-layout">
+
+            <!-- 3D Skin Renderer Canvas -->
+
+            <div class="glass-card skin-viewer-card">
+
+              <div class="skin-canvas-box">
+
+                <canvas id="skin-canvas" width="300" height="420"></canvas>
+
+                <div class="skin-viewer-hint">Вращайте мышью • Прокрутка для масштаба</div>
+
+              </div>
+
+              <div class="skin-controls-row">
+
+                <button class="secondary-glass-btn" id="btn-toggle-skin-anim">Пауза анимации</button>
+
+                <button class="secondary-glass-btn" id="btn-reset-skin-rot">Сбросить вид</button>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Skin & Cape Selector Options -->
+
+            <div class="glass-card wardrobe-options-card">
+
+              <div class="wardrobe-header-row">
+
+                <h3 class="card-title">Скин персонажа</h3>
+
+                <span class="wardrobe-count-pill">13 скинов</span>
+
+              </div>
+
+
+
+              <!-- Section 1: Базовые скины Minecraft (наверху) -->
+
+              <div class="wardrobe-subgroup-title">
+
+                <span>Базовые скины Minecraft</span>
+
+                <span class="subgroup-badge">Классика</span>
+
+              </div>
+
+              <div class="skins-preset-grid base-skins-grid">
+
+                <div class="skin-preset-item" data-skin="steve" data-path="assets/default-skin.png" data-avatar="assets/user-avatar.png" data-name="Steve (Классик)">
+
+                  <div class="skin-preview-face"><img src="assets/user-avatar.png" alt="Steve" style="width:30px;height:30px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Steve (Классик)</span>
+
+                  <span class="preset-tag">4px руки</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="alex" data-path="assets/alex-skin.png" data-avatar="assets/alex-avatar.png" data-slim="true" data-name="Alex (Слим)">
+
+                  <div class="skin-preview-face"><img src="assets/alex-avatar.png" alt="Alex" style="width:30px;height:30px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Alex (Слим)</span>
+
+                  <span class="preset-tag">3px руки</span>
+
+                </div>
+
+              </div>
+
+
+
+              <!-- Section 2: Избранные KB (Любимый и White Edition) -->
+
+              <div class="wardrobe-subgroup-title mt-16">
+
+                <span>⭐ Избранный стиль KB</span>
+
+                <span class="subgroup-badge">Выбор игрока</span>
+
+              </div>
+
+              <div class="skins-preset-grid featured-presets">
+
+                <div class="skin-preset-item featured active" data-skin="kbl" data-path="assets/kbl-skin.png" data-avatar="assets/kbl-avatar.png" data-name="KB Sand Dune">
+
+                  <div class="skin-preview-face"><img src="assets/kbl-avatar.png" alt="KB" style="width:34px;height:34px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">KB Sand Dune</span>
+
+                  <span class="preset-tag favorite-tag">⭐ Любимый</span>
+
+                </div>
+
+                <div class="skin-preset-item featured" data-skin="kbl-white" data-path="assets/kbl-white-skin.png" data-avatar="assets/kbl-white-avatar.png" data-name="KB Sand Dune (White)">
+
+                  <div class="skin-preview-face"><img src="assets/kbl-white-avatar.png" alt="KB White" style="width:34px;height:34px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">KB Sand (White)</span>
+
+                  <span class="preset-tag white-tag">❄️ White Edition</span>
+
+                </div>
+
+              </div>
+
+
+
+              <!-- Section 3: Вся минималистичная линейка KB & KBL -->
+
+              <div class="wardrobe-subgroup-title mt-16">
+
+                <span>✨ Коллекция KB Minimalist (9 вариантов)</span>
+
+              </div>
+
+              <div class="skins-preset-grid minimal-collection-grid">
+
+                <div class="skin-preset-item" data-skin="kbl_min_01" data-path="assets/skins/kbl_min_01_onyx_hoodie.png" data-avatar="assets/skins/kbl_min_01_onyx_hoodie_avatar.png" data-name="KB Onyx Hoodie">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_01_onyx_hoodie_avatar.png" alt="Onyx Hoodie" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Onyx Hoodie</span>
+
+                  <span class="preset-tag">Черный худи</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_02" data-path="assets/skins/kbl_min_02_oat_sweatshirt.png" data-avatar="assets/skins/kbl_min_02_oat_sweatshirt_avatar.png" data-name="KB Oat Sweatshirt">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_02_oat_sweatshirt_avatar.png" alt="Oat Sweatshirt" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Oat Sweatshirt</span>
+
+                  <span class="preset-tag">Кремовый</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_03" data-path="assets/skins/kbl_min_03_midnight_stealth.png" data-avatar="assets/skins/kbl_min_03_midnight_stealth_avatar.png" data-name="KB Midnight Stealth">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_03_midnight_stealth_avatar.png" alt="Midnight Stealth" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Midnight Stealth</span>
+
+                  <span class="preset-tag">Циан Неон</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_04" data-path="assets/skins/kbl_min_04_white_streetwear.png" data-avatar="assets/skins/kbl_min_04_white_streetwear_avatar.png" data-name="KB White Streetwear">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_04_white_streetwear_avatar.png" alt="White Streetwear" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">White Street</span>
+
+                  <span class="preset-tag">Стритвир</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_07" data-path="assets/skins/kbl_min_07_emerald_varsity.png" data-avatar="assets/skins/kbl_min_07_emerald_varsity_avatar.png" data-name="KB Emerald Varsity">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_07_emerald_varsity_avatar.png" alt="Emerald Varsity" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Emerald Varsity</span>
+
+                  <span class="preset-tag">Бомбер</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_08" data-path="assets/skins/kbl_min_08_graphite_minimal.png" data-avatar="assets/skins/kbl_min_08_graphite_minimal_avatar.png" data-name="KB Graphite Minimal">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_08_graphite_minimal_avatar.png" alt="Graphite Minimal" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Graphite</span>
+
+                  <span class="preset-tag">Графит</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_09" data-path="assets/skins/kbl_min_09_vintage_denim.png" data-avatar="assets/skins/kbl_min_09_vintage_denim_avatar.png" data-name="KB Vintage Denim">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_09_vintage_denim_avatar.png" alt="Vintage Denim" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Vintage Denim</span>
+
+                  <span class="preset-tag">Деним</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_10" data-path="assets/skins/kbl_min_10_pastel_breeze.png" data-avatar="assets/skins/kbl_min_10_pastel_breeze_avatar.png" data-name="KB Pastel Breeze">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_10_pastel_breeze_avatar.png" alt="Pastel Breeze" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">Pastel Breeze</span>
+
+                  <span class="preset-tag">Пастель</span>
+
+                </div>
+
+                <div class="skin-preset-item" data-skin="kbl_min_11" data-path="assets/skins/kbl_min_11_24k_gold.png" data-avatar="assets/skins/kbl_min_11_24k_gold_avatar.png" data-name="KB 24K Gold Founder">
+
+                  <div class="skin-preview-face"><img src="assets/skins/kbl_min_11_24k_gold_avatar.png" alt="24K Gold Founder" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated;display:block;"></div>
+
+                  <span class="preset-name">24K Gold</span>
+
+                  <span class="preset-tag">👑 Золотой</span>
+
+                </div>
+
+              </div>
+
+
+
+              <div class="upload-skin-area mt-16">
+
+                <button class="primary-play-btn full-width" id="btn-upload-skin-file">
+
+                  <span>Загрузить скин (.png)</span>
+
+                </button>
+
+                <input type="file" id="skin-file-input" accept="image/png" style="display:none;">
+
+              </div>
+
+
+
+              <h3 class="card-title mt-24">Плащи KBLauncher</h3>
+
+              <div class="capes-selector-list">
+
+                <label class="cape-item-row">
+
+                  <input type="radio" name="cape" value="founder" checked>
+
+                  <span class="cape-name">KBLauncher Founder Cape (Золотой KBL)</span>
+
+                </label>
+
+                <label class="cape-item-row">
+
+                  <input type="radio" name="cape" value="migrator">
+
+                  <span class="cape-name">Mojang Migrator Cape</span>
+
+                </label>
+
+                <label class="cape-item-row">
+
+                  <input type="radio" name="cape" value="none">
+
+                  <span class="cape-name">Без плаща</span>
+
+                </label>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+
+
+
+        <!-- ================= PAGE 5: ВЕРСИИ (VERSIONS MANAGER) ================= -->
+
+        <section class="tab-page" id="tab-versions">
+
+          <div class="page-top-header">
+
+            <div class="header-text-block">
+
+              <h2 class="page-main-heading">Все версии Minecraft</h2>
+
+              <p class="page-subheading">Полный каталог официальных релизов (26.3 — 1.0, 2026), ядер Fabric, Forge, NeoForge, OptiFine и снапшотов Mojang.</p>
+
+            </div>
+
+            <div class="versions-stats-chip" id="versions-total-badge">
+
+              <span class="pulse-dot"></span>
+
+              <span>Доступно версий: <strong id="versions-count-number">922</strong></span>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Versions Filter & Search Controls Bar -->
+
+          <div class="versions-controls-bar glass-card">
+
+            <div class="versions-search-wrapper">
+
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <circle cx="11" cy="11" r="8"></circle>
+
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+              </svg>
+
+              <input type="text" class="versions-search-input" id="versions-search-input" placeholder="Поиск среди всех версий (например: 1.20.1, 1.16.5, 1.12.2, Fabric, Forge, 1.8.9)...">
+
+            </div>
+
+
+
+            <div class="versions-filter-pills" id="versions-filter-pills">
+
+              <button class="v-pill active" data-vfilter="all">Все версии</button>
+
+              <button class="v-pill" data-vfilter="release">🟩 Релизы</button>
+
+              <button class="v-pill" data-vfilter="snapshot">🔬 Снапшоты</button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Versions List Table -->
+
+          <div class="glass-card versions-table-card">
+
+            <div class="versions-table-header">
+
+              <span>Версия</span>
+
+              <span>Поддерживаемые ядра</span>
+
+              <span>Дата релиза</span>
+
+              <span>Статус</span>
+
+              <span style="text-align: right;">Действия</span>
+
+            </div>
+
+            <div class="versions-list-rows" id="versions-list-body">
+
+              <!-- Dynamically populated in JS with all 900+ versions -->
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+
+
+
+        <!-- ================= PAGE 6: СПИСОК ИЗМЕНЕНИЙ (CHANGELOG) ================= -->
+
+        <section class="tab-page" id="tab-changelog">
+
+          <div class="page-top-header">
+
+            <div class="header-text-block">
+
+              <h2 class="page-main-heading">Список изменений KBLauncher</h2>
+
+              <p class="page-subheading">История обновлений, новые возможности, оптимизации и исправления.</p>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="glass-card full-changelog-card">
+
+            <div class="changelog-entry">
+
+              <div class="changelog-entry-title">
+
+                <h3>Версия 0.2.42 · Nightly 38609b7</h3>
+
+                <span class="changelog-date">5 ноября 2026</span>
+
+              </div>
+
+              <div class="changelog-section">
+
+                <h4>🚀 Новое в KBLauncher</h4>
+
+                <ul>
+
+                  <li>Полный ребрендинг в KBLauncher с новым 3D-логотипом и обновлённой темой оформления.</li>
+
+                  <li>Поддержка косметики: значок основателя KBLauncher возле никнейма в игре.</li>
+
+                  <li>Отображение плащей и косметических предметов в одиночной игре.</li>
+
+                  <li>Быстрый установщик нативных модов напрямую по ссылке с GitHub репозитория.</li>
+
+                  <li>Интеграция менеджера локальных серверов с автогенерацией настроек и EULA.</li>
+
+                </ul>
+
+              </div>
+
+              <div class="changelog-section">
+
+                <h4>🛠 Исправления и оптимизация</h4>
+
+                <ul>
+
+                  <li>Realms: экран конфигурации владельца и вкладка подписок.</li>
+
+                  <li>Windows: предотвращены повторные запросы брандмауэра при обновлениях лаунчера.</li>
+
+                  <li>Оптимизировано выделение оперативной памяти Java при запуске тяжёлых модпаков.</li>
+
+                </ul>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+
+      </main>
+
+    </div>
+
+
+
+  </div>
+
+
+
+  <!-- ================= MODALS & DIALOGS ================= -->
+
+
+
+  <!-- Modal 1: Create Build (Создать сборку) -->
+
+  <div class="modal-backdrop" id="modal-create-build">
+    <div class="modal-window create-build-window">
+      <div class="modal-header">
+        <div class="loader-modal-title-box">
+          <span class="loader-modal-badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4); padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;">Мастер создания</span>
+          <h3 class="modal-title" style="margin-top: 6px;">Создать сборку Minecraft</h3>
+          <p class="loader-modal-sub" style="font-size: 12px; color: #94a3b8; margin: 4px 0 0 0;">
+            Выберите версию, подходящее ядро и укажите название для новой сборки.
+          </p>
+        </div>
+        <button class="modal-close-btn" data-close-modal="modal-create-build">&times;</button>
+      </div>
+
+      <div class="modal-body create-build-modal-body" style="max-height: 65vh; overflow-y: auto; padding: 16px 24px; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- STEP 1: Version Selection with Search & Filter Tabs -->
+        <div class="build-step-card">
+          <div class="build-step-header">
+            <span class="build-step-num">1</span>
+            <span class="build-step-title">Версия Minecraft:</span>
+            <span class="build-step-badge" id="create-build-ver-badge">Release 26.3</span>
+          </div>
+
+          <div class="create-build-ver-container" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;">
+            <div class="version-dropdown-header" style="margin-bottom: 8px;">
+              <div class="version-dropdown-search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="create-build-ver-search" placeholder="🔍 Поиск версии (1.20.1, 1.16.5, 26.3...)" autocomplete="off">
+              </div>
+              <div class="version-dropdown-tabs">
+                <button class="ver-tab active" data-build-vtab="all">Все версии</button>
+                <button class="ver-tab" data-build-vtab="release">🟩 Релизы</button>
+                <button class="ver-tab" data-build-vtab="snapshot">🔬 Снапшоты</button>
+              </div>
+            </div>
+            <div class="version-dropdown-scrollable" id="create-build-ver-list" style="max-height: 150px; overflow-y: auto;">
+              <!-- Dynamically populated in JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: ModLoader Selection -->
+        <div class="build-step-card">
+          <div class="build-step-header">
+            <span class="build-step-num">2</span>
+            <span class="build-step-title">Ядро / Загрузчик модов:</span>
+            <span class="build-step-badge" id="create-build-loader-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">Fabric</span>
+          </div>
+          <div class="loaders-choice-grid" id="create-build-loaders-grid" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px;">
+            <!-- Dynamically populated based on chosen version -->
+          </div>
+        </div>
+
+        <!-- STEP 3: Build Name & Summary -->
+        <div class="build-step-card">
+          <div class="build-step-header">
+            <span class="build-step-num">3</span>
+            <span class="build-step-title">Название сборки:</span>
+          </div>
+          <input type="text" class="form-input" id="new-build-name" placeholder="Например: Сборка 1.20.1 (Fabric)" style="width: 100%; box-sizing: border-box; font-size: 13px; height: 38px;">
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="padding: 14px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+        <button class="secondary-glass-btn" data-close-modal="modal-create-build">Отмена</button>
+        <button class="primary-play-btn" id="btn-confirm-create-build" style="padding: 9px 24px; font-size: 13.5px;">✨ Создать и выбрать</button>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+
+
+  
+
+  
+
+  <!-- Modal: Журнал игры и лог крашей (Crash / Logs Console) -->
+  <div class="modal-backdrop" id="modal-game-logs">
+    <div class="modal-window loader-select-window" style="max-width: 740px; width: 94%;">
+      <div class="modal-header">
+        <div class="loader-modal-title-box">
+          <span class="modal-badge-pill" style="background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;">Консоль вывода</span>
+          <h3 class="modal-title" style="margin-top: 4px;">Журнал работы Minecraft (latest.log)</h3>
+        </div>
+        <button class="modal-close-btn" data-close-modal="modal-game-logs">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 20px;">
+        <pre class="game-logs-output-box" id="game-logs-output" style="background: #090a10; border: 1px solid #232536; border-radius: 8px; padding: 12px; color: #a5b4fc; font-family: 'Consolas', monospace; font-size: 11.5px; line-height: 1.45; height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; margin: 0;"></pre>
+      </div>
+      <div class="modal-footer" style="padding: 12px 20px; display: flex; justify-content: space-between;">
+        <button class="secondary-glass-btn" id="btn-copy-game-logs">📋 Скопировать лог</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="secondary-glass-btn" id="btn-refresh-game-logs">🔄 Обновить</button>
+          <button class="primary-play-btn" data-close-modal="modal-game-logs" style="padding: 8px 20px;">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Выбор ядра/загрузчика модов (Fabric / Quilt / NeoForge / Forge / Vanilla) -->
+
+  <div class="modal-backdrop" id="modal-select-loader">
+
+    <div class="modal-window loader-select-window">
+
+      <div class="modal-header">
+
+        <div class="loader-modal-title-box">
+
+          <h3 class="modal-title" id="loader-modal-title">Выбор ядра для Minecraft</h3>
+
+          <p class="modal-subtitle" id="loader-modal-sub">Выберите модификацию клиента или чистую версию для установки и игры</p>
+
+        </div>
+
+        <button class="modal-close-btn" data-close-modal="modal-select-loader">&times;</button>
+
+      </div>
+
+      <div class="modal-body loader-modal-body">
+
+        <div class="loaders-grid" id="loaders-grid-container">
+
+          <!-- Dynamically populated in JS based on version's supported loaders -->
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button class="secondary-glass-btn" data-close-modal="modal-select-loader">Отмена</button>
+
+        <button class="primary-play-btn" id="btn-confirm-select-loader">✓ Выбрать и применить</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Modal 2: Settings (Настройки лаунчера) -->
+
+  <div class="modal-backdrop" id="modal-settings">
+
+    <div class="modal-window wide">
+
+      <div class="modal-header">
+
+        <h3 class="modal-title">Настройки KBLauncher</h3>
+
+        <button class="modal-close-btn" data-close-modal="modal-settings">&times;</button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div class="settings-tabs-row">
+
+          <span class="settings-tab-btn active">Основные</span>
+
+          <span class="settings-tab-btn">Java & Память</span>
+
+          <span class="settings-tab-btn">О программе</span>
+
+        </div>
+
+
+
+        <div class="settings-content-pane">
+
+          
+
+          
+
+
+
+          <div class="form-group">
+
+            <label class="form-label">Разрешение игрового окна</label>
+
+            <select class="form-input" id="setting-resolution">
+
+              <option value="1920x1080">1920 x 1080 (Full HD)</option>
+
+              <option value="1280x720">1280 x 720 (HD)</option>
+
+              <option value="fullscreen">Полноэкранный режим</option>
+
+            </select>
+
+          </div>
+
+
+
+          <div class="form-group">
+
+            <label class="form-label">Путь к Java Runtime</label>
+
+            <input type="text" class="form-input" id="setting-java-path" value="Автоопределение (OpenJDK 21 64-bit)">
+
+          </div>
+
+
+
+          <div class="form-group">
+
+            <label class="form-label">Дополнительные аргументы JVM</label>
+
+            <input type="text" class="form-input" id="setting-jvm-args" value="-XX:+UseG1GC -XX:+ParallelRefProcEnabled">
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button class="secondary-glass-btn" data-close-modal="modal-settings">Закрыть</button>
+
+        <button class="primary-play-btn" id="btn-save-settings">Сохранить</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Modal 3: Account Switcher (Photo 3) -->
+
+  <div class="modal-backdrop" id="modal-account">
+
+    <div class="modal-window account-modal-window">
+
+      <div class="modal-header">
+
+        <h3 class="modal-title">Управление аккаунтом</h3>
+
+        <button class="modal-close-btn" data-close-modal="modal-account">&times;</button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Current Account Banner (Photo 3 top) -->
+
+        <div class="account-card-active photo3-card">
+
+          <img src="assets/user-avatar.png" class="account-avatar-large" id="modal-acc-avatar">
+
+          <div class="account-card-info">
+
+            <div class="account-card-name" id="modal-acc-name">Player</div>
+
+            <div class="account-card-type" id="modal-acc-type">Аккаунт Microsoft - играет</div>
+
+            <div class="account-status-sub" id="modal-acc-status">
+
+              <span class="status-check-icon">✓</span> Готово к игре по сети
+
+            </div>
+
+          </div>
+
+          <button class="secondary-glass-btn account-play-offline-btn" id="btn-toggle-offline-mode">Играть офлайн</button>
+
+        </div>
+
+
+
+        <!-- Section: Другой аккаунт (Photo 3) -->
+
+        <div class="account-section-heading mt-24">
+
+          <div class="section-title-bold">Другой аккаунт</div>
+
+          <div class="section-subtext">Добавьте ещё один аккаунт для переключения в 1 клик.</div>
+
+        </div>
+
+
+
+        <div class="login-providers-list mt-16">
+
+          <!-- Button 1: Войти через Microsoft (Photo 3 style) -->
+
+          <button class="oauth-provider-btn ms-large-btn" id="btn-login-ms">
+
+            <svg width="22" height="22" viewBox="0 0 21 21">
+
+              <path fill="#f25022" d="M1 1h9v9H1z"/>
+
+              <path fill="#00a4ef" d="M1 11h9v9H1z"/>
+
+              <path fill="#7fba00" d="M11 1h9v9H11z"/>
+
+              <path fill="#ffb900" d="M11 11h9v9H11z"/>
+
+            </svg>
+
+            <span>Войти через Microsoft</span>
+
+          </button>
+
+
+
+          <!-- Button 2: Войти через Ely.by (Photo 3 requirement) -->
+
+          <button class="oauth-provider-btn ely-large-btn" id="btn-login-ely">
+
+            <svg width="22" height="22" viewBox="0 0 32 32">
+
+              <circle cx="16" cy="16" r="14" fill="#0ea5e9"/>
+
+              <path d="M10 16 L16 10 L22 16 L16 22 Z" fill="#ffffff"/>
+
+              <circle cx="16" cy="16" r="3.5" fill="#0ea5e9"/>
+
+            </svg>
+
+            <span>Войти через Ely.by</span>
+
+            <span class="provider-subbadge">Скины & Плащи</span>
+
+          </button>
+
+        </div>
+
+
+
+        <!-- Section 3: Войти через офлайн-аккаунт -->
+
+        <div class="offline-login-box mt-16">
+
+          <label class="form-label">Войти через офлайн-аккаунт</label>
+
+          <div class="input-with-button">
+
+            <input type="text" class="form-input" id="custom-nickname-input" placeholder="Введите никнейм игрока">
+
+            <button class="primary-play-btn" id="btn-apply-nickname">Войти</button>
+
+          </div>
+
+          <span class="form-help-text">Офлайн-режим работает без интернета и без пароля.</span>
+
+        </div>
+
+
+
+        <div class="auth-security-disclaimer mt-16">
+
+          Страница авторизации открывается в вашем браузере. KBLauncher никогда не видит ваш пароль.
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button class="secondary-glass-btn" data-close-modal="modal-account">Закрыть</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Modal 4: Create Server (Photo 1 Layout) -->
+
+  <div class="modal-backdrop" id="modal-create-server">
+
+    <div class="modal-window server-creation-window">
+
+      <!-- Left Column: Live Preview Card (Photo 1) -->
+
+      <div class="server-creation-sidebar">
+
+        <div class="server-preview-top-badge">Новый сервер</div>
+
+        <div class="server-preview-banner-box">
+
+          <img src="assets/bg-sunset.png" alt="World Banner" class="server-preview-banner-img">
+
+          <div class="server-preview-banner-overlay"></div>
+
+        </div>
+
+        <div class="server-preview-info">
+
+          <h3 class="server-preview-title" id="preview-server-name">Мой сервер</h3>
+
+          <p class="server-preview-desc" id="preview-server-desc">
+
+            Выживание · Нормальный · до 10 игроков · friends only · Новый мир со случайным зерном
+
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Right Column: Server Config Form (Photo 1) -->
+
+      <div class="server-creation-main">
+
+        <div class="modal-header">
+
+          <div>
+
+            <h3 class="modal-title">Создать сервер</h3>
+
+            <p class="modal-subtext">Та же программа, что работает на VPS, запускается отсюда кнопками.</p>
+
+          </div>
+
+          <button class="modal-close-btn" data-close-modal="modal-create-server">&times;</button>
+
+        </div>
+
+
+
+        <div class="modal-body server-create-scrollable">
+
+          <!-- Field: Название -->
+
+          <div class="form-group">
+
+            <label class="form-label">Название</label>
+
+            <input type="text" class="form-input" id="server-name-input" value="Мой сервер" placeholder="Мой сервер">
+
+          </div>
+
+
+
+          <!-- Field: Мир -->
+
+          <div class="form-group">
+
+            <label class="form-label">Мир</label>
+
+            <div class="server-select-grid world-grid">
+
+              <div class="server-opt-card active" data-world-type="new">
+
+                <div class="opt-card-title">Новый мир</div>
+
+                <div class="opt-card-sub">Создаётся при первом запуске</div>
+
+              </div>
+
+              <div class="server-opt-card" data-world-type="copy">
+
+                <div class="opt-card-title">Скопировать один из моих миров</div>
+
+                <div class="opt-card-sub">1 миров на выбор</div>
+
+              </div>
+
+            </div>
+
+            <input type="text" class="form-input mt-8" id="server-seed-input" placeholder="Seed, optional: leave empty for a random world">
+
+          </div>
+
+
+
+          <!-- Field: Режим игры -->
+
+          <div class="form-group">
+
+            <label class="form-label">Режим игры</label>
+
+            <div class="server-select-grid gamemode-grid">
+
+              <div class="server-opt-card active" data-gamemode="survival">
+
+                <div class="opt-card-title">Выживание</div>
+
+                <div class="opt-card-sub">Gather, build and stay alive</div>
+
+              </div>
+
+              <div class="server-opt-card" data-gamemode="creative">
+
+                <div class="opt-card-title">Творчество</div>
+
+                <div class="opt-card-sub">Fly and build with every block</div>
+
+              </div>
+
+              <div class="server-opt-card" data-gamemode="adventure">
+
+                <div class="opt-card-title">Приключение</div>
+
+                <div class="opt-card-sub">Play a map the way it was made</div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Row: Сложность + Максимум игроков -->
+
+          <div class="server-split-row">
+
+            <div class="server-col-half">
+
+              <label class="form-label">Сложность</label>
+
+              <div class="difficulty-pills-row">
+
+                <span class="diff-pill" data-diff="peaceful">Мирный</span>
+
+                <span class="diff-pill" data-diff="easy">Легкий</span>
+
+                <span class="diff-pill active" data-diff="normal">Нормальный</span>
+
+                <span class="diff-pill" data-diff="hard">Сложный</span>
+
+              </div>
+
+            </div>
+
+            <div class="server-col-half">
+
+              <label class="form-label">Максимум игроков одновременно</label>
+
+              <div class="players-stepper-box">
+
+                <button type="button" class="stepper-btn" id="btn-player-dec">−</button>
+
+                <span class="stepper-val" id="server-players-val">10</span>
+
+                <button type="button" class="stepper-btn" id="btn-player-inc">+</button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Row: Выделение оперативной памяти (ОЗУ / RAM) для сервера -->
+
+          <div class="form-group mt-16 server-ram-section">
+
+            <div class="server-ram-header">
+
+              <label class="form-label mb-0">Выделение оперативной памяти (ОЗУ)</label>
+
+              <span class="server-ram-badge" id="server-ram-val">4096 МБ (4.0 ГБ)</span>
+
+            </div>
+
+            <div class="server-ram-slider-wrapper">
+
+              <input type="range" class="custom-slider" id="server-ram-slider" min="1024" max="16384" step="512" value="4096">
+
+            </div>
+
+            <div class="server-ram-presets-row">
+
+              <button type="button" class="ram-preset-pill" data-ram="2048">2 ГБ</button>
+
+              <button type="button" class="ram-preset-pill active" data-ram="4096">4 ГБ (Реком.)</button>
+
+              <button type="button" class="ram-preset-pill" data-ram="6144">6 ГБ</button>
+
+              <button type="button" class="ram-preset-pill" data-ram="8192">8 ГБ</button>
+
+              <button type="button" class="ram-preset-pill" data-ram="12288">12 ГБ</button>
+
+            </div>
+
+            <span class="form-help-text" id="server-ram-hint">💡 Оптимально для сервера с плагинами и 10 игроками.</span>
+
+          </div>
+
+
+
+          <!-- Row: Ядро сервера (Engine / Core) -->
+
+          <div class="form-group mt-16">
+
+            <label class="form-label">
+
+              <span>Ядро сервера</span>
+
+              <span class="subgroup-badge" id="server-core-badge">Paper 1.21.4</span>
+
+            </label>
+
+            <div class="server-select-grid core-grid">
+
+              <div class="server-opt-card active" data-core="paper">
+
+                <div class="opt-card-title">⚡ Paper</div>
+
+                <div class="opt-card-sub">Высокий TPS, анти-лаг и плагины</div>
+
+              </div>
+
+              <div class="server-opt-card" data-core="fabric">
+
+                <div class="opt-card-title">🧩 Fabric</div>
+
+                <div class="opt-card-sub">Легковесный сервер под моды</div>
+
+              </div>
+
+              <div class="server-opt-card" data-core="purpur">
+
+                <div class="opt-card-title">🔮 Purpur</div>
+
+                <div class="opt-card-sub">Максимум настроек и оптимизаций</div>
+
+              </div>
+
+              <div class="server-opt-card" data-core="vanilla">
+
+                <div class="opt-card-title">🛡️ Vanilla</div>
+
+                <div class="opt-card-sub">Официальное ядро от Mojang</div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Row: Порт сервера & Сетевые опции -->
+
+          <div class="server-split-row mt-16">
+
+            <div class="server-col-half">
+
+              <label class="form-label">Порт сервера</label>
+
+              <div class="input-with-button">
+
+                <input type="number" class="form-input" id="server-port-input" value="25565" min="1024" max="65535">
+
+                <button type="button" class="secondary-glass-btn" id="btn-rand-port" title="Случайный порт">🎲 Рандом</button>
+
+              </div>
+
+            </div>
+
+            <div class="server-col-half">
+
+              <label class="form-label">Режим авторизации</label>
+
+              <div class="server-auth-toggle-box">
+
+                <label class="custom-switch-label">
+
+                  <input type="checkbox" id="server-online-mode" checked>
+
+                  <span class="switch-slider"></span>
+
+                  <span class="switch-title" id="server-online-mode-label">Лицензия (Online Mode)</span>
+
+                </label>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Row: Дополнительные настройки мира и сервера (PVP, Structures, Whitelist, Auto-Restart) -->
+
+          <div class="form-group mt-16">
+
+            <label class="form-label">Дополнительные опции сервера</label>
+
+            <div class="server-toggles-grid">
+
+              <label class="server-checkbox-card">
+
+                <input type="checkbox" id="toggle-server-upnp" checked>
+
+                <div class="chk-content">
+
+                  <span class="chk-title">🌐 Авто-UPnP (Открыть для друзей)</span>
+
+                  <span class="chk-sub">Автоматический проброс порта в роутере</span>
+
+                </div>
+
+              </label>
+
+              <label class="server-checkbox-card">
+
+                <input type="checkbox" id="toggle-server-pvp" checked>
+
+                <div class="chk-content">
+
+                  <span class="chk-title">⚔️ PVP сражения</span>
+
+                  <span class="chk-sub">Разрешить игрокам наносить урон друг другу</span>
+
+                </div>
+
+              </label>
+
+              <label class="server-checkbox-card">
+
+                <input type="checkbox" id="toggle-server-restart" checked>
+
+                <div class="chk-content">
+
+                  <span class="chk-title">🔄 Автоперезапуск при сбоях</span>
+
+                  <span class="chk-sub">Восстановление работы без зависаний</span>
+
+                </div>
+
+              </label>
+
+              <label class="server-checkbox-card">
+
+                <input type="checkbox" id="toggle-server-whitelist">
+
+                <div class="chk-content">
+
+                  <span class="chk-title">📝 Белый список (Whitelist)</span>
+
+                  <span class="chk-sub">Вход только по добавленным никам</span>
+
+                </div>
+
+              </label>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Field: Операторы сервера (Администраторы / OP) - Replacer of the red scribble -->
+
+          <div class="form-group mt-16 server-op-section">
+
+            <label class="form-label">
+
+              <span>Операторы сервера (Администраторы / OP)</span>
+
+              <span class="subgroup-badge">OP Level 4</span>
+
+            </label>
+
+            <div class="input-with-button">
+
+              <input type="text" class="form-input" id="server-op-input" placeholder="Введите никнейм игрока (например: Player)">
+
+              <button type="button" class="secondary-glass-btn" id="btn-add-server-op">Добавить OP</button>
+
+            </div>
+
+            <div class="server-ops-chips mt-8" id="server-ops-chips">
+
+              <span class="op-chip" data-op="Player">
+
+                👑 <span class="op-name">Player</span> (Вы)
+
+                <button type="button" class="remove-op-btn" title="Удалить">&times;</button>
+
+              </span>
+
+            </div>
+
+            <span class="form-help-text">Операторы получают высшие права: консоль, команды /gamemode, /op, /teleport, /stop.</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="modal-footer">
+
+          <button class="secondary-glass-btn" data-close-modal="modal-create-server">Отмена</button>
+
+          <button class="primary-play-btn" id="btn-confirm-create-server">Создать сервер</button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Modal 5: First Run Onboarding (Вход при первом входе с нуля) -->
+
+  <div class="modal-backdrop" id="modal-first-run">
+
+    <div class="modal-window first-run-window">
+
+      <div class="modal-header">
+
+        <div class="first-run-header-titles">
+
+          <div class="launcher-brand-pill">KBLauncher • Первый запуск</div>
+
+          <h3 class="modal-title">Добро пожаловать в KBLauncher</h3>
+
+          <p class="modal-subtext">Выберите способ входа для запуска Minecraft и сохранения прогресса:</p>
+
+        </div>
+
+        <button class="modal-close-btn" id="btn-first-run-close" title="Выйти / закрыть">&times;</button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div class="first-run-auth-grid">
+
+          <!-- Card 1: Microsoft -->
+
+          <div class="auth-method-card" id="first-run-login-ms">
+
+            <div class="auth-icon-box ms-box">
+
+              <svg width="26" height="26" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z"/><path fill="#00a4ef" d="M1 11h9v9H1z"/><path fill="#7fba00" d="M11 1h9v9H11z"/><path fill="#ffb900" d="M11 11h9v9H11z"/></svg>
+
+            </div>
+
+            <div class="auth-method-info">
+
+              <div class="auth-method-name">Войти через Microsoft</div>
+
+              <div class="auth-method-desc">Официальная лицензия Minecraft, Realms и лицензионные сервера</div>
+
+            </div>
+
+            <div class="auth-arrow">→</div>
+
+          </div>
+
+
+
+          <!-- Card 2: Ely.by -->
+
+          <div class="auth-method-card" id="first-run-login-ely">
+
+            <div class="auth-icon-box ely-box">
+
+              <svg width="26" height="26" viewBox="0 0 32 32">
+
+                <circle cx="16" cy="16" r="14" fill="#0ea5e9"/>
+
+                <path d="M10 16 L16 10 L22 16 L16 22 Z" fill="#ffffff"/>
+
+                <circle cx="16" cy="16" r="3.5" fill="#0ea5e9"/>
+
+              </svg>
+
+            </div>
+
+            <div class="auth-method-info">
+
+              <div class="auth-method-name">Войти через систему скинов Ely.by</div>
+
+              <div class="auth-method-desc">Бесплатная система HD-скинов, плащей и авторизации Ely.by</div>
+
+            </div>
+
+            <div class="auth-arrow">→</div>
+
+          </div>
+
+
+
+          <!-- Card 3: Offline Account -->
+
+          <div class="auth-method-card offline-card" id="first-run-login-offline-card">
+
+            <div class="auth-icon-box offline-box">
+
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+
+                <circle cx="12" cy="7" r="4"></circle>
+
+              </svg>
+
+            </div>
+
+            <div class="auth-method-info full-width">
+
+              <div class="auth-method-name">Войти через офлайн-аккаунт</div>
+
+              <div class="auth-method-desc">Быстрый вход без пароля и регистрации: введите ваш никнейм</div>
+
+              <div class="first-run-offline-input-row mt-8">
+
+                <input type="text" class="form-input" id="first-run-nick-input" placeholder="Введите ваш никнейм (например: Player)">
+
+                <button class="primary-play-btn" id="btn-first-run-confirm-offline">Играть</button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer first-run-footer">
+
+        <span class="first-run-security-note">🔒 Авторизация безопасна. KBLauncher не собирает ваши пароли.</span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Modal 6: First Run Confirmation Dialog (Вы точно хотите продолжить пока что без аккаунта?) -->
+
+  <div class="modal-backdrop" id="modal-first-run-confirm" style="z-index: 100000;">
+
+    <div class="modal-window confirm-dialog-window">
+
+      <div class="confirm-dialog-content">
+
+        <div class="confirm-icon-bubble">
+
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+
+            <circle cx="12" cy="12" r="10"></circle>
+
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+
+          </svg>
+
+        </div>
+
+        <h3 class="confirm-title">Продолжить без аккаунта?</h3>
+
+        <p class="confirm-message">Вы точно хотите продолжить пока что без аккаунта?</p>
+
+        <p class="confirm-subtext">Вы сможете в любой момент привязать или сменить аккаунт через верхнюю панель профиля.</p>
+
+        <div class="confirm-buttons-row">
+
+          <button class="secondary-glass-btn confirm-btn-no" id="btn-confirm-no-account-no">Нет, остаться</button>
+
+          <button class="primary-play-btn confirm-btn-yes" id="btn-confirm-no-account-yes">Да, продолжить</button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Toast Notification Container -->
+
+  <div class="toast-container" id="toast-container"></div>
+
+
+
+  <script src="skin_3d_renderer.js"></script>
+
+  <script src="app.js"></script>
+
+
+  <!-- Instance Context Menu Popup -->
+  <div class="instance-context-popover" id="instance-context-popover" style="display: none; position: fixed; z-index: 999999; background: #131422; border: 1px solid #2b2d44; border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,0.8); padding: 6px; min-width: 170px;">
+    <button class="popover-item" id="popover-btn-folder" style="display: flex; align-items: center; gap: 8px; width: 100%; background: transparent; border: none; color: #e2e8f0; font-size: 12.5px; padding: 8px 12px; border-radius: 6px; cursor: pointer; text-align: left;">
+      <span>📁</span> <span>Открыть папку</span>
+    </button>
+    <button class="popover-item" id="popover-btn-duplicate" style="display: flex; align-items: center; gap: 8px; width: 100%; background: transparent; border: none; color: #e2e8f0; font-size: 12.5px; padding: 8px 12px; border-radius: 6px; cursor: pointer; text-align: left;">
+      <span>📋</span> <span>Дублировать</span>
+    </button>
+    <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0;"></div>
+    <button class="popover-item danger" id="popover-btn-delete" style="display: flex; align-items: center; gap: 8px; width: 100%; background: transparent; border: none; color: #f87171; font-size: 12.5px; padding: 8px 12px; border-radius: 6px; cursor: pointer; text-align: left;">
+      <span>🗑️</span> <span>Удалить сборку</span>
+    </button>
+  </div>
+</body>
+
+</html>
+
