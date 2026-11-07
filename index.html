@@ -40,8 +40,8 @@
   <div class="app-container">
 
     <!-- Custom Title Bar (Frameless Draggable Window Header) -->
-    <header class="titlebar">
-      <div class="titlebar-drag-area">
+    <header class="titlebar pywebview-drag-region">
+      <div class="titlebar-drag-area pywebview-drag-region">
         <div class="app-brand">
           <img src="assets/kbl-logo-circle.png" alt="KBLauncher" class="brand-icon">
           <span class="brand-title">KBLauncher</span>
@@ -1017,33 +1017,7 @@
 
         <div class="settings-content-pane">
           
-          <div class="setting-toggle-card mb-20">
-            <div class="toggle-card-info">
-              <div class="toggle-card-title">
-                <span class="liquid-glass-icon">✨</span>
-                <span>Включить «Жидкое стекло» (Liquid Glass)</span>
-                <span class="liquid-badge">iOS 18</span>
-              </div>
-              <div class="toggle-card-desc">
-                Оптическое преломление света, ультраглубокое размытие (Backdrop Blur), зеркальные блики и сатиновый глянец, как в интерфейсах новых айфонов.
-              </div>
-            </div>
-            <label class="ios-switch">
-              <input type="checkbox" id="setting-liquid-glass" checked>
-              <span class="ios-switch-slider"></span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Выделение оперативной памяти (ОЗУ): <strong id="ram-slider-val" style="color:var(--color-brand)">4096 МБ (4 ГБ)</strong></label>
-            <input type="range" class="form-slider" id="ram-slider" min="1024" max="16384" step="512" value="4096">
-            <div class="slider-ticks">
-              <span>1 ГБ</span>
-              <span>4 ГБ</span>
-              <span>8 ГБ</span>
-              <span>16 ГБ</span>
-            </div>
-          </div>
+          
 
           <div class="form-group">
             <label class="form-label">Разрешение игрового окна</label>
