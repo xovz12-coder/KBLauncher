@@ -1,0 +1,10 @@
+# Linguist Language Overrides for GitHub
+# Force repository statistics to reflect the 100% Rust architecture
+*.rs linguist-detectable=true
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+site.html linguist-documentation=true
+site.css linguist-documentation=true
+site.js linguist-documentation=true
+skins_showcase.html linguist-documentation=true
