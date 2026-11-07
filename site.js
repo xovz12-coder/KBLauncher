@@ -19,7 +19,7 @@ function resolveSkinAsset(url) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initDownloadCounter();
-  initLiquidGlassToggle();
+  // Liquid glass removed
   initSkinViewer();
   initFaqAccordion();
   initDownloadModal();
@@ -93,7 +93,13 @@ function formatNumber(num) {
 }
 
 // ==========================================
-// 2. Liquid Glass Theme Switcher
+// 2. Flat Modern Dark Theme
+// ==========================================
+function initLiquidGlassToggle() {
+  document.body.classList.remove('liquid-glass-active');
+  localStorage.setItem('kbl_site_liquid_glass', 'false');
+}
+
 // ==========================================
 function initLiquidGlassToggle() {
   const toggleBtn = document.getElementById('btn-site-toggle-glass');
@@ -115,10 +121,10 @@ function initLiquidGlassToggle() {
   function applyGlassState(active) {
     if (active) {
       document.body.classList.add('liquid-glass-active');
-      if (toggleLabel) toggleLabel.textContent = 'Жидкое стекло: ВКЛ';
+      
     } else {
       document.body.classList.remove('liquid-glass-active');
-      if (toggleLabel) toggleLabel.textContent = 'Жидкое стекло: ВЫКЛ';
+      
     }
   }
 }
