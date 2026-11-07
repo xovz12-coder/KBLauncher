@@ -66,7 +66,11 @@
     <!-- Top Navigation Bar & Profile -->
     <nav class="top-nav-bar">
       <!-- Centered Navigation Pills -->
-      <div class="nav-pills-container">
+      <div class="glass-active-badge" title="Ультра-прозрачный интерфейс Liquid Glass активен">
+          <span class="glass-active-dot"></span>
+          <span>Жидкое стекло: ВКЛ</span>
+        </div>
+        <div class="nav-pills-container">
         <div class="nav-pill-glider" id="nav-glider"></div>
         <button class="nav-pill active" data-tab="tab-home">Главная</button>
         <button class="nav-pill" data-tab="tab-mods">Моды</button>
@@ -313,7 +317,7 @@
               <div class="version-selector-box" id="version-selector-trigger">
                 <div class="version-meta">
                   <span class="version-prefix">Версия</span>
-                  <span class="version-name" id="selected-version-text">Nightly · 38609b7</span>
+                  <span class="version-name" id="selected-version-text">Release 26.3</span>
                 </div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polyline points="6 9 12 15 18 9"></polyline>
@@ -330,9 +334,10 @@
                       <input type="text" id="dropdown-ver-search" placeholder="Поиск версии (1.20, 1.16.5, Fabric...)" autocomplete="off">
                     </div>
                     <div class="version-dropdown-tabs">
-                      <button class="ver-tab active" data-vtab="popular">Топ</button>
-                      <button class="ver-tab" data-vtab="release">Релизы</button>
-                      <button class="ver-tab" data-vtab="modded">Моды</button>
+                      <button class="ver-tab active" data-vtab="popular">🔥 Топ</button>
+                      <button class="ver-tab" data-vtab="release">🟩 Релизы (26.3)</button>
+                      <button class="ver-tab" data-vtab="snapshot">🔬 Снапшоты (26w)</button>
+                      <button class="ver-tab" data-vtab="modded">⚡ Моды</button>
                       <button class="ver-tab" data-vtab="all">Все (900+)</button>
                     </div>
                   </div>
@@ -854,7 +859,7 @@
           <div class="page-top-header">
             <div class="header-text-block">
               <h2 class="page-main-heading">Все версии Minecraft</h2>
-              <p class="page-subheading">Полный каталог официальных релизов (1.21.4 — 1.0), ядер Fabric, Forge, NeoForge, OptiFine и снапшотов Mojang.</p>
+              <p class="page-subheading">Полный каталог официальных релизов (26.3 — 1.0, 2026), ядер Fabric, Forge, NeoForge, OptiFine и снапшотов Mojang.</p>
             </div>
             <div class="versions-stats-chip" id="versions-total-badge">
               <span class="pulse-dot"></span>
@@ -959,8 +964,16 @@
         <div class="form-group">
           <label class="form-label">Версия игры</label>
           <select class="form-input" id="new-build-version">
-            <option value="1.21.4">1.21.4 (Последний релиз)</option>
-            <option value="1.20.1" selected>1.20.1 (Рекомендуется для модов)</option>
+            <option value="26.3" selected>Release 26.3 (Новейший релиз 2026 · Рекомендуется)</option>
+            <option value="26.2">Release 26.2</option>
+            <option value="26.1.2">Release 26.1.2</option>
+            <option value="26.1">Release 26.1</option>
+            <option value="26.0">Release 26.0</option>
+            <option value="26w14a">Snapshot 26w14a (Самый свежий снапшот)</option>
+            <option value="26w12b">Snapshot 26w12b</option>
+            <option value="26w10a">Snapshot 26w10a</option>
+            <option value="1.21.4">1.21.4</option>
+            <option value="1.20.1">1.20.1 (Стабильный для модов)</option>
             <option value="1.19.4">1.19.4</option>
             <option value="1.16.5">1.16.5</option>
             <option value="1.12.2">1.12.2</option>
