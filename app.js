@@ -1450,18 +1450,7 @@ function initSettings() {
     if (ramVal) ramVal.textContent = `${mb} МБ (${gb} ГБ)`;
   });
 
-  // Liquid Glass (iOS 18 / Apple VisionOS) Toggle
-  const liquidGlassToggle = document.getElementById('setting-liquid-glass');
-  const isLiquid = localStorage.getItem('kbl_liquid_glass') !== 'false'; // Enabled by default
-  if (liquidGlassToggle) liquidGlassToggle.checked = isLiquid;
-  document.body.classList.toggle('liquid-glass-active', isLiquid);
-
-  liquidGlassToggle?.addEventListener('change', (e) => {
-    const enabled = e.target.checked;
-    document.body.classList.toggle('liquid-glass-active', enabled);
-    localStorage.setItem('kbl_liquid_glass', enabled ? 'true' : 'false');
-    showToast(enabled ? '✨ Эффект «Жидкое стекло» (Liquid Glass) включен!' : 'Эффект «Жидкое стекло» выключен');
-  });
+  localStorage.setItem('kbl_liquid_glass', 'false');
 
   document.getElementById('btn-save-settings')?.addEventListener('click', () => {
     showToast('💾 Настройки лаунчера сохранены.');
