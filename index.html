@@ -327,11 +327,9 @@
                       <input type="text" id="dropdown-ver-search" placeholder="Поиск версии (1.20, 1.16.5, Fabric...)" autocomplete="off">
                     </div>
                     <div class="version-dropdown-tabs">
-                      <button class="ver-tab active" data-vtab="popular">🔥 Топ</button>
-                      <button class="ver-tab" data-vtab="release">🟩 Релизы (26.3)</button>
-                      <button class="ver-tab" data-vtab="snapshot">🔬 Снапшоты (26w)</button>
-                      <button class="ver-tab" data-vtab="modded">⚡ Моды</button>
-                      <button class="ver-tab" data-vtab="all">Все (900+)</button>
+                      <button class="ver-tab active" data-vtab="all">Все версии</button>
+                      <button class="ver-tab" data-vtab="release">🟩 Релизы</button>
+                      <button class="ver-tab" data-vtab="snapshot">🔬 Снапшоты</button>
                     </div>
                   </div>
                   <div class="version-dropdown-scrollable" id="version-dropdown-list">
@@ -873,12 +871,7 @@
             <div class="versions-filter-pills" id="versions-filter-pills">
               <button class="v-pill active" data-vfilter="all">Все версии</button>
               <button class="v-pill" data-vfilter="release">🟩 Релизы</button>
-              <button class="v-pill" data-vfilter="fabric">⚡ Fabric</button>
-              <button class="v-pill" data-vfilter="forge">🔨 Forge</button>
-              <button class="v-pill" data-vfilter="neoforge">🌀 NeoForge</button>
-              <button class="v-pill" data-vfilter="optifine">💎 OptiFine</button>
               <button class="v-pill" data-vfilter="snapshot">🔬 Снапшоты</button>
-              <button class="v-pill" data-vfilter="old">📜 Старые (Beta/Alpha)</button>
             </div>
           </div>
 
@@ -886,7 +879,7 @@
           <div class="glass-card versions-table-card">
             <div class="versions-table-header">
               <span>Версия</span>
-              <span>Тип / Модлоадер</span>
+              <span>Поддерживаемые ядра</span>
               <span>Дата релиза</span>
               <span>Статус</span>
               <span style="text-align: right;">Действия</span>
@@ -997,6 +990,29 @@
       <div class="modal-footer">
         <button class="secondary-glass-btn" data-close-modal="modal-create-build">Отмена</button>
         <button class="primary-play-btn" id="btn-confirm-create-build">Создать сборку</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Modal: Выбор ядра/загрузчика модов (Fabric / Quilt / NeoForge / Forge / Vanilla) -->
+  <div class="modal-backdrop" id="modal-select-loader">
+    <div class="modal-window loader-select-window">
+      <div class="modal-header">
+        <div class="loader-modal-title-box">
+          <h3 class="modal-title" id="loader-modal-title">Выбор ядра для Minecraft</h3>
+          <p class="modal-subtitle" id="loader-modal-sub">Выберите модификацию клиента или чистую версию для установки и игры</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal="modal-select-loader">&times;</button>
+      </div>
+      <div class="modal-body loader-modal-body">
+        <div class="loaders-grid" id="loaders-grid-container">
+          <!-- Dynamically populated in JS based on version's supported loaders -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="secondary-glass-btn" data-close-modal="modal-select-loader">Отмена</button>
+        <button class="primary-play-btn" id="btn-confirm-select-loader">✓ Выбрать и применить</button>
       </div>
     </div>
   </div>
