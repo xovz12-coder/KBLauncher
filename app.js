@@ -1424,36 +1424,28 @@ function initVersionDropdown() {
 
 
 
-  trigger.addEventListener('click', (e) => {
-
+    trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-
     dropdown.classList.toggle('show');
-
     if (dropdown.classList.contains('show')) {
-
+      trigger.classList.add('dropdown-open');
+      trigger.closest('.action-bar-row')?.classList.add('dropdown-open');
       renderDropdownList();
-
       searchInput?.focus();
-
+    } else {
+      trigger.classList.remove('dropdown-open');
+      trigger.closest('.action-bar-row')?.classList.remove('dropdown-open');
     }
-
   });
-
-
 
   dropdown.addEventListener('click', (e) => {
-
     e.stopPropagation();
-
   });
 
-
-
   document.addEventListener('click', () => {
-
     dropdown.classList.remove('show');
-
+    trigger.classList.remove('dropdown-open');
+    trigger.closest('.action-bar-row')?.classList.remove('dropdown-open');
   });
 
 
