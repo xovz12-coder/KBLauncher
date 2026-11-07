@@ -932,7 +932,44 @@ const LauncherState = {
 
 // ==========================================
 
+// Restore persistent instances and active selection from localStorage
+try {
+  const savedInsts = localStorage.getItem('kbl_instances');
+  if (savedInsts) {
+    const parsed = JSON.parse(savedInsts);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      LauncherState.instances = parsed;
+    }
+  }
+  const savedActive = localStorage.getItem('kbl_active_instance');
+  if (savedActive && LauncherState.instances.some(i => i.id === savedActive)) {
+    LauncherState.activeInstance = savedActive;
+  }
+} catch (e) {
+  console.warn("Could not load stored instances:", e);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore initial active instance
+  const initInst = LauncherState.instances.find(i => i.id === LauncherState.activeInstance) || LauncherState.instances[0];
+  if (initInst) {
+    window.selectInstance(initInst.id);
+  }
+
+  if (window._pyApi && typeof window._pyApi.get_instances === 'function') {
+    window._pyApi.get_instances().then(res => {
+      if (res && res.instances && res.instances.length > 0) {
+        const diskMap = new Map(res.instances.map(i => [i.id, i]));
+        LauncherState.instances.forEach(inst => {
+          if (diskMap.has(inst.id)) {
+            inst.modsCount = diskMap.get(inst.id).modsCount;
+          }
+        });
+        renderInstancesList();
+      }
+    });
+  }
+
 
   initWindowControls();
 
@@ -943,10 +980,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initVersionDropdown();
 
   initPlayButton();
+  initInteractiveBuildCreator();
+  initInstanceContextMenu();
+  initGameLogsModal();
 
   initModsCatalog();
 
-  initGitHubModInstaller();
+  if (typeof initGitHubModInstaller === 'function') initGitHubModInstaller();
 
   initServersManager();
 
@@ -2050,97 +2090,266 @@ window.toggleModInstall = function(modId, encodedName) {
 
 
 
-function renderInstalledModsList() {
-
+async function renderInstalledModsList() {
   const container = document.getElementById('installed-mods-tbody');
-
   if (!container) return;
-
-
 
   const activeInst = LauncherState.instances.find(i => i.id === LauncherState.activeInstance) || LauncherState.instances[0];
 
-  const installedSet = new Set(activeInst.installedMods || []);
+  let diskFiles = [];
+  if (window._pyApi && typeof window._pyApi.get_instance_mods === 'function') {
+    try {
+      const res = await window._pyApi.get_instance_mods(activeInst.id);
+      if (res && res.files) {
+        diskFiles = res.files;
+      }
+    } catch (e) {
+      console.warn("Could not query disk mods:", e);
+    }
+  }
 
-  const installed = LauncherState.mods.filter(m => installedSet.has(m.id));
+  // If no disk files yet, fallback to state
+  if (diskFiles.length === 0) {
+    const installedSet = new Set(activeInst.installedMods || ['sodium', 'iris']);
+    diskFiles = LauncherState.mods
+      .filter(m => installedSet.has(m.id))
+      .map(m => ({ name: `${m.name}.jar`, enabled: true, desc: m.desc, iconUrl: m.iconUrl, id: m.id }));
+  }
 
+  // Update instance mod count
+  activeInst.modsCount = diskFiles.length;
+  const countBadge = document.getElementById('sidebar-builds-count');
+  if (countBadge) countBadge.textContent = LauncherState.instances.length;
 
-
-  container.innerHTML = installed.map(mod => `
-
-    <div class="mod-entry-card" style="margin-bottom: 8px;">
-
-      <div class="mod-entry-left">
-
-        <div class="mod-icon-box">
-
-          <img src="${mod.iconUrl}" class="mod-icon-img" alt="${mod.name}">
-
-        </div>
-
-        <div class="mod-info-text">
-
-          <div class="mod-title">${mod.name}</div>
-
-          <div class="mod-desc">${mod.desc}</div>
-
-        </div>
-
+  if (diskFiles.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 30px; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 6px;">📦</div>
+        <div>В этой сборке пока нет установленных модов.</div>
+        <div style="font-size: 11.5px; opacity: 0.7; margin-top: 4px;">Выберите нужные моды в каталоге выше и нажмите «Установить».</div>
       </div>
+    `;
+    return;
+  }
 
-      <button class="secondary-glass-btn" onclick="toggleModInstall('${mod.id}', '${encodeURIComponent(mod.name)}')">Удалить</button>
+  container.innerHTML = diskFiles.map(mod => {
+    const isEn = mod.enabled !== false;
+    const cleanName = mod.name.replace(/\.jar(\.disabled)?$/i, '');
+    const icon = mod.iconUrl || 'assets/mods/sodium.webp';
 
-    </div>
+    return `
+      <div class="mod-item-row ${isEn ? '' : 'disabled'}" id="mod-row-${encodeURIComponent(mod.name)}">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="${icon}" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;" onerror="this.src='assets/kbl-logo-circle.png'">
+          <div>
+            <div style="font-weight: 600; font-size: 13px; color: #f8fafc;">${cleanName}</div>
+            <div style="font-size: 11px; color: #94a3b8;">${mod.sizeKb ? `${mod.sizeKb} KB · ` : ''}${isEn ? '🟢 Активен' : '⚪ Отключен (.disabled)'}</div>
+          </div>
+        </div>
 
-  `).join('');
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Toggle Switch -->
+          <label class="mod-switch-toggle" title="${isEn ? 'Отключить мод' : 'Включить мод'}">
+            <input type="checkbox" ${isEn ? 'checked' : ''} onchange="toggleModEnabled('${activeInst.id}', '${encodeURIComponent(mod.name)}', this.checked)">
+            <span class="mod-switch-slider"></span>
+          </label>
 
+          <!-- Delete Button -->
+          <button class="mod-delete-btn" title="Удалить мод" onclick="deleteInstalledMod('${activeInst.id}', '${encodeURIComponent(mod.name)}')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
-
-
-
-
-window.toggleServerRun = function(serverId) {
-
-  const s = LauncherState.servers.find(x => x.id === serverId);
-
-  if (!s) return;
-
-  s.online = !s.online;
-
-  s.players = s.online ? 1 : 0;
-
-  renderServersList();
-
-  showToast(s.online ? `🟢 Сервер "${s.name}" запущен на порту ${s.port}!` : `⚪ Сервер "${s.name}" остановлен.`);
-
+window.loadInstalledModsForActiveInstance = function() {
+  renderInstalledModsList();
 };
 
-
-
-window.deleteServer = function(serverId) {
-
-  LauncherState.servers = LauncherState.servers.filter(x => x.id !== serverId);
-
-  renderServersList();
-
-  showToast('Сервер удален.');
-
+window.toggleModEnabled = async function(instId, rawModName, isChecked) {
+  const modName = decodeURIComponent(rawModName);
+  if (window._pyApi && typeof window._pyApi.toggle_mod_file === 'function') {
+    const res = await window._pyApi.toggle_mod_file(instId, modName, isChecked);
+    if (res && res.success) {
+      showToast(isChecked ? `🟢 Мод «${modName}» включен!` : `⚪ Мод «${modName}» временно отключен.`);
+    } else {
+      showToast(`⚠️ Не удалось переключить мод: ${res?.error || ''}`);
+    }
+  } else {
+    showToast(isChecked ? `🟢 Мод «${modName}» включен!` : `⚪ Мод «${modName}» отключен.`);
+  }
+  renderInstalledModsList();
 };
 
-
-
-window.copyToClipboard = function(text) {
-
-  navigator.clipboard?.writeText(text);
-
-  showToast(`📋 IP скопирован в буфер: ${text}`);
-
+window.deleteInstalledMod = async function(instId, rawModName) {
+  const modName = decodeURIComponent(rawModName);
+  if (window._pyApi && typeof window._pyApi.remove_mod_file === 'function') {
+    await window._pyApi.remove_mod_file(instId, modName);
+  }
+  showToast(`🗑️ Мод «${modName}» удален из сборки.`);
+  renderInstalledModsList();
 };
-
-
 
 // ==========================================
+// REAL-TIME SERVERS MANAGER & MONITORING
+// ==========================================
+
+const DEFAULT_FEATURED_SERVERS = [
+  {
+    id: 'hypixel',
+    name: 'Hypixel Network',
+    ip: 'mc.hypixel.net',
+    port: 25565,
+    desc: 'Мировой лидер мини-игр: BedWars, SkyBlock, Murder Mystery, SkyWars.',
+    icon: '⚔️',
+    players: '52,490',
+    ping: '98 ms',
+    online: true
+  },
+  {
+    id: 'reallyworld',
+    name: 'ReallyWorld',
+    ip: 'mc.reallyworld.ru',
+    port: 25565,
+    desc: 'Популярный СНГ гриф-сервер, Анархия с кланами, талисманами и шарами.',
+    icon: '💎',
+    players: '8,210',
+    ping: '22 ms',
+    online: true
+  },
+  {
+    id: 'funtime',
+    name: 'FunTime',
+    ip: 'mc.funtime.su',
+    port: 25565,
+    desc: 'Сервер Анархии с мистическими сундуками, аукционом и клановыми битвами.',
+    icon: '⚡',
+    players: '11,400',
+    ping: '19 ms',
+    online: true
+  },
+  {
+    id: 'vimeworld',
+    name: 'VimeWorld',
+    ip: 'vimeworld.com',
+    port: 25565,
+    desc: 'Классические аркады, турниры, дуэли и защита от читеров.',
+    icon: '🏰',
+    players: '3,100',
+    ping: '25 ms',
+    online: true
+  }
+];
+
+function initServersManager() {
+  if (!LauncherState.servers || LauncherState.servers.length === 0) {
+    LauncherState.servers = [...DEFAULT_FEATURED_SERVERS];
+  }
+  renderServersList();
+
+  // Create / Add server button
+  document.getElementById('btn-open-create-server')?.addEventListener('click', () => {
+    document.getElementById('modal-create-server')?.classList.add('show');
+  });
+
+  // Action buttons
+  document.getElementById('btn-action-create-server')?.addEventListener('click', () => {
+    document.getElementById('modal-create-server')?.classList.add('show');
+  });
+}
+
+function renderServersList() {
+  const emptyCard = document.getElementById('servers-empty-card');
+  const listContainer = document.getElementById('active-servers-list');
+  if (!listContainer) return;
+
+  if (LauncherState.servers.length === 0) {
+    if (emptyCard) emptyCard.style.display = 'block';
+    listContainer.style.display = 'none';
+    return;
+  }
+
+  if (emptyCard) emptyCard.style.display = 'none';
+  listContainer.style.display = 'block';
+
+  listContainer.innerHTML = LauncherState.servers.map(s => `
+    <div class="server-card-interactive" id="srv-card-${s.id}">
+      <div class="server-info-col">
+        <div class="server-icon-img">${s.icon || '🎮'}</div>
+        <div>
+          <div class="server-name-title">${s.name}</div>
+          <p style="font-size: 11.5px; color: #94a3b8; margin: 2px 0 4px 0; max-width: 420px;">${s.desc || ''}</p>
+          <div class="server-ip-copyable" onclick="copyServerIp('${s.ip}')" title="Кликните для копирования IP">
+            <span>📋</span>
+            <span>${s.ip}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="text-align: right;">
+          <div class="server-ping-badge ${s.online ? '' : 'offline'}" id="srv-ping-${s.id}">
+            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:${s.online ? '#34d399' : '#fb7185'};"></span>
+            <span>${s.online ? s.ping || 'В сети' : 'Недоступен'}</span>
+          </div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Игроков: <strong style="color:#f1f5f9;">${s.players || '0'}</strong></div>
+        </div>
+        <button class="secondary-glass-btn" onclick="testServerPing('${s.id}', '${s.ip}', ${s.port || 25565})" title="Проверить пинг" style="padding: 6px 12px; font-size: 12px;">
+          🔄
+        </button>
+        <button class="primary-play-btn" onclick="connectToServerDirect('${s.name}', '${s.ip}')" style="padding: 6px 14px; font-size: 12px;">
+          Играть
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.copyServerIp = function(ip) {
+  navigator.clipboard?.writeText(ip);
+  showToast(`📋 IP скопирован в буфер: ${ip}`);
+};
+
+window.testServerPing = async function(srvId, host, port) {
+  const badge = document.getElementById(`srv-ping-${srvId}`);
+  if (badge) badge.innerHTML = '<span>⏳ Проверка...</span>';
+
+  let res = null;
+  if (window._pyApi && typeof window._pyApi.ping_server === 'function') {
+    res = await window._pyApi.ping_server(host, port || 25565);
+  } else {
+    // Simulated ping for preview
+    await new Promise(r => setTimeout(r, 300));
+    res = { online: true, latency: Math.floor(Math.random() * 25 + 15) };
+  }
+
+  const s = LauncherState.servers.find(x => x.id === srvId);
+  if (res && res.online) {
+    if (s) { s.online = true; s.ping = `${res.latency} ms`; }
+    if (badge) {
+      badge.className = 'server-ping-badge';
+      badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#34d399;"></span><span>${res.latency} ms</span>`;
+    }
+    showToast(`🟢 Сервер «${s?.name || host}» доступен! Пинг: ${res.latency} мс`);
+  } else {
+    if (s) { s.online = false; s.ping = 'Таймаут'; }
+    if (badge) {
+      badge.className = 'server-ping-badge offline';
+      badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#fb7185;"></span><span>Таймаут</span>`;
+    }
+    showToast(`🔴 Сервер «${s?.name || host}» сейчас недоступен.`);
+  }
+};
+
+window.connectToServerDirect = function(name, ip) {
+  showToast(`🚀 Запуск Minecraft для подключения к «${name}» (${ip})...`);
+  const playBtn = document.getElementById('main-play-btn');
+  if (playBtn) playBtn.click();
+};
 
 // 3D Minecraft Skin Viewer (WebGL Texture-Mapped Renderer)
 
@@ -3097,169 +3306,396 @@ function initModals() {
     document.getElementById('modal-settings')?.classList.add('show');
 
   });
-
-
-
-  // Open Add Build Modal
-
-  document.getElementById('add-build-btn')?.addEventListener('click', () => {
-
-    document.getElementById('modal-create-build')?.classList.add('show');
-
-  });
-
-
-
-  // Confirm Create Build
-
-  document.getElementById('btn-confirm-create-build')?.addEventListener('click', () => {
-
-    const name = document.getElementById('new-build-name')?.value.trim() || 'Новая сборка';
-
-    const version = document.getElementById('new-build-version')?.value || '1.20.1';
-
-    const loader = document.querySelector('input[name="modloader"]:checked')?.value || 'fabric';
-
-
-
-    const newInst = {
-
-      id: `inst-${Date.now()}`,
-
-      name,
-
-      version: `${loader.toUpperCase()} · ${version}`,
-
-      modloader: loader,
-
-      status: 'Готово',
-
-      modsCount: 0
-
-    };
-
-
-
-    LauncherState.instances.push(newInst);
-
-    renderInstancesList();
-
-    document.getElementById('modal-create-build')?.classList.remove('show');
-
-    showToast(`✨ Сборка "${name}" успешно создана!`);
-
-  });
-
 }
 
 
 
-function renderInstancesList() {
 
-  const container = document.getElementById('instances-container');
+  // ==========================================
+// INTERACTIVE MULTI-STEP BUILD CREATOR & INSTANCE MANAGER
+// ==========================================
 
-  if (!container) return;
+let wizardSelectedVer = 'Release 26.3';
+let wizardSelectedLoader = 'fabric';
+let wizardFilterTab = 'all';
 
+function initInteractiveBuildCreator() {
+  const addBtn = document.getElementById('add-build-btn');
+  const modal = document.getElementById('modal-create-build');
+  const searchInput = document.getElementById('create-build-ver-search');
+  const verList = document.getElementById('create-build-ver-list');
+  const loadersGrid = document.getElementById('create-build-loaders-grid');
+  const nameInput = document.getElementById('new-build-name');
+  const verBadge = document.getElementById('create-build-ver-badge');
+  const loaderBadge = document.getElementById('create-build-loader-badge');
+  const tabs = document.querySelectorAll('[data-build-vtab]');
+  const confirmBtn = document.getElementById('btn-confirm-create-build');
 
+  if (!modal) return;
 
-  container.innerHTML = LauncherState.instances.map(inst => {
+  function renderWizardVersions() {
+    if (!verList) return;
+    const q = (searchInput?.value || '').trim().toLowerCase();
 
-    const isActive = inst.id === LauncherState.activeInstance;
+    const filtered = LauncherState.allVersions.filter(v => {
+      if (q) {
+        return (
+          v.ver.toLowerCase().includes(q) ||
+          v.id.toLowerCase().includes(q) ||
+          (v.tag && v.tag.toLowerCase().includes(q))
+        );
+      }
+      if (wizardFilterTab === 'release') return (v.category === 'release' || v.category === 'old');
+      if (wizardFilterTab === 'snapshot') return v.category === 'snapshot';
+      return true;
+    });
 
-    let iconHTML = '<img src="assets/kbl-logo-circle.png" alt="Logo" class="instance-logo">';
+    verList.innerHTML = filtered.slice(0, 60).map(v => {
+      const isSel = (v.ver === wizardSelectedVer);
+      let icon = '🟩';
+      if (v.category === 'snapshot') icon = '🔬';
+      else if (v.category === 'old') icon = '📜';
 
-    let dotClass = 'green';
+      const loaders = getSupportedLoaders(v.id || v.ver, v.category);
+      const loaderNames = loaders.filter(l => l.id !== 'vanilla').map(l => l.name).join(' • ');
 
-    if (inst.id === 'vanilla-1-21') {
-
-      iconHTML = '<span style="font-size:18px;">🧊</span>';
-
-      dotClass = 'blue';
-
-    } else if (inst.id === 'shaders-optifine') {
-
-      iconHTML = '<span style="font-size:18px;">✨</span>';
-
-      dotClass = 'purple';
-
-    }
-
-
-
-    return `
-
-      <div class="instance-card ${isActive ? 'active' : ''}" data-instance-id="${inst.id}" onclick="selectInstance('${inst.id}')">
-
-        <div class="instance-icon-box ${inst.id === 'vanilla-1-21' ? 'vanilla-box' : (inst.id === 'shaders-optifine' ? 'shaders-box' : '')}">
-
-          ${iconHTML}
-
-        </div>
-
-        <div class="instance-details">
-
-          <div class="instance-name">${inst.name}</div>
-
-          <div class="instance-status">
-
-            <span class="status-dot ${dotClass}"></span>
-
-            <span class="status-text">${inst.status}</span>
-
-            <span class="instance-tag">${inst.tag || inst.version}</span>
-
+      return `
+        <div class="version-dropdown-item ${isSel ? 'active' : ''}" data-ver="${v.ver}">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>${icon}</span>
+            <span style="font-weight: 600; font-size: 12.5px;">${v.ver}</span>
           </div>
-
+          <div style="display:flex; align-items:center; gap:6px;">
+            ${loaderNames ? `<span class="ver-dd-loaders-hint" style="font-size: 10px;">${loaderNames}</span>` : ''}
+            <span style="font-size: 10px; opacity: 0.75;">${v.tag || ''}</span>
+          </div>
         </div>
+      `;
+    }).join('');
 
-        <button class="instance-menu-btn" title="Опции сборки" onclick="event.stopPropagation(); showToast('Параметры сборки: ${inst.name}')">
-
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-
-            <circle cx="12" cy="12" r="1.5"></circle>
-
-            <circle cx="12" cy="5" r="1.5"></circle>
-
-            <circle cx="12" cy="19" r="1.5"></circle>
-
-          </svg>
-
-        </button>
-
-      </div>
-
-    `;
-
-  }).join('');
-
-
-
-  const countBadge = document.getElementById('sidebar-builds-count');
-
-  if (countBadge) countBadge.textContent = LauncherState.instances.length;
-
-}
-
-
-
-window.selectInstance = function(instId) {
-
-  LauncherState.activeInstance = instId;
-
-  const inst = LauncherState.instances.find(i => i.id === instId);
-
-  if (inst) {
-
-    document.querySelector('.hero-title-text').textContent = inst.name;
-
-    document.getElementById('selected-version-text').textContent = inst.version;
-
-    showToast(`Выбрана сборка: ${inst.name}`);
-
+    verList.querySelectorAll('.version-dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        wizardSelectedVer = item.getAttribute('data-ver');
+        if (verBadge) verBadge.textContent = wizardSelectedVer;
+        renderWizardVersions();
+        updateWizardLoaders();
+      });
+    });
   }
 
+  function updateWizardLoaders() {
+    if (!loadersGrid) return;
+    const v = LauncherState.allVersions.find(x => x.ver === wizardSelectedVer || x.id === wizardSelectedVer) || {
+      id: wizardSelectedVer.replace(/^(Release|Snapshot)\s+/i, '').trim(),
+      ver: wizardSelectedVer,
+      category: 'release'
+    };
+
+    const loaders = getSupportedLoaders(v.id || v.ver, v.category);
+    if (!loaders.some(l => l.id === wizardSelectedLoader)) {
+      wizardSelectedLoader = loaders[0]?.id || 'fabric';
+    }
+
+    const curLoader = loaders.find(l => l.id === wizardSelectedLoader) || loaders[0];
+    if (loaderBadge && curLoader) {
+      loaderBadge.textContent = curLoader.name;
+    }
+
+    // Auto-update suggested build name if default
+    if (nameInput) {
+      const cleanVer = wizardSelectedVer.replace(/^(Release|Snapshot)\s+/i, '').trim();
+      nameInput.value = `Сборка ${cleanVer} (${curLoader?.name || 'Fabric'})`;
+    }
+
+    loadersGrid.innerHTML = loaders.map(l => {
+      const isSel = (l.id === wizardSelectedLoader);
+      return `
+        <div class="loader-choice-card ${isSel ? 'selected' : ''}" data-loader="${l.id}" style="padding: 10px;">
+          <div class="loader-card-header" style="margin-bottom: 4px;">
+            <div class="loader-card-title-wrap">
+              <span style="font-size: 16px;">${l.icon}</span>
+              <span class="loader-card-name" style="font-size: 13px;">${l.name}</span>
+            </div>
+            <div class="loader-card-radio">
+              <span class="loader-radio-dot"></span>
+            </div>
+          </div>
+          <p class="loader-card-desc" style="font-size: 11px; margin: 4px 0 6px 0; line-height: 1.35;">${l.desc}</p>
+        </div>
+      `;
+    }).join('');
+
+    loadersGrid.querySelectorAll('.loader-choice-card').forEach(card => {
+      card.addEventListener('click', () => {
+        wizardSelectedLoader = card.getAttribute('data-loader');
+        updateWizardLoaders();
+      });
+    });
+  }
+
+  // Open modal on '+' button click
+  addBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wizardSelectedVer = LauncherState.selectedVersion.split(' (')[0] || 'Release 26.3';
+    if (verBadge) verBadge.textContent = wizardSelectedVer;
+    if (searchInput) searchInput.value = '';
+    renderWizardVersions();
+    updateWizardLoaders();
+    modal.classList.add('show');
+  });
+
+  // Search input
+  searchInput?.addEventListener('input', () => {
+    renderWizardVersions();
+  });
+
+  // Filter tabs
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      wizardFilterTab = tab.getAttribute('data-build-vtab') || 'all';
+      renderWizardVersions();
+    });
+  });
+
+  // Confirm Creation
+  confirmBtn?.addEventListener('click', () => {
+    const rawName = nameInput?.value.trim();
+    const cleanVer = wizardSelectedVer.replace(/^(Release|Snapshot)\s+/i, '').trim();
+    const vObj = LauncherState.allVersions.find(x => x.ver === wizardSelectedVer || x.id === wizardSelectedVer);
+    const loaders = getSupportedLoaders(cleanVer, vObj?.category || 'release');
+    const chosenLoader = loaders.find(l => l.id === wizardSelectedLoader) || loaders[0] || { id: 'fabric', name: 'Fabric' };
+
+    let fullVer = wizardSelectedVer;
+    if (chosenLoader.id !== 'vanilla') {
+      fullVer = `${wizardSelectedVer} (${chosenLoader.name})`;
+    }
+
+    const name = rawName || `Сборка ${cleanVer} (${chosenLoader.name})`;
+    const newId = `inst-${Date.now()}`;
+
+    const newInst = {
+      id: newId,
+      name: name,
+      version: fullVer,
+      modloader: chosenLoader.name,
+      tag: `${chosenLoader.name} · 0 модов`,
+      status: 'Готово',
+      modsCount: 0
+    };
+
+    LauncherState.instances.push(newInst);
+    localStorage.setItem('kbl_instances', JSON.stringify(LauncherState.instances));
+
+    if (window._pyApi && typeof window._pyApi.save_instances === 'function') {
+      window._pyApi.save_instances(LauncherState.instances);
+    }
+
+    modal.classList.remove('show');
+    renderInstancesList();
+    window.selectInstance(newId);
+    showToast(`✨ Сборка «${name}» успешно создана и выбрана!`);
+  });
+}
+
+// ==========================================
+// RENDER INSTANCES LIST & POPUP OPTIONS
+// ==========================================
+
+let activeContextMenuInstId = null;
+
+function renderInstancesList() {
+  const container = document.getElementById('instances-container');
+  if (!container) return;
+
+  container.innerHTML = LauncherState.instances.map(inst => {
+    const isActive = (inst.id === LauncherState.activeInstance);
+    let iconHTML = '<img src="assets/kbl-logo-circle.png" alt="Logo" class="instance-logo">';
+    let dotClass = 'green';
+
+    if (inst.id.includes('vanilla') || (inst.modloader && inst.modloader.toLowerCase() === 'vanilla')) {
+      iconHTML = '<span style="font-size:18px;">🧊</span>';
+      dotClass = 'blue';
+    } else if (inst.id.includes('shader') || (inst.name && inst.name.toLowerCase().includes('shader'))) {
+      iconHTML = '<span style="font-size:18px;">✨</span>';
+      dotClass = 'purple';
+    } else if (inst.modloader && inst.modloader.toLowerCase().includes('forge')) {
+      iconHTML = '<span style="font-size:18px;">🔥</span>';
+      dotClass = 'orange';
+    }
+
+    return `
+      <div class="instance-card ${isActive ? 'active' : ''}" data-instance-id="${inst.id}" onclick="selectInstance('${inst.id}')">
+        <div class="instance-icon-box ${dotClass}-box">
+          ${iconHTML}
+        </div>
+        <div class="instance-details">
+          <div class="instance-name">${inst.name}</div>
+          <div class="instance-status">
+            <span class="status-dot ${dotClass}"></span>
+            <span class="status-text">${inst.status || 'Готово'}</span>
+            <span class="instance-tag">${inst.tag || inst.version}</span>
+          </div>
+        </div>
+        <button class="instance-menu-btn" title="Опции сборки" onclick="openInstanceContextMenu(event, '${inst.id}')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="1.5"></circle>
+            <circle cx="12" cy="5" r="1.5"></circle>
+            <circle cx="12" cy="19" r="1.5"></circle>
+          </svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  const countBadge = document.getElementById('sidebar-builds-count');
+  if (countBadge) countBadge.textContent = LauncherState.instances.length;
+}
+
+window.openInstanceContextMenu = function(e, instId) {
+  e.stopPropagation();
+  activeContextMenuInstId = instId;
+  const popover = document.getElementById('instance-context-popover');
+  if (!popover) return;
+
+  const rect = e.currentTarget.getBoundingClientRect();
+  popover.style.display = 'block';
+  popover.style.top = `${rect.bottom + 4}px`;
+  popover.style.left = `${Math.min(rect.left, window.innerWidth - 180)}px`;
+};
+
+document.addEventListener('click', () => {
+  const popover = document.getElementById('instance-context-popover');
+  if (popover) popover.style.display = 'none';
+});
+
+function initInstanceContextMenu() {
+  const btnFolder = document.getElementById('popover-btn-folder');
+  const btnDup = document.getElementById('popover-btn-duplicate');
+  const btnDel = document.getElementById('popover-btn-delete');
+
+  btnFolder?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!activeContextMenuInstId) return;
+    if (window._pyApi && typeof window._pyApi.open_instance_folder === 'function') {
+      window._pyApi.open_instance_folder(activeContextMenuInstId);
+    }
+    document.getElementById('instance-context-popover').style.display = 'none';
+  });
+
+  btnDup?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!activeContextMenuInstId) return;
+    const orig = LauncherState.instances.find(i => i.id === activeContextMenuInstId);
+    if (!orig) return;
+
+    const dup = {
+      ...orig,
+      id: `inst-${Date.now()}`,
+      name: `${orig.name} (Копия)`,
+      status: 'Готово'
+    };
+
+    LauncherState.instances.push(dup);
+    localStorage.setItem('kbl_instances', JSON.stringify(LauncherState.instances));
+    if (window._pyApi && typeof window._pyApi.save_instances === 'function') {
+      window._pyApi.save_instances(LauncherState.instances);
+    }
+    renderInstancesList();
+    window.selectInstance(dup.id);
+    document.getElementById('instance-context-popover').style.display = 'none';
+    showToast(`📋 Сборка скопирована: ${dup.name}`);
+  });
+
+  btnDel?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!activeContextMenuInstId) return;
+    if (LauncherState.instances.length <= 1) {
+      showToast('⚠️ Нельзя удалить единственную сборку!');
+      document.getElementById('instance-context-popover').style.display = 'none';
+      return;
+    }
+
+    const idx = LauncherState.instances.findIndex(i => i.id === activeContextMenuInstId);
+    if (idx !== -1) {
+      const delName = LauncherState.instances[idx].name;
+      const delId = LauncherState.instances[idx].id;
+      LauncherState.instances.splice(idx, 1);
+      localStorage.setItem('kbl_instances', JSON.stringify(LauncherState.instances));
+
+      if (window._pyApi && typeof window._pyApi.delete_instance === 'function') {
+        window._pyApi.delete_instance(delId);
+      }
+      if (window._pyApi && typeof window._pyApi.save_instances === 'function') {
+        window._pyApi.save_instances(LauncherState.instances);
+      }
+
+      if (LauncherState.activeInstance === delId) {
+        window.selectInstance(LauncherState.instances[0].id);
+      } else {
+        renderInstancesList();
+      }
+      showToast(`🗑️ Сборка «${delName}» удалена.`);
+    }
+    document.getElementById('instance-context-popover').style.display = 'none';
+  });
+}
+
+// ==========================================
+// SWITCHING BETWEEN BUILDS (FIXED & PERSISTENT)
+// ==========================================
+
+window.selectInstance = function(instId) {
+  const inst = LauncherState.instances.find(i => i.id === instId);
+  if (!inst) return;
+
+  LauncherState.activeInstance = instId;
+  localStorage.setItem('kbl_active_instance', instId);
+
+  // 1. Update version and loader in state
+  LauncherState.selectedVersion = inst.version || 'Release 26.3';
+  LauncherState.selectedLoader = inst.modloader || 'Fabric';
+
+  // 2. Update Home tab elements
+  const heroTitle = document.querySelector('.hero-title-text');
+  if (heroTitle) heroTitle.textContent = inst.name;
+
+  const heroSubtitle = document.querySelector('.hero-subtitle-stats');
+  if (heroSubtitle) {
+    const count = inst.modsCount !== undefined ? `${inst.modsCount} модов` : 'Чистый клиент';
+    heroSubtitle.textContent = `Сборка: ${inst.name} · Ядро: ${inst.modloader || 'Fabric'} · ${count}`;
+  }
+
+  const verText = document.getElementById('selected-version-text');
+  if (verText) verText.textContent = inst.version || 'Release 26.3';
+
+  const homeActiveVer = document.getElementById('home-active-version');
+  if (homeActiveVer) homeActiveVer.textContent = inst.version || 'Release 26.3';
+
+  // 3. Update sidebar active card
   renderInstancesList();
 
+  // 4. Update Mods tab dropdown & badge
+  const modsSelect = document.getElementById('mods-target-instance-select');
+  if (modsSelect) {
+    modsSelect.innerHTML = LauncherState.instances.map(i => `
+      <option value="${i.id}" ${i.id === instId ? 'selected' : ''}>${i.name} (${i.modloader || i.version})</option>
+    `).join('');
+    modsSelect.value = instId;
+  }
+
+  const modsBadge = document.getElementById('mods-target-loader-badge');
+  if (modsBadge) {
+    modsBadge.textContent = `⚡ ${inst.modloader || 'Fabric'} · ${inst.version || '26.3'}`;
+  }
+
+  // 5. Reload installed mods for this specific instance
+  if (typeof window.loadInstalledModsForActiveInstance === 'function') {
+    window.loadInstalledModsForActiveInstance();
+  }
+
+  showToast(`⚡ Выбрана сборка: ${inst.name}`);
 };
 
 
@@ -3816,61 +4252,47 @@ function initFirstRunOnboarding() {
 
 // ==========================================
 
+window.openExternalLink = function(url) {
+  if (window._pyApi && typeof window._pyApi.open_external === 'function') {
+    window._pyApi.open_external(url);
+  } else if (window.electronAPI && typeof window.electronAPI.openExternal === 'function') {
+    window.electronAPI.openExternal(url);
+  } else {
+    window.open(url, '_blank');
+  }
+};
+
 function initLinks() {
-
   document.getElementById('btn-discord')?.addEventListener('click', () => {
-
-    const url = 'https://discord.gg/minecraft';
-
-    if (window.electronAPI) {
-
-      window.electronAPI.openExternal(url);
-
-    } else {
-
-      window.open(url, '_blank');
-
-    }
-
+    window.openExternalLink('https://discord.gg/minecraft');
     showToast('💬 Открытие Discord сообщества KBLauncher...');
-
   });
-
-
 
   document.getElementById('btn-site')?.addEventListener('click', () => {
-
-    if (window.electronAPI) {
-
-      window.electronAPI.openExternal('http://localhost:3000/site.html');
-
-    } else {
-
-      window.open('/site.html', '_blank');
-
-    }
-
+    window.openExternalLink('https://kblauncher.netlify.app');
     showToast('🌐 Переход на официальный сайт KBLauncher...');
-
   });
 
+  document.getElementById('btn-quick-site')?.addEventListener('click', () => {
+    window.openExternalLink('https://kblauncher.netlify.app');
+    showToast('🌐 Переход на официальный сайт KBLauncher...');
+  });
 
+  document.getElementById('btn-telegram')?.addEventListener('click', () => {
+    window.openExternalLink('https://t.me/kblauncher');
+    showToast('✈️ Открытие Telegram канала KBLauncher...');
+  });
+
+  document.getElementById('btn-donate')?.addEventListener('click', () => {
+    window.openExternalLink('https://donationalerts.com');
+    showToast('❤️ Спасибо за поддержку KBLauncher!');
+  });
 
   document.getElementById('btn-support')?.addEventListener('click', () => {
-
+    window.openExternalLink('https://donationalerts.com');
     showToast('❤️ Спасибо за поддержку KBLauncher!');
-
   });
-
 }
-
-
-
-// ==========================================
-
-// Toast Notification System
-
-// ==========================================
 
 function showToast(msg) {
 
@@ -3906,3 +4328,74 @@ function showToast(msg) {
 
 }
 
+
+
+
+// ==========================================
+// GAME LOGS & CRASH CONSOLE SYSTEM
+// ==========================================
+
+function initGameLogsModal() {
+  const btnLogs = document.getElementById('btn-open-logs');
+  const modal = document.getElementById('modal-game-logs');
+  const btnCopy = document.getElementById('btn-copy-game-logs');
+  const btnRefresh = document.getElementById('btn-refresh-game-logs');
+  const output = document.getElementById('game-logs-output');
+
+  async function loadLogs() {
+    if (!output) return;
+    output.textContent = '⏳ Чтение latest.log...';
+    try {
+      let res = null;
+      if (window._pyApi && typeof window._pyApi.get_game_logs === 'function') {
+        res = await window._pyApi.get_game_logs(LauncherState.activeInstance);
+      }
+      if (res && res.logs) {
+        output.textContent = res.logs;
+      } else {
+        output.textContent = '[KBLauncher System]\nЛог пока пуст. Запустите игру для формирования отчёта.';
+      }
+      output.scrollTop = output.scrollHeight;
+    } catch (e) {
+      output.textContent = `Ошибка чтения лога: ${e}`;
+    }
+  }
+
+  btnLogs?.addEventListener('click', () => {
+    loadLogs();
+    modal?.classList.add('show');
+  });
+
+  btnRefresh?.addEventListener('click', () => {
+    loadLogs();
+    showToast('🔄 Лог обновлен');
+  });
+
+  btnCopy?.addEventListener('click', () => {
+    if (output && output.textContent) {
+      navigator.clipboard?.writeText(output.textContent);
+      showToast('📋 Лог игры скопирован в буфер обмена!');
+    }
+  });
+
+  // Global handler called from Python when game process ends
+  window.onGameTerminated = function(instId, exitCode) {
+    console.log(`[KBLauncher JS] Game terminated for ${instId}, exit code: ${exitCode}`);
+    LauncherState.isPlaying = false;
+    const playBtn = document.getElementById('main-play-btn');
+    const label = document.getElementById('play-status-label');
+    if (label) label.textContent = 'Играть';
+    if (playBtn) {
+      playBtn.style.background = '';
+      playBtn.style.opacity = '1';
+    }
+
+    if (exitCode !== 0 && exitCode !== null) {
+      showToast(`⚠️ Minecraft завершился с кодом ошибки ${exitCode}! Открываем лог...`);
+      loadLogs();
+      modal?.classList.add('show');
+    } else {
+      showToast(`🎮 Сеанс игры в Minecraft завершён.`);
+    }
+  };
+}
