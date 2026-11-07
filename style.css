@@ -4870,3 +4870,63 @@ html, body {
   color: #f87171 !important;
   border-color: rgba(239, 68, 68, 0.35) !important;
 }
+
+
+
+/* ==========================================================================
+   VERSION DROPDOWN & ACTION BAR STACKING CONTEXT FIX
+   Guarantees version dropdown is always on top of all subviews and cards
+   ========================================================================== */
+.action-bar-row {
+  position: relative !important;
+  z-index: 5000 !important;
+}
+
+.action-cluster-left {
+  position: relative !important;
+  z-index: 5000 !important;
+}
+
+.version-selector-box {
+  position: relative !important;
+  z-index: 6000 !important;
+}
+
+.version-selector-box.dropdown-open,
+.version-selector-box:has(.version-dropdown-menu.show) {
+  z-index: 999999 !important;
+}
+
+.action-bar-row.dropdown-open,
+.action-bar-row:has(.version-dropdown-menu.show),
+.action-cluster-left:has(.version-dropdown-menu.show) {
+  z-index: 999999 !important;
+}
+
+.subnav-tabs-row {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.subtab-content-container {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.subview {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.card,
+.glass-card,
+.screenshots-card,
+.changelog-card {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.version-dropdown-menu {
+  position: absolute !important;
+  z-index: 9999999 !important;
+}
