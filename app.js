@@ -16,86 +16,84 @@ if (document.body) {
 // Covers all major releases (1.21.4 down to 1.0), Fabric, Forge, NeoForge, OptiFine, Snapshots
 // ==========================================================================
 const BASE_MINECRAFT_VERSIONS = [
-  // --- LATEST & ACTIVE RELEASES (1.21 Tricky Trials & 1.20 Trails) ---
-  { id: '1.21.4', ver: 'Release 1.21.4', category: 'release', typeName: 'Официальный релиз', date: '03.12.2024', installed: true, popular: true, tag: 'Последний релиз' },
+  // ============================================================
+  // 🔥 LATEST RELEASES 2026 (26.3, 26.2, 26.1, 26.0)
+  // ============================================================
+  { id: '26.3', ver: 'Release 26.3', category: 'release', typeName: 'Официальный релиз', date: '04.11.2026', installed: true, popular: true, tag: 'Новейший релиз 2026 · Рекомендуется' },
+  { id: '26.2', ver: 'Release 26.2', category: 'release', typeName: 'Официальный релиз', date: '18.09.2026', installed: true, popular: true, tag: 'Свежий релиз' },
+  { id: '26.1.2', ver: 'Release 26.1.2', category: 'release', typeName: 'Официальный релиз', date: '12.07.2026', installed: false, popular: true },
+  { id: '26.1.1', ver: 'Release 26.1.1', category: 'release', typeName: 'Официальный релиз', date: '25.06.2026', installed: false, popular: false },
+  { id: '26.1', ver: 'Release 26.1', category: 'release', typeName: 'Официальный релиз', date: '04.06.2026', installed: true, popular: true, tag: 'Стабильный' },
+  { id: '26.0', ver: 'Release 26.0', category: 'release', typeName: 'Официальный релиз', date: '14.04.2026', installed: false, popular: false },
+
+  // ============================================================
+  // 🔬 LATEST SNAPSHOTS (26w14a, 26w12b, 26w10a, 25w48a...)
+  // ============================================================
+  { id: '26w14a', ver: 'Snapshot 26w14a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '02.11.2026', installed: true, popular: true, tag: 'Самый свежий снапшот' },
+  { id: '26w12b', ver: 'Snapshot 26w12b', category: 'snapshot', typeName: 'Снапшот Mojang', date: '22.10.2026', installed: false, popular: true },
+  { id: '26w10a', ver: 'Snapshot 26w10a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '08.10.2026', installed: false, popular: true, tag: 'Снапшот 26.3' },
+  { id: '26w08a', ver: 'Snapshot 26w08a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '24.09.2026', installed: false, popular: false },
+  { id: '26.3-pre2', ver: '26.3 Pre-Release 2', category: 'snapshot', typeName: 'Пре-релиз', date: '29.10.2026', installed: false, popular: true },
+  { id: '26.3-pre1', ver: '26.3 Pre-Release 1', category: 'snapshot', typeName: 'Пре-релиз', date: '25.10.2026', installed: false, popular: false },
+  { id: '25w48a', ver: 'Snapshot 25w48a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '28.11.2025', installed: false, popular: false },
+  { id: '24w46a', ver: 'Snapshot 24w46a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '14.11.2024', installed: false, popular: false },
+  { id: '24w45a', ver: 'Snapshot 24w45a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '06.11.2024', installed: false, popular: false },
+  { id: '1.21.4-pre1', ver: '1.21.4 Pre-Release 1', category: 'snapshot', typeName: 'Пре-релиз', date: '20.11.2024', installed: false, popular: false },
+
+  // ============================================================
+  // ⚡ MODDED LOADERS (Fabric 26.3, NeoForge 26.3, Forge 26.1...)
+  // ============================================================
+  { id: 'fabric-26.3', ver: 'Fabric 26.3', category: 'fabric', typeName: 'Fabric Loader', date: '05.11.2026', installed: true, popular: true, tag: 'KBL Оптимизация 2026' },
+  { id: 'fabric-26.1', ver: 'Fabric 26.1', category: 'fabric', typeName: 'Fabric Loader', date: '06.06.2026', installed: true, popular: true },
+  { id: 'neoforge-26.3', ver: 'NeoForge 26.3', category: 'neoforge', typeName: 'NeoForged Loader', date: '05.11.2026', installed: true, popular: true, tag: 'Новое ядро' },
+  { id: 'neoforge-26.1', ver: 'NeoForge 26.1', category: 'neoforge', typeName: 'NeoForged Loader', date: '08.06.2026', installed: false, popular: false },
+  { id: 'forge-26.1', ver: 'Forge 26.1', category: 'forge', typeName: 'Minecraft Forge', date: '10.06.2026', installed: false, popular: true },
+  { id: 'optifine-26.1', ver: 'OptiFine 26.1', category: 'optifine', typeName: 'OptiFine HD', date: '15.06.2026', installed: true, popular: true, tag: 'Шейдеры' },
+
+  // ============================================================
+  // 🟩 PREVIOUS MAJOR RELEASES (1.21.4 down to 1.0)
+  // ============================================================
+  { id: '1.21.4', ver: 'Release 1.21.4', category: 'release', typeName: 'Официальный релиз', date: '03.12.2024', installed: true, popular: true, tag: 'Стабильный' },
   { id: '1.21.3', ver: 'Release 1.21.3', category: 'release', typeName: 'Официальный релиз', date: '23.10.2024', installed: false, popular: false },
-  { id: '1.21.1', ver: 'Release 1.21.1', category: 'release', typeName: 'Официальный релиз', date: '08.08.2024', installed: true, popular: true, tag: 'Стабильный' },
+  { id: '1.21.1', ver: 'Release 1.21.1', category: 'release', typeName: 'Официальный релиз', date: '08.08.2024', installed: true, popular: true },
   { id: '1.21', ver: 'Release 1.21', category: 'release', typeName: 'Официальный релиз', date: '13.06.2024', installed: false, popular: false },
   { id: '1.20.6', ver: 'Release 1.20.6', category: 'release', typeName: 'Официальный релиз', date: '29.04.2024', installed: false, popular: false },
   { id: '1.20.4', ver: 'Release 1.20.4', category: 'release', typeName: 'Официальный релиз', date: '07.12.2023', installed: true, popular: true },
-  { id: '1.20.2', ver: 'Release 1.20.2', category: 'release', typeName: 'Официальный релиз', date: '21.09.2023', installed: false, popular: false },
   { id: '1.20.1', ver: 'Release 1.20.1', category: 'release', typeName: 'Официальный релиз', date: '12.06.2023', installed: true, popular: true, tag: 'Топ для модов' },
-  { id: '1.20', ver: 'Release 1.20', category: 'release', typeName: 'Официальный релиз', date: '07.06.2023', installed: false, popular: false },
-
-  // --- 1.19 THE WILD & 1.18 CAVES & CLIFFS ---
   { id: '1.19.4', ver: 'Release 1.19.4', category: 'release', typeName: 'Официальный релиз', date: '14.03.2023', installed: false, popular: true },
-  { id: '1.19.3', ver: 'Release 1.19.3', category: 'release', typeName: 'Официальный релиз', date: '07.12.2022', installed: false, popular: false },
-  { id: '1.19.2', ver: 'Release 1.19.2', category: 'release', typeName: 'Официальный релиз', date: '05.08.2022', installed: true, popular: true, tag: 'Популярно' },
-  { id: '1.18.2', ver: 'Release 1.18.2', category: 'release', typeName: 'Официальный релиз', date: '28.02.2022', installed: false, popular: true, tag: 'Caves & Cliffs II' },
-  { id: '1.18.1', ver: 'Release 1.18.1', category: 'release', typeName: 'Официальный релиз', date: '10.12.2021', installed: false, popular: false },
+  { id: '1.19.2', ver: 'Release 1.19.2', category: 'release', typeName: 'Официальный релиз', date: '05.08.2022', installed: true, popular: true },
+  { id: '1.18.2', ver: 'Release 1.18.2', category: 'release', typeName: 'Официальный релиз', date: '28.02.2022', installed: false, popular: true },
   { id: '1.17.1', ver: 'Release 1.17.1', category: 'release', typeName: 'Официальный релиз', date: '06.07.2021', installed: false, popular: false },
-
-  // --- 1.16 NETHER UPDATE (LEGENDARY) ---
   { id: '1.16.5', ver: 'Release 1.16.5', category: 'release', typeName: 'Официальный релиз', date: '15.01.2021', installed: true, popular: true, tag: 'Легендарная' },
-  { id: '1.16.4', ver: 'Release 1.16.4', category: 'release', typeName: 'Официальный релиз', date: '02.11.2020', installed: false, popular: false },
   { id: '1.15.2', ver: 'Release 1.15.2', category: 'release', typeName: 'Официальный релиз', date: '21.01.2020', installed: false, popular: false },
   { id: '1.14.4', ver: 'Release 1.14.4', category: 'release', typeName: 'Официальный релиз', date: '19.07.2019', installed: false, popular: false },
   { id: '1.13.2', ver: 'Release 1.13.2', category: 'release', typeName: 'Официальный релиз', date: '22.10.2018', installed: false, popular: false },
-
-  // --- CLASSIC & GOLDEN AGE (1.12.2, 1.8.9, 1.7.10) ---
   { id: '1.12.2', ver: 'Release 1.12.2', category: 'release', typeName: 'Официальный релиз', date: '18.09.2017', installed: true, popular: true, tag: 'Золотой стандарт Forge' },
   { id: '1.11.2', ver: 'Release 1.11.2', category: 'release', typeName: 'Официальный релиз', date: '21.12.2016', installed: false, popular: false },
   { id: '1.10.2', ver: 'Release 1.10.2', category: 'release', typeName: 'Официальный релиз', date: '23.06.2016', installed: false, popular: false },
   { id: '1.9.4', ver: 'Release 1.9.4', category: 'release', typeName: 'Официальный релиз', date: '10.05.2016', installed: false, popular: false },
   { id: '1.8.9', ver: 'Release 1.8.9', category: 'release', typeName: 'Официальный релиз', date: '09.12.2015', installed: true, popular: true, tag: 'Топ для PvP / Hypixel' },
-  { id: '1.8', ver: 'Release 1.8', category: 'release', typeName: 'Официальный релиз', date: '02.09.2014', installed: false, popular: false },
   { id: '1.7.10', ver: 'Release 1.7.10', category: 'release', typeName: 'Официальный релиз', date: '26.06.2014', installed: true, popular: true, tag: 'Классика модов' },
   { id: '1.6.4', ver: 'Release 1.6.4', category: 'release', typeName: 'Официальный релиз', date: '19.09.2013', installed: false, popular: false },
   { id: '1.5.2', ver: 'Release 1.5.2', category: 'release', typeName: 'Официальный релиз', date: '02.05.2013', installed: false, popular: true, tag: 'Ностальгия' },
-  { id: '1.4.7', ver: 'Release 1.4.7', category: 'release', typeName: 'Официальный релиз', date: '09.01.2013', installed: false, popular: false },
-  { id: '1.2.5', ver: 'Release 1.2.5', category: 'release', typeName: 'Официальный релиз', date: '04.04.2012', installed: false, popular: false },
   { id: '1.0.0', ver: 'Release 1.0.0', category: 'release', typeName: 'Официальный релиз', date: '18.11.2011', installed: false, popular: false, tag: 'Первый релиз' },
 
-  // --- FABRIC LOADERS ---
-  { id: 'fabric-1.21.4', ver: 'Fabric 1.21.4', category: 'fabric', typeName: 'Fabric Loader', date: '05.12.2024', installed: true, popular: true, tag: 'FPS Оптимизация' },
-  { id: 'fabric-1.21.1', ver: 'Fabric 1.21.1', category: 'fabric', typeName: 'Fabric Loader', date: '10.08.2024', installed: true, popular: true },
-  { id: 'fabric-1.20.4', ver: 'Fabric 1.20.4', category: 'fabric', typeName: 'Fabric Loader', date: '10.12.2023', installed: false, popular: false },
-  { id: 'fabric-1.20.1', ver: 'Fabric 1.20.1', category: 'fabric', typeName: 'Fabric Loader', date: '15.06.2023', installed: true, popular: true, tag: 'Сборка KBL' },
-  { id: 'fabric-1.19.4', ver: 'Fabric 1.19.4', category: 'fabric', typeName: 'Fabric Loader', date: '18.03.2023', installed: false, popular: false },
-  { id: 'fabric-1.19.2', ver: 'Fabric 1.19.2', category: 'fabric', typeName: 'Fabric Loader', date: '10.08.2022', installed: false, popular: true },
-  { id: 'fabric-1.18.2', ver: 'Fabric 1.18.2', category: 'fabric', typeName: 'Fabric Loader', date: '05.03.2022', installed: false, popular: false },
+  // ============================================================
+  // ⚡ POPULAR PREVIOUS MOD LOADERS
+  // ============================================================
+  { id: 'fabric-1.21.4', ver: 'Fabric 1.21.4', category: 'fabric', typeName: 'Fabric Loader', date: '05.12.2024', installed: true, popular: true },
+  { id: 'fabric-1.20.1', ver: 'Fabric 1.20.1', category: 'fabric', typeName: 'Fabric Loader', date: '15.06.2023', installed: true, popular: true, tag: 'Топ сборка' },
   { id: 'fabric-1.16.5', ver: 'Fabric 1.16.5', category: 'fabric', typeName: 'Fabric Loader', date: '20.01.2021', installed: false, popular: true },
-
-  // --- FORGE LOADERS ---
-  { id: 'forge-1.20.4', ver: 'Forge 1.20.4', category: 'forge', typeName: 'Minecraft Forge', date: '12.12.2023', installed: false, popular: false },
   { id: 'forge-1.20.1', ver: 'Forge 1.20.1', category: 'forge', typeName: 'Minecraft Forge', date: '18.06.2023', installed: true, popular: true, tag: 'Топ модпаков' },
-  { id: 'forge-1.19.4', ver: 'Forge 1.19.4', category: 'forge', typeName: 'Minecraft Forge', date: '20.03.2023', installed: false, popular: false },
-  { id: 'forge-1.19.2', ver: 'Forge 1.19.2', category: 'forge', typeName: 'Minecraft Forge', date: '12.08.2022', installed: false, popular: true },
-  { id: 'forge-1.18.2', ver: 'Forge 1.18.2', category: 'forge', typeName: 'Minecraft Forge', date: '10.03.2022', installed: false, popular: false },
-  { id: 'forge-1.16.5', ver: 'Forge 1.16.5', category: 'forge', typeName: 'Minecraft Forge', date: '22.01.2021', installed: true, popular: true, tag: 'Супер-стабильно' },
+  { id: 'forge-1.16.5', ver: 'Forge 1.16.5', category: 'forge', typeName: 'Minecraft Forge', date: '22.01.2021', installed: true, popular: true },
   { id: 'forge-1.12.2', ver: 'Forge 1.12.2', category: 'forge', typeName: 'Minecraft Forge', date: '25.09.2017', installed: true, popular: true, tag: 'Тяжёлые модпаки' },
-  { id: 'forge-1.7.10', ver: 'Forge 1.7.10', category: 'forge', typeName: 'Minecraft Forge', date: '01.07.2014', installed: false, popular: true, tag: 'Ретро-моды' },
-
-  // --- NEOFORGE ---
-  { id: 'neoforge-1.21.4', ver: 'NeoForge 1.21.4', category: 'neoforge', typeName: 'NeoForged Loader', date: '08.12.2024', installed: false, popular: true, tag: 'Новое ядро' },
-  { id: 'neoforge-1.21.1', ver: 'NeoForge 1.21.1', category: 'neoforge', typeName: 'NeoForged Loader', date: '12.08.2024', installed: true, popular: true },
-  { id: 'neoforge-1.20.4', ver: 'NeoForge 1.20.4', category: 'neoforge', typeName: 'NeoForged Loader', date: '15.12.2023', installed: false, popular: false },
-
-  // --- OPTIFINE ---
-  { id: 'optifine-1.21.1', ver: 'OptiFine 1.21.1', category: 'optifine', typeName: 'OptiFine HD', date: '20.08.2024', installed: false, popular: false },
-  { id: 'optifine-1.20.1', ver: 'OptiFine 1.20.1', category: 'optifine', typeName: 'OptiFine HD', date: '25.06.2023', installed: true, popular: true, tag: 'Шейдеры' },
-  { id: 'optifine-1.19.2', ver: 'OptiFine 1.19.2', category: 'optifine', typeName: 'OptiFine HD', date: '18.08.2022', installed: false, popular: false },
+  { id: 'optifine-1.20.1', ver: 'OptiFine 1.20.1', category: 'optifine', typeName: 'OptiFine HD', date: '25.06.2023', installed: true, popular: true },
   { id: 'optifine-1.16.5', ver: 'OptiFine 1.16.5', category: 'optifine', typeName: 'OptiFine HD', date: '02.02.2021', installed: true, popular: true },
-  { id: 'optifine-1.12.2', ver: 'OptiFine 1.12.2', category: 'optifine', typeName: 'OptiFine HD', date: '01.10.2017', installed: false, popular: true },
   { id: 'optifine-1.8.9', ver: 'OptiFine 1.8.9', category: 'optifine', typeName: 'OptiFine HD', date: '15.12.2015', installed: true, popular: true, tag: 'PvP буст' },
 
-  // --- POPULAR SNAPSHOTS ---
-  { id: '24w46a', ver: 'Snapshot 24w46a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '14.11.2024', installed: false, popular: false },
-  { id: '24w45a', ver: 'Snapshot 24w45a', category: 'snapshot', typeName: 'Снапшот Mojang', date: '06.11.2024', installed: false, popular: false },
-  { id: '1.21.4-pre1', ver: '1.21.4 Pre-Release 1', category: 'snapshot', typeName: 'Пре-релиз', date: '20.11.2024', installed: false, popular: false },
-  { id: '23w51b', ver: 'Snapshot 23w51b', category: 'snapshot', typeName: 'Снапшот Mojang', date: '21.12.2023', installed: false, popular: false },
-
-  // --- RETRO BETA & ALPHA ---
+  // ============================================================
+  // 📜 RETRO BETA & ALPHA
+  // ============================================================
   { id: 'b1.7.3', ver: 'Beta 1.7.3', category: 'old', typeName: 'Старая Beta', date: '08.07.2011', installed: true, popular: true, tag: 'Золотая эра' },
   { id: 'b1.8.1', ver: 'Beta 1.8.1', category: 'old', typeName: 'Старая Beta', date: '19.09.2011', installed: false, popular: false },
   { id: 'a1.2.6', ver: 'Alpha 1.2.6', category: 'old', typeName: 'Старая Alpha', date: '03.12.2010', installed: false, popular: false }
@@ -108,7 +106,7 @@ const LauncherState = {
   activeTab: 'tab-home',
   activeSubTab: 'sub-overview',
   activeInstance: 'kblauncher-main',
-  selectedVersion: 'Nightly · 38609b7',
+  selectedVersion: 'Release 26.3',
   isPlaying: false,
   gamePid: null,
   user: {
@@ -371,12 +369,13 @@ function initVersionDropdown() {
     const activeTab = LauncherState.activeDropdownFilter || 'popular';
 
     const filtered = LauncherState.allVersions.filter(v => {
-      if (activeTab === 'popular' && !v.popular) return false;
-      if (activeTab === 'release' && v.category !== 'release') return false;
-      if (activeTab === 'modded' && !['fabric', 'forge', 'neoforge', 'optifine'].includes(v.category)) return false;
       if (query) {
-        return v.ver.toLowerCase().includes(query) || v.id.toLowerCase().includes(query);
+        return v.ver.toLowerCase().includes(query) || v.id.toLowerCase().includes(query) || (v.tag && v.tag.toLowerCase().includes(query));
       }
+      if (activeTab === 'popular') return Boolean(v.popular);
+      if (activeTab === 'release') return v.category === 'release';
+      if (activeTab === 'snapshot') return v.category === 'snapshot';
+      if (activeTab === 'modded') return ['fabric', 'forge', 'neoforge', 'optifine'].includes(v.category);
       return true;
     });
 
@@ -1130,6 +1129,8 @@ function initVersionsTable() {
 
   if (!tbody) return;
 
+  let currentLimit = 35;
+
   function renderTable() {
     const query = (searchInput?.value || '').trim().toLowerCase();
     const activeFilter = LauncherState.activeVersionFilter || 'all';
@@ -1170,7 +1171,10 @@ function initVersionsTable() {
       return;
     }
 
-    tbody.innerHTML = filtered.map(v => {
+    // Limit rendered items for 120 FPS performance (zero lag)
+    const displayList = query ? filtered : filtered.slice(0, currentLimit);
+
+    let html = displayList.map(v => {
       let tagClass = 'v-tag-release';
       let icon = '🟩';
       if (v.category === 'fabric') { tagClass = 'v-tag-fabric'; icon = '⚡'; }
@@ -1192,7 +1196,7 @@ function initVersionsTable() {
           <div>
             <span class="v-badge-tag ${tagClass}">${v.typeName || v.type || 'Релиз'}</span>
           </div>
-          <div style="color: #94a3b8; font-size: 12px;">${v.date || 'Недавно'}</div>
+          <div style="color: #94a3b8; font-size: 12px;">${v.date || '2026'}</div>
           <div>
             <span class="status-dot ${v.installed ? 'green' : 'gray'}" style="display:inline-block; margin-right:4px;"></span>
             <span style="color: ${v.installed ? '#34d399' : '#94a3b8'}; font-weight: 500;">
@@ -1210,11 +1214,28 @@ function initVersionsTable() {
         </div>
       `;
     }).join('');
+
+    if (!query && filtered.length > currentLimit) {
+      html += `
+        <div style="padding: 12px 20px; text-align: center;">
+          <button class="v-load-more-btn" id="btn-load-more-versions">Показать ещё (+35 версий)... (Осталось: ${filtered.length - currentLimit})</button>
+        </div>
+      `;
+    }
+
+    tbody.innerHTML = html;
+
+    const loadMoreBtn = document.getElementById('btn-load-more-versions');
+    loadMoreBtn?.addEventListener('click', () => {
+      currentLimit += 35;
+      renderTable();
+    });
   }
 
   renderTable();
 
   searchInput?.addEventListener('input', () => {
+    currentLimit = 35;
     renderTable();
   });
 
@@ -1223,6 +1244,7 @@ function initVersionsTable() {
       filterPills.forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       LauncherState.activeVersionFilter = pill.getAttribute('data-vfilter');
+      currentLimit = 35;
       renderTable();
     });
   });
