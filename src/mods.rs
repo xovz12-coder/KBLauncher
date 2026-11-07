@@ -1,0 +1,98 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ModItem {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub downloads: String,
+    pub loaders: String,
+    pub icon: String,
+    pub category: String,
+    pub installed: bool,
+}
+
+pub fn get_default_mods() -> Vec<ModItem> {
+    vec![
+        ModItem {
+            id: "sodium".into(),
+            name: "Sodium".into(),
+            description: "Кратно увеличивает частоту кадров (FPS) и снижает микрофризы рендеринга.".into(),
+            downloads: "45.2M".into(),
+            loaders: "Fabric / NeoForge".into(),
+            icon: "⚡".into(),
+            category: "Оптимизация (FPS)".into(),
+            installed: true,
+        },
+        ModItem {
+            id: "iris".into(),
+            name: "Iris Shaders".into(),
+            description: "Современный и быстрый движок шейдеров с поддержкой шейдерпаков OptiFine.".into(),
+            downloads: "38.6M".into(),
+            loaders: "Fabric / NeoForge".into(),
+            icon: "✨".into(),
+            category: "Графика & Шейдеры".into(),
+            installed: true,
+        },
+        ModItem {
+            id: "fabric-api".into(),
+            name: "Fabric API".into(),
+            description: "Основная библиотека и хуки жизненного цикла для работы модов на Fabric.".into(),
+            downloads: "92.1M".into(),
+            loaders: "Fabric / NeoForge".into(),
+            icon: "🧩".into(),
+            category: "Интерфейс & HUD".into(),
+            installed: true,
+        },
+        ModItem {
+            id: "lithium".into(),
+            name: "Lithium".into(),
+            description: "Оптимизация искусственного интеллекта мобов, тиков мира и физики чанков.".into(),
+            downloads: "32.4M".into(),
+            loaders: "Fabric / NeoForge".into(),
+            icon: "🔋".into(),
+            category: "Оптимизация (FPS)".into(),
+            installed: true,
+        },
+        ModItem {
+            id: "modmenu".into(),
+            name: "Mod Menu".into(),
+            description: "Удобный экран списка модов прямо в главном меню игры.".into(),
+            downloads: "54.8M".into(),
+            loaders: "Fabric".into(),
+            icon: "📋".into(),
+            category: "Интерфейс & HUD".into(),
+            installed: true,
+        },
+        ModItem {
+            id: "appleskin".into(),
+            name: "AppleSkin".into(),
+            description: "Отображение сытости, насыщения и восстановления здоровья при наведении на еду.".into(),
+            downloads: "68.3M".into(),
+            loaders: "Fabric / Forge / NeoForge".into(),
+            icon: "🍎".into(),
+            category: "Интерфейс & HUD".into(),
+            installed: false,
+        },
+        ModItem {
+            id: "distant-horizons".into(),
+            name: "Distant Horizons".into(),
+            description: "Генерация LOD чанков для отрисовки мира до 512+ чанков без потери FPS.".into(),
+            downloads: "14.2M".into(),
+            loaders: "Fabric / NeoForge".into(),
+            icon: "🌄".into(),
+            category: "Графика & Шейдеры".into(),
+            installed: false,
+        },
+        ModItem {
+            id: "ferritecore".into(),
+            name: "FerriteCore".into(),
+            description: "Снижает потребление оперативной памяти Minecraft на 30-50%.".into(),
+            downloads: "28.9M".into(),
+            loaders: "Fabric / Forge".into(),
+            icon: "💾".into(),
+            category: "Оптимизация (FPS)".into(),
+            installed: true,
+        },
+    ]
+}
