@@ -58,23 +58,50 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--color-bg-base);
+  background-color: #070512;
   font-family: var(--font-family);
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
+  position: relative;
 }
 
-/* Background Artwork Layer */
-body::before {
-  content: "";
+/* Background Artwork Layer — ALWAYS VISIBLE AND VIBRANT */
+.kbl-bg-art {
   position: fixed;
   inset: 0;
   background-image: url('assets/bg-sunset.png');
   background-size: cover;
   background-position: bottom center;
   background-repeat: no-repeat;
-  z-index: -2;
-  image-rendering: auto;
+  z-index: 0;
+  opacity: 0.70;
+  filter: saturate(150%) contrast(110%);
+  pointer-events: none;
+}
+
+/* Ambient Glowing Cyber Mesh Orbs */
+.kbl-bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(ellipse 90% 70% at 50% 0%, rgba(99, 102, 241, 0.35) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 50% at 90% 35%, rgba(244, 63, 94, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 10% 75%, rgba(14, 165, 233, 0.28) 0%, transparent 60%),
+    radial-gradient(circle at 50% 100%, rgba(168, 85, 247, 0.30) 0%, transparent 60%);
+}
+
+/* Cyber Matrix Grid */
+.kbl-bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 /* Atmospheric Darkness Gradient Overlay */
@@ -82,12 +109,12 @@ body::before {
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(ellipse at 50% 100%, rgba(124, 58, 237, 0.22) 0%, rgba(99, 102, 241, 0.12) 35%, transparent 70%),
-    radial-gradient(circle at 80% 85%, rgba(249, 115, 22, 0.18) 0%, transparent 45%),
-    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.16) 0%, transparent 50%),
-    rgba(9, 7, 23, 0.32);
+    radial-gradient(ellipse at 50% 100%, rgba(124, 58, 237, 0.20) 0%, rgba(99, 102, 241, 0.10) 35%, transparent 70%),
+    radial-gradient(circle at 80% 85%, rgba(249, 115, 22, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.14) 0%, transparent 50%),
+    rgba(9, 7, 23, 0.25);
   pointer-events: none;
-  z-index: -1;
+  z-index: 3;
 }
 
 /* Subtle Animated Starfield Layer */
@@ -95,7 +122,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -1;
+  z-index: 4;
   background-image: 
     radial-gradient(1px 1px at 150px 80px, #ffffff, rgba(0,0,0,0)),
     radial-gradient(1.5px 1.5px at 320px 140px, #e0e7ff, rgba(0,0,0,0)),
@@ -117,6 +144,7 @@ body::before {
   width: 100vw;
   height: 100vh;
   position: relative;
+  z-index: 10;
 }
 
 /* =========================================================
@@ -3155,75 +3183,7 @@ body.liquid-glass-active .first-run-window {
    ========================================================= */
 
 /* --- CLASSIC MENU STYLE (when liquid-glass is OFF) --- */
-body:not(.liquid-glass-active) .glass-card {
-  background: rgba(22, 17, 44, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40);
-}
-
-body:not(.liquid-glass-active) .sidebar {
-  background: rgba(16, 12, 34, 0.94);
-  border-right: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.45);
-}
-
-body:not(.liquid-glass-active) .instance-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  box-shadow: none;
-}
-
-body:not(.liquid-glass-active) .instance-card.active {
-  background: rgba(99, 102, 241, 0.28);
-  border-color: #6366f1;
-}
-
-body:not(.liquid-glass-active) .discord-join-btn {
-  background: #5865F2;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
-  border: none;
-}
-
-body:not(.liquid-glass-active) .discord-join-btn:hover {
-  background: #4752c4;
-}
-
-body:not(.liquid-glass-active) .footer-link-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  color: #cbd5e1;
-}
-
-body:not(.liquid-glass-active) .footer-link-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
-
-body:not(.liquid-glass-active) .nav-pills-container {
-  background: rgba(22, 17, 44, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-body:not(.liquid-glass-active) .user-profile-chip,
-body:not(.liquid-glass-active) .version-selector-box,
-body:not(.liquid-glass-active) .action-square-btn,
-body:not(.liquid-glass-active) .friend-invite-box,
-body:not(.liquid-glass-active) .subnav-tab {
-  background: rgba(26, 21, 54, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
-}
-
-body:not(.liquid-glass-active) .modal-window {
-  background: rgba(20, 16, 42, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
+/* Legacy flat theme overrides removed — Liquid Glass is the permanent visual core */
 /* --- LIQUID GLASS STYLE (when liquid-glass is ON) --- */
 body.liquid-glass-active .sidebar {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 30%, rgba(18, 12, 38, 0.38) 100%) !important;
@@ -3564,4 +3524,476 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
   font-size: 10.5px;
   color: #64748b;
   margin-top: 1px;
+}
+
+
+/* ==========================================================================
+   CYBERNETIC LIQUID GLASS — UNIVERSAL COMPLETE COMPONENT STYLES
+   Ensures ALL elements (Settings, Servers, Mods, Versions, Dropdowns)
+   have the signature refraction, specular top rim, and deep frosted blur.
+   ========================================================================== */
+
+/* Universal Glass Base */
+.glass-card,
+.sidebar,
+.nav-pills-container,
+.user-profile-chip,
+.version-selector-box,
+.action-square-btn,
+.friend-invite-box,
+.subnav-tab,
+.modal-window,
+.mods-filters-sidebar,
+.mod-entry-card,
+.github-native-mod-card,
+.versions-controls-bar,
+.versions-table-card,
+.server-creation-window,
+.server-item-row,
+.instance-card {
+  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(18, 12, 42, 0.52) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1.8px solid rgba(255, 255, 255, 0.82) !important;
+  border-left: 1.2px solid rgba(255, 255, 255, 0.48) !important;
+  box-shadow: 
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.65), 
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.40), 
+    inset 0 0 25px 0 rgba(255, 255, 255, 0.04), 
+    0 16px 40px -8px rgba(0, 0, 0, 0.60),
+    0 0 25px rgba(99, 102, 241, 0.20) !important;
+  backdrop-filter: blur(34px) saturate(220%) brightness(1.14) contrast(106%) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(220%) brightness(1.14) contrast(106%) !important;
+}
+
+/* Image 1: Settings Button (.settings-btn / .icon-action-btn) */
+.icon-action-btn,
+.settings-btn,
+#open-settings-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(26, 18, 56, 0.52) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-top: 1.8px solid rgba(255, 255, 255, 0.88) !important;
+  border-left: 1.2px solid rgba(255, 255, 255, 0.52) !important;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.70), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
+    0 8px 24px rgba(0, 0, 0, 0.45), 
+    0 0 16px rgba(99, 102, 241, 0.28) !important;
+  backdrop-filter: blur(28px) saturate(220%) brightness(1.16) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.16) !important;
+  color: #f1f5f9 !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.icon-action-btn:hover,
+.settings-btn:hover,
+#open-settings-btn:hover {
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.40) 0%, rgba(99, 102, 241, 0.25) 50%, rgba(38, 25, 78, 0.65) 100%) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 
+    inset 0 2px 2.5px rgba(255, 255, 255, 0.95), 
+    0 12px 30px rgba(0, 0, 0, 0.55), 
+    0 0 28px rgba(99, 102, 241, 0.50) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  color: #ffffff !important;
+}
+
+.icon-action-btn svg,
+.settings-btn svg {
+  filter: drop-shadow(0 2px 6px rgba(165, 180, 252, 0.6)) !important;
+}
+
+/* Image 2: Servers Tab Action Buttons */
+.server-create-btn,
+#btn-open-create-server {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.92) 0%, rgba(129, 140, 248, 0.78) 50%, rgba(79, 70, 229, 0.92) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-top: 1.8px solid rgba(255, 255, 255, 0.95) !important;
+  border-radius: 14px !important;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.75), 
+    0 8px 25px rgba(99, 102, 241, 0.55), 
+    0 0 28px rgba(99, 102, 241, 0.40) !important;
+  backdrop-filter: blur(24px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  padding: 12px 24px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.server-create-btn:hover,
+#btn-open-create-server:hover {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.98) 0%, rgba(99, 102, 241, 0.88) 50%, rgba(67, 56, 202, 0.98) 100%) !important;
+  box-shadow: 
+    inset 0 2px 2.5px rgba(255, 255, 255, 0.98), 
+    0 14px 35px rgba(99, 102, 241, 0.70), 
+    0 0 38px rgba(129, 140, 248, 0.60) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+.server-action-pill-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(24, 17, 52, 0.55) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-top: 1.8px solid rgba(255, 255, 255, 0.85) !important;
+  border-left: 1.2px solid rgba(255, 255, 255, 0.50) !important;
+  border-radius: 14px !important;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.65), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
+    0 10px 28px rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(28px) saturate(220%) brightness(1.14) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.14) !important;
+  padding: 12px 18px !important;
+  color: #f1f5f9 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.server-action-pill-btn:hover {
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.30) 0%, rgba(99, 102, 241, 0.20) 50%, rgba(32, 20, 68, 0.68) 100%) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 
+    inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 
+    0 14px 35px rgba(0, 0, 0, 0.55), 
+    0 0 25px rgba(99, 102, 241, 0.35) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  color: #ffffff !important;
+}
+
+/* Image 3: Mods Tab Elements */
+.mod-category-pills .category-pill,
+.source-pills-group .source-pill {
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(20, 14, 45, 0.45) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  border-top: 1.6px solid rgba(255, 255, 255, 0.75) !important;
+  border-left: 1.2px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 9999px !important;
+  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.55), 0 4px 16px rgba(0, 0, 0, 0.30) !important;
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.12) !important;
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+  padding: 6px 16px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+}
+
+.mod-category-pills .category-pill.active,
+.source-pills-group .source-pill.active {
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.32) 0%, rgba(99, 102, 241, 0.38) 50%, rgba(67, 56, 202, 0.55) 100%) !important;
+  border: 1.2px solid rgba(165, 180, 252, 0.65) !important;
+  border-top: 1.8px solid #ffffff !important;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.90), 
+    0 0 22px rgba(99, 102, 241, 0.55), 
+    0 6px 20px rgba(0, 0, 0, 0.45) !important;
+  color: #ffffff !important;
+}
+
+.mod-entry-card {
+  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(20, 14, 45, 0.50) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1.8px solid rgba(255, 255, 255, 0.82) !important;
+  border-left: 1.2px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.60), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
+    0 8px 24px rgba(0, 0, 0, 0.40) !important;
+  backdrop-filter: blur(28px) saturate(220%) brightness(1.12) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.12) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.mod-entry-card:hover {
+  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.24) 0%, rgba(99, 102, 241, 0.16) 50%, rgba(30, 20, 65, 0.65) 100%) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 
+    inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 
+    0 14px 35px rgba(0, 0, 0, 0.55), 
+    0 0 25px rgba(99, 102, 241, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ==========================================================================
+   ALL MINECRAFT VERSIONS STYLES
+   Search bar, filter chips, comprehensive versions table & dropdown popup
+   ========================================================================== */
+
+.versions-stats-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(99, 102, 241, 0.18);
+  border: 1px solid rgba(165, 180, 252, 0.35);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.60);
+  font-size: 12px;
+  color: #e0e7ff;
+  backdrop-filter: blur(20px);
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.versions-controls-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px !important;
+  margin-bottom: 18px;
+  border-radius: 18px !important;
+}
+
+.versions-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1.2px solid rgba(255, 255, 255, 0.40);
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+}
+
+.versions-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.versions-search-input::placeholder {
+  color: #64748b;
+}
+
+.versions-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.v-pill {
+  padding: 5px 13px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1.2px solid rgba(255, 255, 255, 0.45);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.v-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.v-pill.active {
+  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.30) 0%, rgba(99, 102, 241, 0.40) 50%, rgba(67, 56, 202, 0.60) 100%);
+  border: 1.2px solid rgba(165, 180, 252, 0.65);
+  border-top: 1.8px solid #ffffff;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.50);
+  color: #ffffff;
+}
+
+.versions-table-card {
+  padding: 0 !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+}
+
+.versions-table-header {
+  display: grid;
+  grid-template-columns: 2.2fr 1.6fr 1.4fr 1.3fr 1.5fr;
+  padding: 14px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.versions-list-rows {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.version-table-row {
+  display: grid;
+  grid-template-columns: 2.2fr 1.6fr 1.4fr 1.3fr 1.5fr;
+  align-items: center;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: #f1f5f9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+
+.version-table-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.v-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.v-tag-release { background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+.v-tag-fabric { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+.v-tag-forge { background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
+.v-tag-neoforge { background: rgba(168, 85, 247, 0.16); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+.v-tag-optifine { background: rgba(14, 165, 233, 0.16); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.35); }
+.v-tag-snapshot { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.35); }
+.v-tag-old { background: rgba(100, 116, 139, 0.16); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.35); }
+
+/* Quick Version Dropdown Enhanced with Search & Tabs */
+.version-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 380px;
+  max-width: 90vw;
+  background: radial-gradient(145deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.05) 30%, rgba(20, 14, 48, 0.85) 75%, rgba(12, 8, 32, 0.95) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-top: 1.8px solid rgba(255, 255, 255, 0.90) !important;
+  border-left: 1.4px solid rgba(255, 255, 255, 0.55) !important;
+  border-radius: 18px !important;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.75), 
+    0 24px 60px rgba(0, 0, 0, 0.75), 
+    0 0 35px rgba(99, 102, 241, 0.30) !important;
+  backdrop-filter: blur(48px) saturate(220%) brightness(1.15) !important;
+  -webkit-backdrop-filter: blur(48px) saturate(220%) brightness(1.15) !important;
+  padding: 12px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.version-dropdown-menu.show {
+  display: flex !important;
+  animation: modalFadeInScale 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.version-dropdown-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  padding-bottom: 8px;
+}
+
+.version-dropdown-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1.2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  padding: 7px 12px;
+}
+
+.version-dropdown-search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  outline: none;
+}
+
+.version-dropdown-search-box input::placeholder {
+  color: #64748b;
+}
+
+.version-dropdown-tabs {
+  display: flex;
+  gap: 5px;
+}
+
+.ver-tab {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: #94a3b8;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.ver-tab.active {
+  background: rgba(99, 102, 241, 0.35);
+  border-color: rgba(165, 180, 252, 0.60);
+  color: #ffffff;
+}
+
+.version-dropdown-scrollable {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.version-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.version-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
+.version-dropdown-item.active {
+  background: rgba(99, 102, 241, 0.32);
+  border: 1px solid rgba(165, 180, 252, 0.45);
+  color: #ffffff;
+  font-weight: 700;
 }
