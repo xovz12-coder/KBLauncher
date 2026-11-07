@@ -26,9 +26,16 @@
       };
     }
   </script>
+  <script>
+    document.documentElement.classList.add('liquid-glass-active');
+    if (document.body) document.body.classList.add('liquid-glass-active');
+  </script>
 </head>
-<body class="theme-dark">
-  <!-- Dynamic Background Canvas / Layers -->
+<body class="theme-dark liquid-glass-active">
+  <!-- Cyber Liquid Glass Background Architecture -->
+  <div class="kbl-bg-art"></div>
+  <div class="kbl-bg-mesh"></div>
+  <div class="kbl-bg-grid"></div>
   <div class="bg-stars-canvas" id="stars-layer"></div>
   <div class="bg-overlay"></div>
 
@@ -312,14 +319,26 @@
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
 
-                <!-- Hidden / Popup Version Menu -->
+                <!-- Enhanced Liquid Glass Version Dropdown with Search & All Versions -->
                 <div class="version-dropdown-menu" id="version-dropdown-menu">
-                  <div class="version-opt active" data-ver="Nightly · 38609b7">Nightly · 38609b7 (Рекомендуется)</div>
-                  <div class="version-opt" data-ver="Release 1.21.4">Release 1.21.4 (Vanilla)</div>
-                  <div class="version-opt" data-ver="Fabric 1.20.1">Fabric 1.20.1 (Моды + Оптимизация)</div>
-                  <div class="version-opt" data-ver="Forge 1.20.1">Forge 1.20.1 (Модпаки)</div>
-                  <div class="version-opt" data-ver="NeoForge 1.21.1">NeoForge 1.21.1</div>
-                  <div class="version-opt" data-ver="OptiFine 1.16.5">OptiFine 1.16.5</div>
+                  <div class="version-dropdown-header">
+                    <div class="version-dropdown-search-box">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input type="text" id="dropdown-ver-search" placeholder="Поиск версии (1.20, 1.16.5, Fabric...)" autocomplete="off">
+                    </div>
+                    <div class="version-dropdown-tabs">
+                      <button class="ver-tab active" data-vtab="popular">Топ</button>
+                      <button class="ver-tab" data-vtab="release">Релизы</button>
+                      <button class="ver-tab" data-vtab="modded">Моды</button>
+                      <button class="ver-tab" data-vtab="all">Все (900+)</button>
+                    </div>
+                  </div>
+                  <div class="version-dropdown-scrollable" id="version-dropdown-list">
+                    <!-- Populated dynamically with all versions in JS -->
+                  </div>
                 </div>
               </div>
 
@@ -834,21 +853,48 @@
         <section class="tab-page" id="tab-versions">
           <div class="page-top-header">
             <div class="header-text-block">
-              <h2 class="page-main-heading">Версии Minecraft</h2>
-              <p class="page-subheading">Управление официальными релизами, снапшотами и модифицированными ядрами.</p>
+              <h2 class="page-main-heading">Все версии Minecraft</h2>
+              <p class="page-subheading">Полный каталог официальных релизов (1.21.4 — 1.0), ядер Fabric, Forge, NeoForge, OptiFine и снапшотов Mojang.</p>
+            </div>
+            <div class="versions-stats-chip" id="versions-total-badge">
+              <span class="pulse-dot"></span>
+              <span>Доступно версий: <strong id="versions-count-number">922</strong></span>
             </div>
           </div>
 
+          <!-- Versions Filter & Search Controls Bar -->
+          <div class="versions-controls-bar glass-card">
+            <div class="versions-search-wrapper">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" class="versions-search-input" id="versions-search-input" placeholder="Поиск среди всех версий (например: 1.20.1, 1.16.5, 1.12.2, Fabric, Forge, 1.8.9)...">
+            </div>
+
+            <div class="versions-filter-pills" id="versions-filter-pills">
+              <button class="v-pill active" data-vfilter="all">Все версии</button>
+              <button class="v-pill" data-vfilter="release">🟩 Релизы</button>
+              <button class="v-pill" data-vfilter="fabric">⚡ Fabric</button>
+              <button class="v-pill" data-vfilter="forge">🔨 Forge</button>
+              <button class="v-pill" data-vfilter="neoforge">🌀 NeoForge</button>
+              <button class="v-pill" data-vfilter="optifine">💎 OptiFine</button>
+              <button class="v-pill" data-vfilter="snapshot">🔬 Снапшоты</button>
+              <button class="v-pill" data-vfilter="old">📜 Старые (Beta/Alpha)</button>
+            </div>
+          </div>
+
+          <!-- Versions List Table -->
           <div class="glass-card versions-table-card">
             <div class="versions-table-header">
               <span>Версия</span>
-              <span>Тип</span>
+              <span>Тип / Модлоадер</span>
               <span>Дата релиза</span>
               <span>Статус</span>
-              <span>Действие</span>
+              <span style="text-align: right;">Действия</span>
             </div>
             <div class="versions-list-rows" id="versions-list-body">
-              <!-- Dynamically populated in JS -->
+              <!-- Dynamically populated in JS with all 900+ versions -->
             </div>
           </div>
         </section>
