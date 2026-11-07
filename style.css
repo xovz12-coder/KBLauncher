@@ -4270,3 +4270,156 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
   box-shadow: inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 0 12px 30px rgba(0, 0, 0, 0.50), 0 0 25px rgba(99, 102, 241, 0.50);
   transform: translateY(-1px);
 }
+
+
+/* ==========================================================================
+   CLASSIC PREMIUM DARK THEME (LIQUID GLASS DISABLED)
+   Clean, solid, non-transparent, high-contrast dark gaming launcher design.
+   ========================================================================== */
+
+/* Completely hide Liquid Glass badges */
+.glass-active-badge,
+.glass-active-dot {
+  display: none !important;
+}
+
+/* Comfortable Dark Background Artwork Layer */
+.kbl-bg-art {
+  opacity: 0.35 !important;
+  filter: saturate(110%) brightness(0.65) !important;
+}
+
+.kbl-bg-mesh {
+  opacity: 0.30 !important;
+}
+
+.bg-overlay {
+  background: rgba(10, 8, 24, 0.78) !important;
+}
+
+/* 1. Solid Clean Surfaces */
+.sidebar,
+.modal-window,
+.versions-controls-bar,
+.versions-table-card,
+.mods-filters-sidebar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #120e26 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  transform: translateZ(0);
+}
+
+/* 2. Solid Clean Cards and Rows (No glass glare, no reflections) */
+.mod-entry-card,
+.server-item-row,
+.instance-card,
+.version-table-row,
+.version-dropdown-item,
+.user-profile-chip,
+.version-selector-box,
+.action-square-btn,
+.icon-action-btn,
+.settings-btn,
+.friend-invite-box,
+.subnav-tab,
+.category-pill,
+.source-pill,
+.v-pill,
+.github-native-mod-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #171233 !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  transform: translateZ(0);
+}
+
+/* Hover state for clean cards */
+.mod-entry-card:hover,
+.server-item-row:hover,
+.instance-card:hover,
+.version-table-row:hover,
+.version-dropdown-item:hover,
+.action-square-btn:hover,
+.icon-action-btn:hover,
+.settings-btn:hover {
+  background: #201a44 !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 3. Server Action Buttons */
+.server-create-btn,
+.server-action-pill-btn,
+#btn-open-folder-server,
+#btn-open-server-creation {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 22px !important;
+  border-radius: 9999px !important;
+  background: #1f1942 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.server-create-btn:hover,
+.server-action-pill-btn:hover,
+#btn-open-folder-server:hover,
+#btn-open-server-creation:hover {
+  background: #2b2259 !important;
+  border-color: #6366f1 !important;
+}
+
+/* 4. Settings button */
+.settings-btn,
+.icon-action-btn,
+.action-square-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: #1a143b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+.settings-btn:hover,
+.icon-action-btn:hover,
+.action-square-btn:hover {
+  background: #271f54 !important;
+  border-color: #6366f1 !important;
+}
+
+/* 5. Pagination button */
+.v-load-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 12px;
+  border-radius: 12px;
+  background: #1c1642;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.v-load-more-btn:hover {
+  background: #29205e;
+  border-color: #6366f1;
+}
