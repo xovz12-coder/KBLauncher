@@ -4,6 +4,9 @@ import json
 import uuid
 import psutil
 import shutil
+import socket
+import time
+import threading
 import urllib.request
 import subprocess
 import webbrowser
@@ -102,55 +105,94 @@ class LauncherApi:
         mc_dir = os.path.join(appdata, '.minecraft')
         instances_dir = os.path.join(mc_dir, 'instances')
         os.makedirs(instances_dir, exist_ok=True)
+        cfg_file = os.path.join(mc_dir, 'instances.json')
 
-        defaults = [
-            {
-                'id': 'kblauncher-main',
-                'name': 'KBLauncher',
-                'version': 'Release 26.3',
-                'modloader': 'Fabric',
-                'tag': 'Fabric · 42 мода',
-                'modsCount': 5
-            },
-            {
-                'id': 'vanilla-1-21',
-                'name': 'Vanilla 1.21.4',
-                'version': 'Release 1.21.4',
-                'modloader': 'Vanilla',
-                'tag': 'Release · Чистый клиент',
-                'modsCount': 0
-            },
-            {
-                'id': 'shaders-optifine',
-                'name': 'Shaders & RT',
-                'version': 'Release 1.20.1',
-                'modloader': 'Fabric',
-                'tag': 'Iris + BSL Шейдеры',
-                'modsCount': 3
-            }
-        ]
+        instances = []
+        if os.path.exists(cfg_file):
+            try:
+                with open(cfg_file, 'r', encoding='utf-8') as f:
+                    instances = json.load(f)
+            except Exception:
+                pass
 
-        res = []
-        for d in defaults:
+        if not instances:
+            instances = [
+                {
+                    'id': 'kblauncher-main',
+                    'name': 'KBLauncher',
+                    'version': 'Release 26.3',
+                    'modloader': 'Fabric',
+                    'tag': 'Fabric · 42 мода',
+                    'modsCount': 5
+                },
+                {
+                    'id': 'vanilla-1-21',
+                    'name': 'Vanilla 1.21.4',
+                    'version': 'Release 1.21.4',
+                    'modloader': 'Vanilla',
+                    'tag': 'Release · Чистый клиент',
+                    'modsCount': 0
+                },
+                {
+                    'id': 'shaders-optifine',
+                    'name': 'Shaders & RT',
+                    'version': 'Release 1.20.1',
+                    'modloader': 'Fabric',
+                    'tag': 'Iris + BSL Шейдеры',
+                    'modsCount': 3
+                }
+            ]
+
+        for d in instances:
             idir = os.path.join(instances_dir, d['id'])
             os.makedirs(os.path.join(idir, 'mods'), exist_ok=True)
             os.makedirs(os.path.join(idir, 'saves'), exist_ok=True)
             os.makedirs(os.path.join(idir, 'config'), exist_ok=True)
             os.makedirs(os.path.join(idir, 'resourcepacks'), exist_ok=True)
             os.makedirs(os.path.join(idir, 'shaderpacks'), exist_ok=True)
+            mods = [f for f in os.listdir(os.path.join(idir, 'mods')) if f.endswith('.jar') or f.endswith('.jar.disabled')]
+            d['modsCount'] = len(mods) if len(mods) > 0 else d.get('modsCount', 0)
 
-            mods = [f for f in os.listdir(os.path.join(idir, 'mods')) if f.endswith('.jar')]
-            d['modsCount'] = len(mods) if len(mods) > 0 else d['modsCount']
-            res.append(d)
+        return {"success": True, "instances": instances}
 
-        return {"success": True, "instances": res}
+    def save_instances(self, instances_list):
+        appdata = os.environ.get('APPDATA', '')
+        mc_dir = os.path.join(appdata, '.minecraft')
+        cfg_file = os.path.join(mc_dir, 'instances.json')
+        try:
+            with open(cfg_file, 'w', encoding='utf-8') as f:
+                json.dump(instances_list, f, ensure_ascii=False, indent=2)
+            # Create directories for all instances
+            for d in instances_list:
+                inst_id = d.get('id')
+                if inst_id:
+                    idir = os.path.join(mc_dir, 'instances', inst_id)
+                    os.makedirs(os.path.join(idir, 'mods'), exist_ok=True)
+                    os.makedirs(os.path.join(idir, 'saves'), exist_ok=True)
+                    os.makedirs(os.path.join(idir, 'config'), exist_ok=True)
+                    os.makedirs(os.path.join(idir, 'resourcepacks'), exist_ok=True)
+                    os.makedirs(os.path.join(idir, 'shaderpacks'), exist_ok=True)
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def delete_instance(self, instance_id):
+        appdata = os.environ.get('APPDATA', '')
+        mc_dir = os.path.join(appdata, '.minecraft')
+        idir = os.path.join(mc_dir, 'instances', instance_id)
+        if os.path.exists(idir):
+            try:
+                shutil.rmtree(idir, ignore_errors=True)
+            except Exception:
+                pass
+        return {"success": True}
 
     def open_instance_folder(self, instance_id=None):
         appdata = os.environ.get('APPDATA', '')
         mc_dir = os.path.join(appdata, '.minecraft')
         if not instance_id:
             instance_id = 'kblauncher-main'
-        folder = os.path.join(mc_dir, 'instances', instance_id, 'mods')
+        folder = os.path.join(mc_dir, 'instances', instance_id)
         os.makedirs(folder, exist_ok=True)
         os.startfile(folder)
         return {"success": True, "path": folder}
@@ -160,34 +202,107 @@ class LauncherApi:
         mc_dir = os.path.join(appdata, '.minecraft')
         mods_dir = os.path.join(mc_dir, 'instances', instance_id, 'mods')
         os.makedirs(mods_dir, exist_ok=True)
-        files = [f for f in os.listdir(mods_dir) if f.endswith('.jar')]
+        files = []
+        for f in os.listdir(mods_dir):
+            fp = os.path.join(mods_dir, f)
+            sz = round(os.path.getsize(fp) / 1024, 1) if os.path.isfile(fp) else 0
+            if f.endswith('.jar'):
+                files.append({"name": f, "enabled": True, "sizeKb": sz})
+            elif f.endswith('.jar.disabled'):
+                files.append({"name": f[:-9], "enabled": False, "raw_name": f, "sizeKb": sz})
         return {"success": True, "files": files}
 
-    def install_mod_file(self, instance_id, filename, download_url):
+    def toggle_mod_file(self, instance_id, filename, enable):
         appdata = os.environ.get('APPDATA', '')
         mc_dir = os.path.join(appdata, '.minecraft')
         mods_dir = os.path.join(mc_dir, 'instances', instance_id, 'mods')
-        os.makedirs(mods_dir, exist_ok=True)
-        dest = os.path.join(mods_dir, filename)
+        if enable:
+            src = os.path.join(mods_dir, filename + '.disabled')
+            dst = os.path.join(mods_dir, filename)
+            if not os.path.exists(src) and os.path.exists(os.path.join(mods_dir, filename)):
+                return {"success": True, "enabled": True}
+        else:
+            src = os.path.join(mods_dir, filename)
+            dst = os.path.join(mods_dir, filename + '.disabled')
+            if not os.path.exists(src) and os.path.exists(os.path.join(mods_dir, filename + '.disabled')):
+                return {"success": True, "enabled": False}
+
+        if os.path.exists(src):
+            try:
+                os.rename(src, dst)
+                return {"success": True, "enabled": enable}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        return {"success": False, "error": f"File {src} not found"}
+
+    def install_content_file(self, instance_id, content_type, filename, download_url):
+        appdata = os.environ.get('APPDATA', '')
+        mc_dir = os.path.join(appdata, '.minecraft')
+        folder_name = 'mods'
+        if content_type == 'shader':
+            folder_name = 'shaderpacks'
+        elif content_type in ['resourcepack', 'texture']:
+            folder_name = 'resourcepacks'
+        target_dir = os.path.join(mc_dir, 'instances', instance_id, folder_name)
+        os.makedirs(target_dir, exist_ok=True)
+        dest = os.path.join(target_dir, filename)
         try:
             req = urllib.request.Request(download_url, headers={'User-Agent': 'KBLauncher/2.4.2'})
-            with urllib.request.urlopen(req, timeout=15) as resp, open(dest, 'wb') as out:
+            with urllib.request.urlopen(req, timeout=20) as resp, open(dest, 'wb') as out:
                 out.write(resp.read())
-            return {"success": True, "path": dest, "filename": filename}
+            return {"success": True, "path": dest, "filename": filename, "folder": folder_name}
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def install_mod_file(self, instance_id, filename, download_url):
+        return self.install_content_file(instance_id, 'mod', filename, download_url)
 
     def remove_mod_file(self, instance_id, filename):
         appdata = os.environ.get('APPDATA', '')
         mc_dir = os.path.join(appdata, '.minecraft')
-        dest = os.path.join(mc_dir, 'instances', instance_id, 'mods', filename)
-        if os.path.exists(dest):
-            try:
-                os.remove(dest)
-                return {"success": True}
-            except Exception as e:
-                return {"success": False, "error": str(e)}
+        mods_dir = os.path.join(mc_dir, 'instances', instance_id, 'mods')
+        for name in [filename, filename + '.disabled']:
+            dest = os.path.join(mods_dir, name)
+            if os.path.exists(dest):
+                try:
+                    os.remove(dest)
+                except Exception as e:
+                    return {"success": False, "error": str(e)}
         return {"success": True}
+
+    def ping_server(self, host, port=25565):
+        t0 = time.time()
+        try:
+            s = socket.create_connection((host, int(port)), timeout=2.0)
+            s.close()
+            ms = round((time.time() - t0) * 1000)
+            return {"online": True, "latency": ms}
+        except Exception as e:
+            return {"online": False, "error": str(e), "latency": -1}
+
+    def get_game_logs(self, instance_id=None):
+        appdata = os.environ.get('APPDATA', '')
+        mc_dir = os.path.join(appdata, '.minecraft')
+        if not instance_id:
+            instance_id = 'kblauncher-main'
+        candidates = [
+            os.path.join(mc_dir, 'instances', instance_id, 'logs', 'latest.log'),
+            os.path.join(mc_dir, 'instances', instance_id, 'crash-reports'),
+            os.path.join(mc_dir, 'logs', 'latest.log')
+        ]
+        log_content = ""
+        for c in candidates:
+            if os.path.isfile(c):
+                try:
+                    with open(c, 'r', encoding='utf-8', errors='ignore') as f:
+                        lines = f.readlines()
+                        log_content = "".join(lines[-250:])
+                        break
+                except Exception:
+                    pass
+        if not log_content:
+            log_content = f"[KBLauncher System]\nЛог игры для сборки '{instance_id}' пуст.\nФайл latest.log будет создан автоматически при запуске мира или сервера."
+        return {"success": True, "logs": log_content}
 
     # ==========================================
     # REAL MINECRAFT PROCESS LAUNCHER
@@ -202,6 +317,8 @@ class LauncherApi:
         os.makedirs(os.path.join(inst_dir, 'mods'), exist_ok=True)
         os.makedirs(os.path.join(inst_dir, 'saves'), exist_ok=True)
         os.makedirs(os.path.join(inst_dir, 'config'), exist_ok=True)
+        os.makedirs(os.path.join(inst_dir, 'resourcepacks'), exist_ok=True)
+        os.makedirs(os.path.join(inst_dir, 'shaderpacks'), exist_ok=True)
 
         ver_str = str(build_config.get('version', '26.3'))
         raw_ver = ver_str.replace('Release', '').replace('Snapshot', '').split('(')[0].strip()
@@ -211,7 +328,6 @@ class LauncherApi:
         # Pick best Java
         java_exe = None
         if raw_ver.startswith('26.') or raw_ver.startswith('26w'):
-            # Java 25 Epsilon
             rdir = os.path.join(mc_dir, 'runtime', 'java-runtime-epsilon')
             for root, dirs, files in os.walk(rdir):
                 if 'javaw.exe' in files:
@@ -237,9 +353,19 @@ class LauncherApi:
             'jvmArguments': [f'-Xmx{ram_mb}M', '-Xms1024M']
         }
 
+        def on_game_exit(proc_obj, inst_name):
+            rc = proc_obj.wait()
+            print(f"[KBLauncher] Game process {inst_name} finished with return code {rc}")
+            if inst_name in self.running_processes:
+                del self.running_processes[inst_name]
+            if self.window:
+                try:
+                    self.window.evaluate_js(f"if (typeof window.onGameTerminated === 'function') window.onGameTerminated('{inst_name}', {rc});")
+                except Exception:
+                    pass
+
         try:
             import minecraft_launcher_lib
-            # Target version fallback check
             target_ver = raw_ver
             vpath = os.path.join(mc_dir, 'versions', raw_ver)
             if not os.path.exists(vpath) and os.path.exists(os.path.join(mc_dir, 'versions', '26.3')):
@@ -248,6 +374,7 @@ class LauncherApi:
             cmd = minecraft_launcher_lib.command.get_minecraft_command(target_ver, mc_dir, options)
             proc = subprocess.Popen(cmd, cwd=inst_dir)
             self.running_processes[instance_id] = proc
+            threading.Thread(target=on_game_exit, args=(proc, instance_id), daemon=True).start()
             print(f"[KBLauncher] Game launched successfully! PID: {proc.pid}")
             return {"success": True, "pid": proc.pid, "status": "running"}
         except Exception as e:
