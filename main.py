@@ -109,7 +109,7 @@ def main():
         height=720,
         min_size=(1024, 600),
         frameless=True,
-        easy_drag=True,
+        easy_drag=False,
         background_color='#0c0a1d'
     )
     api.set_window(window)
