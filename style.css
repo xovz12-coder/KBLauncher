@@ -4151,7 +4151,81 @@ body,
   color: #ffffff !important;
 }
 
-/* 4. SOLID FLAT OPAQUE CARDS (ROUNDED 12px, FLAT 2D, NO 3D INSET) */
+/* ==========================================================================
+   OIL-UI & OKLCH PRECISION DESIGN SYSTEM (HUMAN-CRAFTED DARK CLIENT)
+   ========================================================================== */
+
+/* 1. Global Elevation & Surface Hierarchy */
+html, body {
+  background: oklch(0.12 0.018 260) !important;
+  color: oklch(0.97 0.005 260) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif !important;
+}
+
+.top-nav-bar {
+  background: oklch(0.14 0.020 260) !important;
+  border-bottom: 1px solid oklch(0.24 0.025 260 / 0.75) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.sidebar {
+  background: oklch(0.14 0.020 260) !important;
+  border-right: 1px solid oklch(0.24 0.025 260 / 0.75) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.bottom-bar {
+  background: oklch(0.14 0.020 260) !important;
+  border-top: 1px solid oklch(0.24 0.025 260 / 0.75) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.kbl-bg-art {
+  opacity: 0.15 !important;
+  filter: grayscale(40%) brightness(0.35) !important;
+}
+
+.bg-overlay {
+  background: oklch(0.12 0.018 260) !important;
+  opacity: 0.92 !important;
+}
+
+/* 2. Bespoke Instance Cards (Sidebar) */
+.instance-card {
+  background: oklch(0.16 0.024 260) !important;
+  border: 1px solid oklch(0.25 0.028 260 / 0.8) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  gap: 12px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.05), 0 2px 6px -1px oklch(0 0 0 / 0.35) !important;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, background 0.18s ease !important;
+}
+
+.instance-card:hover {
+  background: oklch(0.19 0.030 260) !important;
+  border-color: oklch(0.36 0.045 260) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.08), 0 4px 12px -2px oklch(0 0 0 / 0.45) !important;
+}
+
+.instance-card.active {
+  background: oklch(0.20 0.035 260) !important;
+  border-color: oklch(0.55 0.16 255) !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.10), 0 4px 18px -2px oklch(0.55 0.16 255 / 0.28) !important;
+}
+
+.instance-icon-box {
+  border-radius: 8px !important;
+  border: 1px solid oklch(0.30 0.03 260 / 0.8) !important;
+  box-shadow: 0 2px 5px oklch(0 0 0 / 0.4) !important;
+}
+
+/* 3. Hero & Home Containers */
 .card,
 .glass-card,
 .screenshots-card,
@@ -4159,75 +4233,127 @@ body,
 .versions-controls-bar,
 .versions-table-card,
 .mods-filters-sidebar,
-.instance-card,
-.server-item-row,
-.mod-entry-card,
-.version-table-row,
-.version-dropdown-item,
-.github-native-mod-card,
 .server-creation-window,
 .build-item,
 .settings-section-card {
-  background: #181928 !important;
-  border: 1px solid #2b2d42 !important;
+  background: oklch(0.16 0.024 260) !important;
+  border: 1px solid oklch(0.25 0.028 260 / 0.75) !important;
   border-radius: 12px !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 8px 24px -4px oklch(0 0 0 / 0.45) !important;
 }
 
-.instance-card:hover,
-.server-item-row:hover,
-.mod-entry-card:hover,
-.version-table-row:hover,
-.version-dropdown-item:hover,
-.build-item:hover {
-  background: #202235 !important;
-  border-color: #3b3e5c !important;
-}
-
-/* 5. BASE PANELS (SOLID 100% OPAQUE) */
-html, body {
-  background: #0d0e15 !important;
-}
-
-.top-nav-bar {
-  background: #131420 !important;
-  border-bottom: 1px solid #232536 !important;
+/* 4. Mod Entry Cards (Crafted & Dense) */
+.mod-entry-card {
+  background: oklch(0.16 0.024 260) !important;
+  border: 1px solid oklch(0.25 0.028 260 / 0.75) !important;
+  border-radius: 10px !important;
+  padding: 14px 18px !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.05), 0 3px 10px -2px oklch(0 0 0 / 0.35) !important;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, background 0.18s ease !important;
 }
 
-.sidebar {
-  background: #131420 !important;
-  border-right: 1px solid #232536 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+.mod-entry-card:hover {
+  background: oklch(0.19 0.030 260) !important;
+  border-color: oklch(0.38 0.05 260) !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.08), 0 8px 20px -4px oklch(0 0 0 / 0.5) !important;
 }
 
-.bottom-bar {
-  background: #131420 !important;
-  border-top: 1px solid #232536 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+.mod-icon-box {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 10px !important;
+  background: oklch(0.12 0.018 260) !important;
+  border: 1px solid oklch(0.28 0.03 260 / 0.8) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.4) !important;
 }
 
-.kbl-bg-art {
-  opacity: 0.18 !important;
-  filter: grayscale(35%) brightness(0.4) !important;
+.mod-title {
+  font-size: 15px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+  color: oklch(0.97 0.005 260) !important;
 }
 
-.bg-overlay {
-  background: #0d0e15 !important;
-  opacity: 0.90 !important;
+.mod-desc {
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+  color: oklch(0.72 0.02 260) !important;
+  margin-top: 3px !important;
 }
 
-/* 6. DROPDOWN POPUPS (SOLID FLAT OPAQUE, HIGH Z-INDEX) */
+.mod-tag-pill {
+  background: oklch(0.20 0.03 260) !important;
+  border: 1px solid oklch(0.28 0.03 260 / 0.8) !important;
+  border-radius: 6px !important;
+  color: oklch(0.76 0.03 260) !important;
+  font-size: 11px !important;
+  font-weight: 550 !important;
+  padding: 2px 8px !important;
+}
+
+.mod-install-toggle-btn {
+  background: oklch(0.60 0.18 255) !important;
+  color: #ffffff !important;
+  border: 1px solid oklch(0.70 0.20 255) !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+}
+
+.mod-install-toggle-btn:hover {
+  background: oklch(0.66 0.19 255) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px oklch(0.60 0.18 255 / 0.4) !important;
+}
+
+.mod-install-toggle-btn.installed {
+  background: oklch(0.22 0.05 152 / 0.6) !important;
+  color: oklch(0.82 0.14 152) !important;
+  border: 1px solid oklch(0.45 0.14 152 / 0.7) !important;
+}
+
+.mod-install-toggle-btn.installed:hover {
+  background: oklch(0.28 0.07 152 / 0.7) !important;
+  color: #ffffff !important;
+}
+
+/* 5. Version Rows & Dropdown */
+.version-table-row {
+  background: oklch(0.16 0.024 260) !important;
+  border: 1px solid oklch(0.24 0.026 260 / 0.7) !important;
+  border-radius: 8px !important;
+  margin-bottom: 6px !important;
+  transition: all 0.16s ease !important;
+}
+
+.version-table-row:hover {
+  background: oklch(0.19 0.030 260) !important;
+  border-color: oklch(0.36 0.045 260) !important;
+  transform: translateY(-1px) !important;
+}
+
+.version-table-row.selected {
+  border-color: oklch(0.55 0.16 255) !important;
+  background: oklch(0.20 0.035 260) !important;
+}
+
 .version-dropdown-menu {
-  background: #161726 !important;
-  border: 1px solid #30334c !important;
+  background: oklch(0.15 0.022 260) !important;
+  border: 1px solid oklch(0.28 0.030 260 / 0.9) !important;
   border-radius: 12px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
+  box-shadow: 0 20px 50px oklch(0 0 0 / 0.85) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   z-index: 99999 !important;
@@ -4235,27 +4361,59 @@ html, body {
 
 .version-dropdown-header,
 .version-dropdown-scrollable {
-  background: #161726 !important;
+  background: oklch(0.15 0.022 260) !important;
 }
 
 .version-dropdown-item {
-  border-radius: 8px !important;
-  background: #1c1d2e !important;
-  border: 1px solid #2a2c40 !important;
+  border-radius: 7px !important;
+  background: oklch(0.18 0.026 260) !important;
+  border: 1px solid oklch(0.26 0.028 260 / 0.7) !important;
 }
 
 .version-dropdown-item:hover {
-  background: #272a42 !important;
-  border-color: #5865f2 !important;
+  background: oklch(0.22 0.035 260) !important;
+  border-color: oklch(0.48 0.14 255) !important;
 }
 
-/* 7. CONTROLS, CHIPS & FILTERS */
+/* 6. Navigation Tabs & Active Glider */
+.nav-pills-container {
+  background: oklch(0.15 0.022 260) !important;
+  border: 1px solid oklch(0.25 0.028 260 / 0.8) !important;
+  border-radius: 10px !important;
+  padding: 4px !important;
+  gap: 3px !important;
+}
+
+.nav-pill {
+  border-radius: 7px !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  color: oklch(0.70 0.02 260) !important;
+  padding: 6px 16px !important;
+}
+
+.nav-pill:hover {
+  color: oklch(0.95 0.01 260) !important;
+}
+
+.nav-pill.active {
+  color: #ffffff !important;
+}
+
+.nav-pill-glider {
+  background: oklch(0.24 0.035 260) !important;
+  border: 1px solid oklch(0.36 0.045 260) !important;
+  border-radius: 7px !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.08), 0 2px 8px oklch(0 0 0 / 0.3) !important;
+}
+
+/* 7. Controls, Inputs & Filters */
 .user-profile-chip,
 .version-selector-box,
 .friend-invite-box {
-  background: #1c1d2e !important;
-  border: 1px solid #2e3046 !important;
-  border-radius: 10px !important;
+  background: oklch(0.17 0.026 260) !important;
+  border: 1px solid oklch(0.26 0.028 260 / 0.8) !important;
+  border-radius: 8px !important;
   box-shadow: none !important;
 }
 
@@ -4264,11 +4422,14 @@ html, body {
 .source-pill,
 .ver-tab,
 .subnav-tab {
-  background: #1c1d2e !important;
-  border: 1px solid #2a2c40 !important;
-  border-radius: 8px !important;
-  color: #94a3b8 !important;
+  background: oklch(0.17 0.026 260) !important;
+  border: 1px solid oklch(0.26 0.028 260 / 0.8) !important;
+  border-radius: 7px !important;
+  color: oklch(0.72 0.02 260) !important;
+  font-size: 12px !important;
+  font-weight: 550 !important;
   box-shadow: none !important;
+  transition: all 0.15s ease !important;
 }
 
 .v-pill:hover,
@@ -4276,8 +4437,9 @@ html, body {
 .source-pill:hover,
 .ver-tab:hover,
 .subnav-tab:hover {
-  background: #25283e !important;
+  background: oklch(0.21 0.032 260) !important;
   color: #ffffff !important;
+  border-color: oklch(0.35 0.04 260) !important;
 }
 
 .v-pill.active,
@@ -4285,19 +4447,74 @@ html, body {
 .source-pill.active,
 .ver-tab.active,
 .subnav-tab.active {
-  background: #5865f2 !important;
-  border-color: #6875f5 !important;
+  background: oklch(0.55 0.16 255) !important;
+  border-color: oklch(0.68 0.18 255) !important;
   color: #ffffff !important;
   font-weight: 600 !important;
+  box-shadow: 0 2px 10px oklch(0.55 0.16 255 / 0.35) !important;
 }
 
+/* 8. Modals & Dialogs */
 .modal-window {
-  background: #161726 !important;
-  border: 1px solid #30334c !important;
+  background: oklch(0.14 0.020 260) !important;
+  border: 1px solid oklch(0.28 0.030 260 / 0.85) !important;
   border-radius: 14px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
+  box-shadow: 0 24px 60px oklch(0 0 0 / 0.85) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+/* 9. Buttons */
+.btn-primary,
+.play-btn-capsule,
+#main-play-btn {
+  background: linear-gradient(180deg, oklch(0.72 0.17 155) 0%, oklch(0.62 0.18 155) 100%) !important;
+  border: 1px solid oklch(0.76 0.16 155) !important;
+  border-radius: 9px !important;
+  color: oklch(0.10 0.03 155) !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.4), 0 4px 18px oklch(0.62 0.18 155 / 0.35) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-primary:hover,
+#main-play-btn:hover {
+  background: linear-gradient(180deg, oklch(0.76 0.17 155) 0%, oklch(0.66 0.18 155) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.5), 0 6px 24px oklch(0.62 0.18 155 / 0.45) !important;
+}
+
+.btn-secondary,
+.secondary-glass-btn,
+.action-square-btn,
+.settings-btn,
+.icon-action-btn,
+#btn-open-folder,
+#btn-quick-site,
+#btn-join-friend,
+#btn-open-instance-mods-folder {
+  background: oklch(0.18 0.026 260) !important;
+  border: 1px solid oklch(0.26 0.028 260 / 0.8) !important;
+  border-radius: 8px !important;
+  color: oklch(0.82 0.02 260) !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.04) !important;
+  transition: all 0.16s ease !important;
+}
+
+.btn-secondary:hover,
+.secondary-glass-btn:hover,
+.action-square-btn:hover,
+.settings-btn:hover,
+.icon-action-btn:hover,
+#btn-open-folder:hover,
+#btn-quick-site:hover,
+#btn-join-friend:hover,
+#btn-open-instance-mods-folder:hover {
+  background: oklch(0.22 0.032 260) !important;
+  border-color: oklch(0.36 0.045 260) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
 }
 
 .glass-active-badge,
@@ -4307,6 +4524,7 @@ html, body {
 .kbl-bg-mesh {
   display: none !important;
 }
+
 
 /* ==========================================================================
    LOADER BADGES & MODLOADER SELECTION MODAL STYLES (OIL-UI + OKLCH)
