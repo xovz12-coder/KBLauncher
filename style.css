@@ -4078,348 +4078,331 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
 }
 
 
-/* ==========================================================================
-   ULTRA HIGH PERFORMANCE LIQUID GLASS 2026 (ZERO-LAG 144 FPS ENGINE)
-   Replaces nested backdrop-filters with GPU-accelerated specular reflections,
-   translucent glass gradients, and ambient refraction.
-   ========================================================================== */
-
-/* Make background artwork and luminous glow intensely vibrant */
-.kbl-bg-art {
-  opacity: 0.82 !important;
-  filter: saturate(160%) contrast(115%) brightness(1.05) !important;
-}
-
-.kbl-bg-mesh {
-  opacity: 0.95 !important;
-  background-image: 
-    radial-gradient(ellipse 90% 70% at 50% -10%, rgba(99, 102, 241, 0.45) 0%, transparent 65%),
-    radial-gradient(ellipse 70% 50% at 95% 35%, rgba(244, 63, 94, 0.35) 0%, transparent 60%),
-    radial-gradient(ellipse 65% 55% at 5% 75%, rgba(14, 165, 233, 0.38) 0%, transparent 60%),
-    radial-gradient(circle at 50% 100%, rgba(168, 85, 247, 0.40) 0%, transparent 65%) !important;
-}
-
-.bg-overlay {
-  background: 
-    radial-gradient(ellipse at 50% 100%, rgba(124, 58, 237, 0.15) 0%, rgba(99, 102, 241, 0.08) 35%, transparent 70%),
-    rgba(7, 5, 18, 0.20) !important;
-}
-
-/* 1. TOP-LEVEL SURFACES (At most 1 soft blur layer, 100% smooth) */
-.sidebar,
-.modal-window,
-.versions-controls-bar,
-.versions-table-card,
-.mods-filters-sidebar {
-  backdrop-filter: blur(14px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
-  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(18, 12, 42, 0.55) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.88) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.50) !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.70), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
-    0 16px 40px -10px rgba(0, 0, 0, 0.60),
-    0 0 30px rgba(99, 102, 241, 0.20) !important;
-  transform: translateZ(0);
-}
-
-/* 2. ALL CHILD & LIST ITEMS: ZERO BLUR (144 FPS, Instant GPU Shading) */
-.mod-entry-card,
-.server-item-row,
-.instance-card,
-.version-table-row,
-.version-dropdown-item,
-.user-profile-chip,
-.version-selector-box,
-.action-square-btn,
-.icon-action-btn,
-.settings-btn,
-.friend-invite-box,
-.subnav-tab,
-.category-pill,
-.source-pill,
-.v-pill,
-.server-action-pill-btn,
-.server-create-btn,
-#btn-open-folder-server,
-.github-native-mod-card {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: radial-gradient(130% 120% at 50% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(22, 15, 50, 0.60) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.85) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.60), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
-    0 8px 24px rgba(0, 0, 0, 0.40) !important;
-  transform: translateZ(0);
-}
-
-/* Hover State for Liquid Glass Items */
-.mod-entry-card:hover,
-.server-item-row:hover,
-.instance-card:hover,
-.version-table-row:hover,
-.version-dropdown-item:hover,
-.action-square-btn:hover,
-.icon-action-btn:hover,
-.settings-btn:hover,
-.server-action-pill-btn:hover,
-.server-create-btn:hover,
-#btn-open-folder-server:hover {
-  background: radial-gradient(130% 120% at 50% 0%, rgba(255, 255, 255, 0.28) 0%, rgba(99, 102, 241, 0.20) 45%, rgba(30, 20, 68, 0.75) 100%) !important;
-  border-top: 2px solid #ffffff !important;
-  border-left: 1.4px solid rgba(255, 255, 255, 0.65) !important;
-  box-shadow: 
-    inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.40), 
-    0 14px 35px rgba(0, 0, 0, 0.55), 
-    0 0 28px rgba(99, 102, 241, 0.40) !important;
-}
-
-/* 3. EXACT BUTTON STYLING (Image 4 & 5 From User) */
-/* Square Settings / Tuning Button (Image 4) */
-.settings-btn,
-.icon-action-btn,
-.action-square-btn {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 14px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-/* Pill Action Buttons (Image 5: "+ Создать сервер" & "Добавить папку сервера...") */
-.server-create-btn,
-.server-action-pill-btn,
-#btn-open-folder-server,
-#btn-open-server-creation {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  padding: 10px 22px !important;
-  border-radius: 9999px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-/* 4. FLOATING LIQUID GLASS BADGE IN TOP NAVBAR (Matches Website Image 1 & 2) */
-.glass-active-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  background: radial-gradient(120% 120% at 50% 0%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(25, 18, 55, 0.65) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-top: 1.8px solid rgba(255, 255, 255, 0.85);
-  box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, 0.60), 0 0 18px rgba(16, 185, 129, 0.35);
-  font-size: 12px;
-  font-weight: 600;
-  color: #f1f5f9;
-  letter-spacing: 0.3px;
-  user-select: none;
-}
-
-.glass-active-badge .pulse-dot-green {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 10px #10b981;
-  animation: pulse-dot-anim 2s infinite ease-in-out;
-}
-
-@keyframes pulse-dot-anim {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(0.85); }
-}
-
-/* 5. SMOOTH PAGINATION BUTTON FOR VERSIONS */
-.v-load-more-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 12px 20px;
-  margin-top: 12px;
-  border-radius: 14px;
-  background: radial-gradient(130% 130% at 50% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(99, 102, 241, 0.25) 45%, rgba(26, 18, 58, 0.70) 100%);
-  border: 1px solid rgba(165, 180, 252, 0.35);
-  border-top: 1.8px solid #ffffff;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, 0.65), 0 8px 24px rgba(0, 0, 0, 0.40);
-}
-.v-load-more-btn:hover {
-  background: radial-gradient(130% 130% at 50% 0%, rgba(255, 255, 255, 0.32) 0%, rgba(99, 102, 241, 0.40) 50%, rgba(35, 24, 75, 0.85) 100%);
-  border-top-color: #ffffff;
-  box-shadow: inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 0 12px 30px rgba(0, 0, 0, 0.50), 0 0 25px rgba(99, 102, 241, 0.50);
-  transform: translateY(-1px);
-}
 
 
 /* ==========================================================================
-   CLASSIC PREMIUM DARK THEME (LIQUID GLASS DISABLED)
-   Clean, solid, non-transparent, high-contrast dark gaming launcher design.
+   PURE SOLID FLAT DARK THEME - ZERO GLASS, ZERO TRANSPARENCY, ZERO PILLS
+   Clean, modern, rectangular 8px gaming UI (like Steam / Prism / Modrinth)
    ========================================================================== */
 
-/* Completely hide Liquid Glass badges */
+/* 1. HIDE ALL GLASS BADGES AND TOGGLES PERMANENTLY */
 .glass-active-badge,
-.glass-active-dot {
+.glass-active-dot,
+.btn-toggle-glass,
+.glass-pill-dot,
+.kbl-bg-mesh {
   display: none !important;
 }
 
-/* Comfortable Dark Background Artwork Layer */
-.kbl-bg-art {
-  opacity: 0.35 !important;
-  filter: saturate(110%) brightness(0.65) !important;
+/* 2. BASE APP & BACKGROUND (SOLID OPAQUE DARK) */
+html, body {
+  background: #0d0e15 !important;
+  color: #f1f2f6 !important;
 }
 
-.kbl-bg-mesh {
-  opacity: 0.30 !important;
+.kbl-bg-art {
+  opacity: 0.18 !important;
+  filter: grayscale(40%) brightness(0.4) !important;
 }
 
 .bg-overlay {
-  background: rgba(10, 8, 24, 0.78) !important;
+  background: #0d0e15 !important;
+  opacity: 0.90 !important;
 }
 
-/* 1. Solid Clean Surfaces */
-.sidebar,
-.modal-window,
+/* 3. STRUCTURAL PANELS (SOLID RECTANGULAR, NO CURVES, NO TRANSPARENCY) */
+.top-nav-bar {
+  background: #13141f !important;
+  border-bottom: 1px solid #232536 !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.sidebar {
+  background: #13141f !important;
+  border-right: 1px solid #232536 !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.bottom-bar {
+  background: #13141f !important;
+  border-top: 1px solid #232536 !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* 4. SOLID CARDS & CONTAINERS (8px RADIUS, SOLID 100% OPAQUE) */
+.card,
+.glass-card,
+.screenshots-card,
+.changelog-card,
 .versions-controls-bar,
 .versions-table-card,
-.mods-filters-sidebar {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: #120e26 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-  transform: translateZ(0);
-}
-
-/* 2. Solid Clean Cards and Rows (No glass glare, no reflections) */
-.mod-entry-card,
-.server-item-row,
+.mods-filters-sidebar,
 .instance-card,
+.server-item-row,
+.mod-entry-card,
 .version-table-row,
 .version-dropdown-item,
-.user-profile-chip,
-.version-selector-box,
-.action-square-btn,
-.icon-action-btn,
-.settings-btn,
-.friend-invite-box,
-.subnav-tab,
-.category-pill,
-.source-pill,
-.v-pill,
-.github-native-mod-card {
+.github-native-mod-card,
+.server-creation-window,
+.build-item,
+.settings-section-card {
+  background: #181a27 !important;
+  border: 1px solid #2b2d40 !important;
+  border-radius: 8px !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: #171233 !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
-  transform: translateZ(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+  transform: none !important;
 }
 
-/* Hover state for clean cards */
-.mod-entry-card:hover,
-.server-item-row:hover,
+/* Hover state for solid cards */
 .instance-card:hover,
+.server-item-row:hover,
+.mod-entry-card:hover,
 .version-table-row:hover,
 .version-dropdown-item:hover,
-.action-square-btn:hover,
-.icon-action-btn:hover,
-.settings-btn:hover {
-  background: #201a44 !important;
-  border-color: rgba(99, 102, 241, 0.4) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+.build-item:hover {
+  background: #202334 !important;
+  border-color: #3b3e58 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45) !important;
+  transform: none !important;
 }
 
-/* 3. Server Action Buttons */
+/* 5. SOLID BUTTONS (CLEAN RECTANGULAR WITH 8px RADIUS, NO PILLS, NO GLASS) */
+.btn-primary,
+.main-play-btn,
+.btn-play-game {
+  background: #5865f2 !important;
+  border: 1px solid #6875f5 !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3) !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-primary:hover,
+.main-play-btn:hover,
+.btn-play-game:hover {
+  background: #4752c4 !important;
+  border-color: #5865f2 !important;
+  transform: none !important;
+}
+
+/* Secondary & Action Buttons (Previously glassy pills -> Now clean solid rectangular buttons) */
+.btn-secondary,
+.secondary-glass-btn,
+.action-square-btn,
+.settings-btn,
+.icon-action-btn,
 .server-create-btn,
 .server-action-pill-btn,
 #btn-open-folder-server,
-#btn-open-server-creation {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  padding: 10px 22px !important;
-  border-radius: 9999px !important;
-  background: #1f1942 !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
+#btn-open-server-creation,
+#btn-open-folder,
+#btn-quick-site,
+#btn-join-friend,
+.btn-add-instance {
+  background: #232536 !important;
+  border: 1px solid #33364d !important;
+  border-radius: 8px !important;
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: all 0.15s ease !important;
 }
 
+.btn-secondary:hover,
+.secondary-glass-btn:hover,
+.action-square-btn:hover,
+.settings-btn:hover,
+.icon-action-btn:hover,
 .server-create-btn:hover,
 .server-action-pill-btn:hover,
 #btn-open-folder-server:hover,
-#btn-open-server-creation:hover {
-  background: #2b2259 !important;
-  border-color: #6366f1 !important;
+#btn-open-server-creation:hover,
+#btn-open-folder:hover,
+#btn-quick-site:hover,
+#btn-join-friend:hover,
+.btn-add-instance:hover {
+  background: #2d3046 !important;
+  border-color: #4a4e6e !important;
+  color: #ffffff !important;
+  transform: none !important;
 }
 
-/* 4. Settings button */
-.settings-btn,
-.icon-action-btn,
-.action-square-btn {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 12px !important;
-  background: #1a143b !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-}
-.settings-btn:hover,
-.icon-action-btn:hover,
-.action-square-btn:hover {
-  background: #271f54 !important;
-  border-color: #6366f1 !important;
+/* 6. TOP NAVIGATION TABS (SOLID RECTANGULAR TABS, NO GLASS CAPSULE) */
+.nav-pills-container {
+  background: #171825 !important;
+  border: 1px solid #26283a !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
 }
 
-/* 5. Pagination button */
+.nav-pill-glider {
+  display: none !important;
+}
+
+.nav-pill {
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+  border: none !important;
+  padding: 6px 16px !important;
+  transition: all 0.15s ease !important;
+}
+
+.nav-pill:hover {
+  background: #202234 !important;
+  color: #f1f5f9 !important;
+}
+
+.nav-pill.active {
+  background: #2b2e46 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: 1px solid #3d4160 !important;
+}
+
+/* 7. CONTROLS, CHIPS & DROPDOWNS (SOLID OPAQUE, 8px RADIUS) */
+.user-profile-chip,
+.version-selector-box,
+.friend-invite-box {
+  background: #1c1e2e !important;
+  border: 1px solid #2f3248 !important;
+  border-radius: 8px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.user-profile-chip:hover,
+.version-selector-box:hover {
+  background: #23263a !important;
+  border-color: #3f4362 !important;
+}
+
+/* Filter pills & category chips */
+.v-pill,
+.category-pill,
+.source-pill,
+.ver-tab,
+.subnav-tab {
+  background: #1c1e2e !important;
+  border: 1px solid #2b2e42 !important;
+  border-radius: 6px !important;
+  color: #94a3b8 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.v-pill:hover,
+.category-pill:hover,
+.source-pill:hover,
+.ver-tab:hover,
+.subnav-tab:hover {
+  background: #25283d !important;
+  color: #ffffff !important;
+}
+
+.v-pill.active,
+.category-pill.active,
+.source-pill.active,
+.ver-tab.active,
+.subnav-tab.active {
+  background: #5865f2 !important;
+  border-color: #6875f5 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* 8. POPUPS & MODAL WINDOWS (100% OPAQUE SOLID DARK, NO BLUR) */
+.modal-window,
+.version-dropdown-menu,
+.account-dropdown-popup,
+.server-creation-window {
+  background: #151622 !important;
+  border: 1px solid #30334a !important;
+  border-radius: 10px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Inputs */
+.form-input,
+.versions-search-input,
+.mods-search-input,
+#dropdown-ver-search {
+  background: #1c1e2e !important;
+  border: 1px solid #2e3146 !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+}
+
+.form-input:focus,
+.versions-search-input:focus,
+.mods-search-input:focus,
+#dropdown-ver-search:focus {
+  border-color: #5865f2 !important;
+  outline: none !important;
+}
+
+/* Load more button in versions table */
 .v-load-more-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 12px 20px;
-  margin-top: 12px;
-  border-radius: 12px;
-  background: #1c1642;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  background: #1c1e2e !important;
+  border: 1px solid #2f3248 !important;
+  border-radius: 8px !important;
+  color: #cbd5e1 !important;
 }
+
 .v-load-more-btn:hover {
-  background: #29205e;
-  border-color: #6366f1;
+  background: #25283d !important;
+  border-color: #5865f2 !important;
+  color: #ffffff !important;
+}
+
+
+/* Version dropdown menu pure solid dark & high z-index */
+.version-dropdown-menu {
+  background: #151622 !important;
+  border: 1px solid #30334a !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 99999 !important;
+}
+.version-dropdown-header,
+.version-dropdown-scrollable {
+  background: #151622 !important;
+}
+.version-dropdown-item {
+  border-radius: 6px !important;
+  background: #1c1e2e !important;
+  border: 1px solid #282a3c !important;
+}
+.version-dropdown-item:hover {
+  background: #272a40 !important;
+  border-color: #5865f2 !important;
+}
+.version-dropdown-tabs .ver-tab {
+  border-radius: 6px !important;
 }
