@@ -5,24 +5,24 @@
 :root {
   --color-bg-base: #090717;
 
-  /* Tier 2: Transparent Liquid Glass (прозрачное стекло в середине, закруглённые края) */
-  --glass-clear-bg: radial-gradient(130% 120% at 50% 12%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0.01) 90%), rgba(20, 14, 44, 0.22);
-  --glass-clear-bg-hover: radial-gradient(130% 120% at 50% 12%, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.02) 90%), rgba(28, 18, 58, 0.30);
-  --glass-clear-bg-active: radial-gradient(130% 120% at 50% 12%, rgba(255, 255, 255, 0.35) 0%, rgba(99, 102, 241, 0.25) 50%, rgba(79, 70, 229, 0.12) 90%), rgba(38, 25, 78, 0.42);
-  --glass-clear-blur: blur(28px) saturate(220%) brightness(1.10);
-  --glass-clear-border: 1px solid rgba(255, 255, 255, 0.20);
-  --glass-clear-border-top: 1.6px solid rgba(255, 255, 255, 0.65);
-  --glass-clear-border-left: 1.2px solid rgba(255, 255, 255, 0.42);
-  --glass-clear-shadow: inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.55), inset 0 -2px 3.5px 0 rgba(0, 0, 0, 0.35), inset 0 0 20px 0 rgba(255, 255, 255, 0.05), 0 16px 36px -8px rgba(0, 0, 0, 0.45);
-  --glass-clear-shadow-hover: inset 0 2px 2.5px 0 rgba(255, 255, 255, 0.80), inset 0 -2px 4px 0 rgba(0, 0, 0, 0.40), inset 0 0 25px 0 rgba(255, 255, 255, 0.10), 0 20px 44px -8px rgba(0, 0, 0, 0.55), 0 0 30px rgba(99, 102, 241, 0.30);
+  /* Flat Dark Theme Variables - Clean 2D, No 3D Bulges, Clean Rounded Corners */
+  --glass-clear-bg: #181928;
+  --glass-clear-bg-hover: #222436;
+  --glass-clear-bg-active: #2b2e44;
+  --glass-clear-blur: none;
+  --glass-clear-border: 1px solid #2b2d42;
+  --glass-clear-border-top: 1px solid #2b2d42;
+  --glass-clear-border-left: 1px solid #2b2d42;
+  --glass-clear-shadow: none;
+  --glass-clear-shadow-hover: none;
 
-  /* Tier 1: Frosted Matte Liquid Glass for Popups & Modals (матовое жидкое стекло) */
-  --glass-matte-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 32%, rgba(24, 17, 50, 0.72) 75%, rgba(15, 10, 34, 0.84) 100%);
-  --glass-matte-blur: blur(48px) saturate(220%) brightness(1.12) contrast(105%);
-  --glass-matte-border: 1.2px solid rgba(255, 255, 255, 0.28);
-  --glass-matte-border-top: 1.8px solid rgba(255, 255, 255, 0.85);
-  --glass-matte-border-left: 1.5px solid rgba(255, 255, 255, 0.55);
-  --glass-matte-shadow: inset 0 2px 3px 0 rgba(255, 255, 255, 0.75), inset 0 -3px 6px 0 rgba(0, 0, 0, 0.40), inset 0 0 35px 0 rgba(255, 255, 255, 0.06), 0 32px 80px -15px rgba(0, 0, 0, 0.75), 0 0 50px -10px rgba(99, 102, 241, 0.25);
+  /* Frosted Popups & Modals -> Flat Solid Dark */
+  --glass-matte-bg: #161726;
+  --glass-matte-blur: none;
+  --glass-matte-border: 1px solid #2b2d42;
+  --glass-matte-border-top: 1px solid #2b2d42;
+  --glass-matte-border-left: 1px solid #2b2d42;
+  --glass-matte-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 
   --color-glass-card: var(--glass-clear-bg);
   --color-glass-card-hover: var(--glass-clear-bg-hover);
@@ -3528,282 +3528,188 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
 
 
 /* ==========================================================================
-   CYBERNETIC LIQUID GLASS — UNIVERSAL COMPLETE COMPONENT STYLES
-   Ensures ALL elements (Settings, Servers, Mods, Versions, Dropdowns)
-   have the signature refraction, specular top rim, and deep frosted blur.
+   CLEAN FLAT DARK COMPONENTS (ROUNDED 2D, ZERO 3D VOLUME, ZERO INSET SHADOWS)
    ========================================================================== */
-
-/* High-Performance Cyber Liquid Glass Base (120 FPS, Zero-Lag) */
-/* Primary Surfaces with GPU Backdrop Filter */
 .glass-card,
 .sidebar,
 .modal-window,
-.version-dropdown-menu,
 .versions-controls-bar,
 .versions-table-card,
 .mods-filters-sidebar,
 .github-native-mod-card,
 .server-creation-window {
-  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(22, 14, 52, 0.48) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.92) !important;
-  border-left: 1.4px solid rgba(255, 255, 255, 0.55) !important;
-  box-shadow: 
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.70), 
-    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.35), 
-    inset 0 0 30px 0 rgba(255, 255, 255, 0.05), 
-    0 20px 50px -10px rgba(0, 0, 0, 0.65),
-    0 0 30px rgba(99, 102, 241, 0.25) !important;
-  backdrop-filter: blur(18px) saturate(200%) brightness(1.12) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.12) !important;
-  transform: translateZ(0);
+  background: #181928 !important;
+  border: 1px solid #2b2d42 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Fast Glass Nested Items (No duplicate backdrop-filter, 100x faster scrolling) */
 .mod-entry-card,
 .server-item-row,
 .instance-card,
-.version-table-row,
-.nav-pills-container,
-.user-profile-chip,
-.version-selector-box,
-.action-square-btn,
-.friend-invite-box,
-.subnav-tab {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 45%, rgba(26, 17, 58, 0.42) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.88) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.50) !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.65), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.30), 
-    0 6px 20px rgba(0, 0, 0, 0.35) !important;
+.version-table-row {
+  background: #1c1d2e !important;
+  border: 1px solid #2c2f44 !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  transform: translateZ(0);
 }
 
-/* Navbar Floating Island Styling */
 .top-nav-bar {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  height: 62px !important;
+  height: 60px !important;
   padding: 0 24px !important;
   z-index: 90 !important;
-  background: linear-gradient(180deg, rgba(16, 10, 36, 0.65) 0%, rgba(12, 8, 28, 0.35) 100%) !important;
-  border-bottom: 1.2px solid rgba(255, 255, 255, 0.15) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
+  background: #131420 !important;
+  border-bottom: 1px solid #232536 !important;
+  backdrop-filter: none !important;
 }
 
-/* Liquid Glass Active Badge in Titlebar */
-.glass-active-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  background: radial-gradient(120% 120% at 50% 10%, rgba(255, 255, 255, 0.25) 0%, rgba(99, 102, 241, 0.30) 60%, rgba(30, 20, 65, 0.50) 100%);
-  border: 1px solid rgba(165, 180, 252, 0.50);
-  border-top: 1.5px solid #ffffff;
-  box-shadow: 0 0 14px rgba(99, 102, 241, 0.40), inset 0 1px 2px rgba(255, 255, 255, 0.70);
-  font-size: 11px;
-  font-weight: 750;
-  color: #ffffff;
-  letter-spacing: 0.3px;
-}
-
+.glass-active-badge,
 .glass-active-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
+  display: none !important;
 }
 
-/* Pagination / Show More Button */
 .v-load-more-btn {
   width: 100%;
   padding: 12px;
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.18) 0%, rgba(99, 102, 241, 0.25) 50%, rgba(24, 16, 52, 0.50) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-top: 1.6px solid rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
-  color: #ffffff;
+  background: #222436 !important;
+  border: 1px solid #33364d !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   margin-top: 10px;
   transition: all 0.2s ease;
 }
-
 .v-load-more-btn:hover {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.30) 0%, rgba(99, 102, 241, 0.40) 50%, rgba(32, 20, 70, 0.65) 100%);
-  border-top-color: #ffffff;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.45);
+  background: #2c2f46 !important;
+  border-color: #4a4e6e !important;
 }
 
-/* Image 1: Settings Button (.settings-btn / .icon-action-btn) */
+/* Settings button: Clean 2D flat rounded */
 .icon-action-btn,
 .settings-btn,
 #open-settings-btn {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 12px !important;
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(26, 18, 56, 0.52) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.88) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.52) !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.70), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
-    0 8px 24px rgba(0, 0, 0, 0.45), 
-    0 0 16px rgba(99, 102, 241, 0.28) !important;
-  backdrop-filter: blur(28px) saturate(220%) brightness(1.16) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.16) !important;
-  color: #f1f5f9 !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  background: #222436 !important;
+  border: 1px solid #33364d !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #e2e8f0 !important;
   cursor: pointer !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.15s ease !important;
 }
-
 .icon-action-btn:hover,
 .settings-btn:hover,
 #open-settings-btn:hover {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.40) 0%, rgba(99, 102, 241, 0.25) 50%, rgba(38, 25, 78, 0.65) 100%) !important;
-  border-top-color: #ffffff !important;
-  box-shadow: 
-    inset 0 2px 2.5px rgba(255, 255, 255, 0.95), 
-    0 12px 30px rgba(0, 0, 0, 0.55), 
-    0 0 28px rgba(99, 102, 241, 0.50) !important;
-  transform: translateY(-2px) scale(1.05) !important;
+  background: #2c2f46 !important;
+  border-color: #4a4e6e !important;
   color: #ffffff !important;
+  transform: none !important;
 }
-
 .icon-action-btn svg,
 .settings-btn svg {
-  filter: drop-shadow(0 2px 6px rgba(165, 180, 252, 0.6)) !important;
+  filter: none !important;
 }
 
-/* Image 2: Servers Tab Action Buttons */
+/* Servers Tab buttons: Flat 2D rounded */
 .server-create-btn,
 #btn-open-create-server {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.92) 0%, rgba(129, 140, 248, 0.78) 50%, rgba(79, 70, 229, 0.92) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.38) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.95) !important;
-  border-radius: 14px !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.75), 
-    0 8px 25px rgba(99, 102, 241, 0.55), 
-    0 0 28px rgba(99, 102, 241, 0.40) !important;
-  backdrop-filter: blur(24px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+  background: #5865f2 !important;
+  border: 1px solid #6b78f6 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   color: #ffffff !important;
-  font-weight: 700 !important;
-  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
   cursor: pointer !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.15s ease !important;
 }
-
 .server-create-btn:hover,
 #btn-open-create-server:hover {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.98) 0%, rgba(99, 102, 241, 0.88) 50%, rgba(67, 56, 202, 0.98) 100%) !important;
-  box-shadow: 
-    inset 0 2px 2.5px rgba(255, 255, 255, 0.98), 
-    0 14px 35px rgba(99, 102, 241, 0.70), 
-    0 0 38px rgba(129, 140, 248, 0.60) !important;
-  transform: translateY(-2px) scale(1.02) !important;
+  background: #4752c4 !important;
+  border-color: #5865f2 !important;
+  transform: none !important;
 }
 
-.server-action-pill-btn {
+.server-action-pill-btn,
+#btn-action-create-server,
+#btn-action-add-folder {
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(24, 17, 52, 0.55) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.85) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.50) !important;
-  border-radius: 14px !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.65), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
-    0 10px 28px rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(28px) saturate(220%) brightness(1.14) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.14) !important;
-  padding: 12px 18px !important;
+  background: #222436 !important;
+  border: 1px solid #33364d !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 10px 18px !important;
   color: #f1f5f9 !important;
   font-size: 13px !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   cursor: pointer !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.15s ease !important;
 }
-
-.server-action-pill-btn:hover {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.30) 0%, rgba(99, 102, 241, 0.20) 50%, rgba(32, 20, 68, 0.68) 100%) !important;
-  border-top-color: #ffffff !important;
-  box-shadow: 
-    inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 
-    0 14px 35px rgba(0, 0, 0, 0.55), 
-    0 0 25px rgba(99, 102, 241, 0.35) !important;
-  transform: translateY(-2px) scale(1.02) !important;
+.server-action-pill-btn:hover,
+#btn-action-create-server:hover,
+#btn-action-add-folder:hover {
+  background: #2c2f46 !important;
+  border-color: #4a4e6e !important;
   color: #ffffff !important;
+  transform: none !important;
 }
 
-/* Image 3: Mods Tab Elements */
+/* Mods Tab Pills & Entry Cards */
 .mod-category-pills .category-pill,
 .source-pills-group .source-pill {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(20, 14, 45, 0.45) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-top: 1.6px solid rgba(255, 255, 255, 0.75) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.45) !important;
-  border-radius: 9999px !important;
-  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.55), 0 4px 16px rgba(0, 0, 0, 0.30) !important;
-  backdrop-filter: blur(24px) saturate(200%) brightness(1.12) !important;
+  background: #1c1d2e !important;
+  border: 1px solid #2a2c40 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
   color: #cbd5e1 !important;
-  font-weight: 600 !important;
-  padding: 6px 16px !important;
+  font-weight: 500 !important;
+  padding: 6px 14px !important;
   cursor: pointer !important;
-  transition: all 0.25s ease !important;
+  transition: all 0.15s ease !important;
 }
-
 .mod-category-pills .category-pill.active,
 .source-pills-group .source-pill.active {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.32) 0%, rgba(99, 102, 241, 0.38) 50%, rgba(67, 56, 202, 0.55) 100%) !important;
-  border: 1.2px solid rgba(165, 180, 252, 0.65) !important;
-  border-top: 1.8px solid #ffffff !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.90), 
-    0 0 22px rgba(99, 102, 241, 0.55), 
-    0 6px 20px rgba(0, 0, 0, 0.45) !important;
+  background: #5865f2 !important;
+  border-color: #6875f5 !important;
+  box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3) !important;
   color: #ffffff !important;
 }
 
 .mod-entry-card {
-  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(20, 14, 45, 0.50) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.82) !important;
-  border-left: 1.2px solid rgba(255, 255, 255, 0.45) !important;
-  border-radius: 16px !important;
-  box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.60), 
-    inset 0 -2px 4px rgba(0, 0, 0, 0.35), 
-    0 8px 24px rgba(0, 0, 0, 0.40) !important;
-  backdrop-filter: blur(28px) saturate(220%) brightness(1.12) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.12) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: #1c1d2e !important;
+  border: 1px solid #2b2d42 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: all 0.15s ease !important;
 }
-
 .mod-entry-card:hover {
-  background: radial-gradient(135% 120% at 50% 0%, rgba(255, 255, 255, 0.24) 0%, rgba(99, 102, 241, 0.16) 50%, rgba(30, 20, 65, 0.65) 100%) !important;
-  border-top-color: #ffffff !important;
-  box-shadow: 
-    inset 0 2px 2.5px rgba(255, 255, 255, 0.90), 
-    0 14px 35px rgba(0, 0, 0, 0.55), 
-    0 0 25px rgba(99, 102, 241, 0.35) !important;
-  transform: translateY(-2px) !important;
+  background: #222538 !important;
+  border-color: #3b3e5c !important;
+  transform: none !important;
 }
 
 /* ==========================================================================
@@ -3851,7 +3757,7 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
   border-top: 1.2px solid rgba(255, 255, 255, 0.40);
   border-radius: 14px;
   padding: 10px 16px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
   backdrop-filter: blur(16px);
 }
 
@@ -3894,11 +3800,10 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
 }
 
 .v-pill.active {
-  background: radial-gradient(130% 120% at 50% 10%, rgba(255, 255, 255, 0.30) 0%, rgba(99, 102, 241, 0.40) 50%, rgba(67, 56, 202, 0.60) 100%);
-  border: 1.2px solid rgba(165, 180, 252, 0.65);
-  border-top: 1.8px solid #ffffff;
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.50);
-  color: #ffffff;
+  background: #5865f2 !important;
+  border: 1px solid #6875f5 !important;
+  box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3) !important;
+  color: #ffffff !important;
 }
 
 .versions-table-card {
@@ -3967,11 +3872,10 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
   max-width: 90vw;
   background: radial-gradient(145deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.05) 30%, rgba(20, 14, 48, 0.85) 75%, rgba(12, 8, 32, 0.95) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.24) !important;
-  border-top: 1.8px solid rgba(255, 255, 255, 0.90) !important;
-  border-left: 1.4px solid rgba(255, 255, 255, 0.55) !important;
+  border-top: 1px solid #30334c !important;
+  border-left: 1px solid #30334c !important;
   border-radius: 18px !important;
   box-shadow: 
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.75), 
     0 24px 60px rgba(0, 0, 0, 0.75), 
     0 0 35px rgba(99, 102, 241, 0.30) !important;
   backdrop-filter: blur(48px) saturate(220%) brightness(1.15) !important;
@@ -4080,65 +3984,174 @@ body.liquid-glass-active .primary-play-btn .play-icon-triangle {
 
 
 
+
+
 /* ==========================================================================
-   PURE SOLID FLAT DARK THEME - ZERO GLASS, ZERO TRANSPARENCY, ZERO PILLS
-   Clean, modern, rectangular 8px gaming UI (like Steam / Prism / Modrinth)
+   KBLAUNCHER CLEAN MODERN DARK THEME
+   - Window drag ONLY on top titlebar
+   - Smooth animated white sliding glider island for navigation
+   - Smooth 2D rounded corners, ZERO 3D volumetric bulge/bevels
+   - Solid 100% opaque, ZERO liquid glass
    ========================================================================== */
 
-/* 1. HIDE ALL GLASS BADGES AND TOGGLES PERMANENTLY */
-.glass-active-badge,
-.glass-active-dot,
-.btn-toggle-glass,
-.glass-pill-dot,
-.kbl-bg-mesh {
-  display: none !important;
+/* 1. WINDOW DRAG REGION: ONLY THE TOP TITLEBAR IS DRAGGABLE */
+.titlebar,
+.titlebar-drag-area,
+.pywebview-drag-region {
+  -webkit-app-region: drag !important;
+  app-region: drag !important;
+  cursor: default !important;
 }
 
-/* 2. BASE APP & BACKGROUND (SOLID OPAQUE DARK) */
-html, body {
-  background: #0d0e15 !important;
-  color: #f1f2f6 !important;
+.titlebar-window-controls,
+.win-btn,
+.brand-block,
+.app-brand {
+  -webkit-app-region: no-drag !important;
+  app-region: no-drag !important;
 }
 
-.kbl-bg-art {
-  opacity: 0.18 !important;
-  filter: grayscale(40%) brightness(0.4) !important;
+/* Explicitly disable dragging anywhere else in the application */
+body,
+.top-nav-bar,
+.nav-pills-container,
+.nav-pill,
+.sidebar,
+.content-area,
+.tab-page,
+.bottom-bar,
+.card,
+.glass-card,
+.modal-window,
+.version-selector-box,
+.user-profile-chip {
+  -webkit-app-region: no-drag !important;
+  app-region: no-drag !important;
 }
 
-.bg-overlay {
-  background: #0d0e15 !important;
-  opacity: 0.90 !important;
+/* 2. SLIDING WHITE GLIDER ISLAND (Анимация передвижения белого островка) */
+.nav-pills-container {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #171826 !important;
+  border: 1px solid #282a3c !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  overflow: hidden !important;
 }
 
-/* 3. STRUCTURAL PANELS (SOLID RECTANGULAR, NO CURVES, NO TRANSPARENCY) */
-.top-nav-bar {
-  background: #13141f !important;
-  border-bottom: 1px solid #232536 !important;
-  border-radius: 0 !important;
+.nav-pill-glider {
+  display: block !important;
+  position: absolute !important;
+  top: 4px !important;
+  bottom: 4px !important;
+  left: 0 !important;
+  background: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), width 0.26s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.nav-pill {
+  position: relative !important;
+  z-index: 2 !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 8px !important;
+  padding: 7px 18px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  transition: color 0.15s ease !important;
+  outline: none !important;
+}
+
+.nav-pill:hover {
+  color: #ffffff !important;
+}
+
+.nav-pill.active {
+  color: #0d0e15 !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+}
+
+/* 3. SMOOTH ROUNDED 2D BUTTONS (NO 3D BULGE, NO FAKE VOLUME, FLAT 2D) */
+.btn-primary,
+.main-play-btn,
+.btn-play-game {
+  background: #5865f2 !important;
+  border: 1px solid #6b78f6 !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(88, 101, 242, 0.3) !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-primary:hover,
+.main-play-btn:hover,
+.btn-play-game:hover {
+  background: #4752c4 !important;
+  border-color: #5865f2 !important;
+}
+
+/* Action and secondary buttons: Smooth rounded corners, purely flat 2D */
+.btn-secondary,
+.secondary-glass-btn,
+.action-square-btn,
+.settings-btn,
+.icon-action-btn,
+.server-create-btn,
+.server-action-pill-btn,
+#btn-open-folder-server,
+#btn-open-server-creation,
+#btn-open-folder,
+#btn-quick-site,
+#btn-join-friend,
+.btn-add-instance {
+  background: #222436 !important;
+  border: 1px solid #33364d !important;
+  border-radius: 10px !important;
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
+  transition: all 0.15s ease !important;
 }
 
-.sidebar {
-  background: #13141f !important;
-  border-right: 1px solid #232536 !important;
-  border-radius: 0 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
+.server-create-btn,
+.server-action-pill-btn,
+#btn-open-folder-server,
+#btn-open-server-creation {
+  border-radius: 20px !important;
+  padding: 9px 20px !important;
 }
 
-.bottom-bar {
-  background: #13141f !important;
-  border-top: 1px solid #232536 !important;
-  border-radius: 0 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
+.btn-secondary:hover,
+.secondary-glass-btn:hover,
+.action-square-btn:hover,
+.settings-btn:hover,
+.icon-action-btn:hover,
+.server-create-btn:hover,
+.server-action-pill-btn:hover,
+#btn-open-folder-server:hover,
+#btn-open-server-creation:hover,
+#btn-open-folder:hover,
+#btn-quick-site:hover,
+#btn-join-friend:hover,
+.btn-add-instance:hover {
+  background: #2c2f46 !important;
+  border-color: #4a4e6e !important;
+  color: #ffffff !important;
 }
 
-/* 4. SOLID CARDS & CONTAINERS (8px RADIUS, SOLID 100% OPAQUE) */
+/* 4. SOLID FLAT OPAQUE CARDS (ROUNDED 12px, FLAT 2D, NO 3D INSET) */
 .card,
 .glass-card,
 .screenshots-card,
@@ -4155,162 +4168,107 @@ html, body {
 .server-creation-window,
 .build-item,
 .settings-section-card {
-  background: #181a27 !important;
-  border: 1px solid #2b2d40 !important;
-  border-radius: 8px !important;
+  background: #181928 !important;
+  border: 1px solid #2b2d42 !important;
+  border-radius: 12px !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
-  transform: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
 }
 
-/* Hover state for solid cards */
 .instance-card:hover,
 .server-item-row:hover,
 .mod-entry-card:hover,
 .version-table-row:hover,
 .version-dropdown-item:hover,
 .build-item:hover {
-  background: #202334 !important;
-  border-color: #3b3e58 !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45) !important;
-  transform: none !important;
+  background: #202235 !important;
+  border-color: #3b3e5c !important;
 }
 
-/* 5. SOLID BUTTONS (CLEAN RECTANGULAR WITH 8px RADIUS, NO PILLS, NO GLASS) */
-.btn-primary,
-.main-play-btn,
-.btn-play-game {
-  background: #5865f2 !important;
-  border: 1px solid #6875f5 !important;
+/* 5. BASE PANELS (SOLID 100% OPAQUE) */
+html, body {
+  background: #0d0e15 !important;
+}
+
+.top-nav-bar {
+  background: #131420 !important;
+  border-bottom: 1px solid #232536 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.sidebar {
+  background: #131420 !important;
+  border-right: 1px solid #232536 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.bottom-bar {
+  background: #131420 !important;
+  border-top: 1px solid #232536 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.kbl-bg-art {
+  opacity: 0.18 !important;
+  filter: grayscale(35%) brightness(0.4) !important;
+}
+
+.bg-overlay {
+  background: #0d0e15 !important;
+  opacity: 0.90 !important;
+}
+
+/* 6. DROPDOWN POPUPS (SOLID FLAT OPAQUE, HIGH Z-INDEX) */
+.version-dropdown-menu {
+  background: #161726 !important;
+  border: 1px solid #30334c !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 99999 !important;
+}
+
+.version-dropdown-header,
+.version-dropdown-scrollable {
+  background: #161726 !important;
+}
+
+.version-dropdown-item {
   border-radius: 8px !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3) !important;
-  transition: all 0.15s ease !important;
+  background: #1c1d2e !important;
+  border: 1px solid #2a2c40 !important;
 }
 
-.btn-primary:hover,
-.main-play-btn:hover,
-.btn-play-game:hover {
-  background: #4752c4 !important;
+.version-dropdown-item:hover {
+  background: #272a42 !important;
   border-color: #5865f2 !important;
-  transform: none !important;
 }
 
-/* Secondary & Action Buttons (Previously glassy pills -> Now clean solid rectangular buttons) */
-.btn-secondary,
-.secondary-glass-btn,
-.action-square-btn,
-.settings-btn,
-.icon-action-btn,
-.server-create-btn,
-.server-action-pill-btn,
-#btn-open-folder-server,
-#btn-open-server-creation,
-#btn-open-folder,
-#btn-quick-site,
-#btn-join-friend,
-.btn-add-instance {
-  background: #232536 !important;
-  border: 1px solid #33364d !important;
-  border-radius: 8px !important;
-  color: #e2e8f0 !important;
-  font-weight: 500 !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  transition: all 0.15s ease !important;
-}
-
-.btn-secondary:hover,
-.secondary-glass-btn:hover,
-.action-square-btn:hover,
-.settings-btn:hover,
-.icon-action-btn:hover,
-.server-create-btn:hover,
-.server-action-pill-btn:hover,
-#btn-open-folder-server:hover,
-#btn-open-server-creation:hover,
-#btn-open-folder:hover,
-#btn-quick-site:hover,
-#btn-join-friend:hover,
-.btn-add-instance:hover {
-  background: #2d3046 !important;
-  border-color: #4a4e6e !important;
-  color: #ffffff !important;
-  transform: none !important;
-}
-
-/* 6. TOP NAVIGATION TABS (SOLID RECTANGULAR TABS, NO GLASS CAPSULE) */
-.nav-pills-container {
-  background: #171825 !important;
-  border: 1px solid #26283a !important;
-  border-radius: 8px !important;
-  padding: 4px !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-}
-
-.nav-pill-glider {
-  display: none !important;
-}
-
-.nav-pill {
-  border-radius: 6px !important;
-  background: transparent !important;
-  color: #94a3b8 !important;
-  font-weight: 500 !important;
-  border: none !important;
-  padding: 6px 16px !important;
-  transition: all 0.15s ease !important;
-}
-
-.nav-pill:hover {
-  background: #202234 !important;
-  color: #f1f5f9 !important;
-}
-
-.nav-pill.active {
-  background: #2b2e46 !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  border: 1px solid #3d4160 !important;
-}
-
-/* 7. CONTROLS, CHIPS & DROPDOWNS (SOLID OPAQUE, 8px RADIUS) */
+/* 7. CONTROLS, CHIPS & FILTERS */
 .user-profile-chip,
 .version-selector-box,
 .friend-invite-box {
-  background: #1c1e2e !important;
-  border: 1px solid #2f3248 !important;
-  border-radius: 8px !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: #1c1d2e !important;
+  border: 1px solid #2e3046 !important;
+  border-radius: 10px !important;
   box-shadow: none !important;
 }
 
-.user-profile-chip:hover,
-.version-selector-box:hover {
-  background: #23263a !important;
-  border-color: #3f4362 !important;
-}
-
-/* Filter pills & category chips */
 .v-pill,
 .category-pill,
 .source-pill,
 .ver-tab,
 .subnav-tab {
-  background: #1c1e2e !important;
-  border: 1px solid #2b2e42 !important;
-  border-radius: 6px !important;
+  background: #1c1d2e !important;
+  border: 1px solid #2a2c40 !important;
+  border-radius: 8px !important;
   color: #94a3b8 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
-  transition: all 0.15s ease !important;
 }
 
 .v-pill:hover,
@@ -4318,7 +4276,7 @@ html, body {
 .source-pill:hover,
 .ver-tab:hover,
 .subnav-tab:hover {
-  background: #25283d !important;
+  background: #25283e !important;
   color: #ffffff !important;
 }
 
@@ -4333,76 +4291,19 @@ html, body {
   font-weight: 600 !important;
 }
 
-/* 8. POPUPS & MODAL WINDOWS (100% OPAQUE SOLID DARK, NO BLUR) */
-.modal-window,
-.version-dropdown-menu,
-.account-dropdown-popup,
-.server-creation-window {
-  background: #151622 !important;
-  border: 1px solid #30334a !important;
-  border-radius: 10px !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75) !important;
-}
-
-/* Inputs */
-.form-input,
-.versions-search-input,
-.mods-search-input,
-#dropdown-ver-search {
-  background: #1c1e2e !important;
-  border: 1px solid #2e3146 !important;
-  border-radius: 6px !important;
-  color: #ffffff !important;
-}
-
-.form-input:focus,
-.versions-search-input:focus,
-.mods-search-input:focus,
-#dropdown-ver-search:focus {
-  border-color: #5865f2 !important;
-  outline: none !important;
-}
-
-/* Load more button in versions table */
-.v-load-more-btn {
-  background: #1c1e2e !important;
-  border: 1px solid #2f3248 !important;
-  border-radius: 8px !important;
-  color: #cbd5e1 !important;
-}
-
-.v-load-more-btn:hover {
-  background: #25283d !important;
-  border-color: #5865f2 !important;
-  color: #ffffff !important;
-}
-
-
-/* Version dropdown menu pure solid dark & high z-index */
-.version-dropdown-menu {
-  background: #151622 !important;
-  border: 1px solid #30334a !important;
-  border-radius: 8px !important;
+.modal-window {
+  background: #161726 !important;
+  border: 1px solid #30334c !important;
+  border-radius: 14px !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  z-index: 99999 !important;
 }
-.version-dropdown-header,
-.version-dropdown-scrollable {
-  background: #151622 !important;
-}
-.version-dropdown-item {
-  border-radius: 6px !important;
-  background: #1c1e2e !important;
-  border: 1px solid #282a3c !important;
-}
-.version-dropdown-item:hover {
-  background: #272a40 !important;
-  border-color: #5865f2 !important;
-}
-.version-dropdown-tabs .ver-tab {
-  border-radius: 6px !important;
+
+.glass-active-badge,
+.glass-active-dot,
+.btn-toggle-glass,
+.glass-pill-dot,
+.kbl-bg-mesh {
+  display: none !important;
 }
