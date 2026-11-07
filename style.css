@@ -4930,3 +4930,263 @@ html, body {
   position: absolute !important;
   z-index: 9999999 !important;
 }
+
+
+
+/* ==========================================================================
+   INTERACTIVE BUILD CREATOR & STEPPER STYLES
+   ========================================================================== */
+.create-build-window {
+  max-width: 680px !important;
+  width: 94% !important;
+}
+
+.build-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.build-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.build-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.build-step-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  margin-left: auto;
+}
+
+.create-build-ver-scrollable {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.create-build-ver-scrollable .version-dropdown-item {
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.create-build-ver-scrollable .version-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.create-build-ver-scrollable .version-dropdown-item.active {
+  background: rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+}
+
+/* ==========================================================================
+   INSTANCE CONTEXT MENU POPOVER
+   ========================================================================== */
+.instance-context-popover {
+  animation: modalPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+.instance-context-popover .popover-item {
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.instance-context-popover .popover-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.instance-context-popover .popover-item.danger:hover {
+  background: rgba(244, 63, 94, 0.18) !important;
+  color: #fda4af !important;
+}
+
+/* ==========================================================================
+   MOD TOGGLE SWITCH & DELETE
+   ========================================================================== */
+.mod-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+}
+
+.mod-item-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.mod-item-row.disabled {
+  opacity: 0.55;
+  filter: grayscale(40%);
+}
+
+.mod-switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.mod-switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.mod-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #334155;
+  transition: .2s;
+  border-radius: 20px;
+}
+
+.mod-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+}
+
+.mod-switch-toggle input:checked + .mod-switch-slider {
+  background-color: #10b981;
+}
+
+.mod-switch-toggle input:checked + .mod-switch-slider:before {
+  transform: translateX(16px);
+}
+
+.mod-delete-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mod-delete-btn:hover {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.15);
+}
+
+/* ==========================================================================
+   SERVERS MONITORING CARDS
+   ========================================================================== */
+.server-card-interactive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #141624;
+  border: 1px solid #23263b;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.server-card-interactive:hover {
+  border-color: #3d4163;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.server-info-col {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.server-icon-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #1c1e30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.server-name-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.server-ip-copyable {
+  font-size: 11.5px;
+  color: #818cf8;
+  font-family: 'Consolas', monospace;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+}
+
+.server-ip-copyable:hover {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.server-ping-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.server-ping-badge.offline {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.25);
+}
