@@ -62,6 +62,22 @@ class LauncherApi:
         except Exception:
             return {"total_gb": 16.0, "available_gb": 8.0}
 
+
+    def get_minecraft_versions(self):
+        try:
+            import minecraft_launcher_lib
+            raw_list = minecraft_launcher_lib.utils.get_version_list()
+            res = []
+            for v in raw_list:
+                res.append({
+                    "id": v.get("id"),
+                    "type": v.get("type", "release"),
+                    "date": v.get("releaseTime", "")[:10]
+                })
+            return {"success": True, "versions": res}
+        except Exception as e:
+            return {"success": False, "error": str(e), "versions": []}
+
     def launch_game(self, build_config):
         print(f"[KBLauncher Python Core] Launching build: {build_config}")
         import random
